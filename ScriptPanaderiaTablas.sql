@@ -16,7 +16,8 @@ CREATE TABLE Productos(
     tipo ENUM("Dulce", "Salado", "Integral") NOT NULL,
     precio FLOAT NOT NULL,
     estado ENUM("Disponible", "No disponible"),
-    descripcion VARCHAR(100) NOT NULL
+    descripcion VARCHAR(100) NOT NULL,
+    nota VARCHAR(100)
 );
 
 -- Tabla ProductosIngredientes
@@ -66,16 +67,17 @@ CREATE TABLE Pedidos(
 
 -- Tabla PedidosExpress
 CREATE TABLE PedidosExpress(
-	id INT PRIMARY KEY AUTO_INCREMENT,
+	id_pedido INT PRIMARY KEY,
     pin INT NOT NULL,
-    folio VARCHAR(10) NOT NULL
+    folio VARCHAR(10) NOT NULL,
+    FOREIGN KEY(id_pedido) REFERENCES Pedidos(id)
 );
 
 -- Tabla PedidosProgramados
 CREATE TABLE PedidosProgramados(
-	id INT PRIMARY KEY AUTO_INCREMENT,
-    nota VARCHAR(100),
-    numero_pedido INT NOT NULL
+	id_pedido INT PRIMARY KEY AUTO_INCREMENT,
+    numero_pedido INT NOT NULL,
+    FOREIGN KEY(id_pedido) REFERENCES Pedidos(id)
 );
 
 -- Tabla ProductosPedidos
