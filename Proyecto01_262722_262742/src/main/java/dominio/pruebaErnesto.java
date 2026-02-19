@@ -9,5 +9,5 @@ package dominio;
  * @author jesus
  */
 public class pruebaErnesto {
-    
+    private int prueba;
 }
