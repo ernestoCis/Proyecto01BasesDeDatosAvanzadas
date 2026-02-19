@@ -4,13 +4,16 @@
 
 package com.mycompany.proyecto01_262722_262742;
 
+import presentacion.Menu;
+
 /**
  *
  * @author jesus
  */
 public class Proyecto01_262722_262742 {
 
-    public static void main(String[] args) {
-        System.out.println("Hello World!");
+    public static void main(String[] args){
+        Menu menu = new Menu();
+        menu.setVisible(true);
     }
 }
