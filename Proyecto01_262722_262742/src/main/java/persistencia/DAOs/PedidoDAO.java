@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import persistencia.Conexion.iConexionBD;
 import persistencia.Excepciones.PersistenciaException;
@@ -54,9 +55,9 @@ public class PedidoDAO implements iPedidoDAO {
                                   """;
 
         String comandoProgramadoSQL = """
-                                      INSERT INTO PedidosProgramados(id_pedido, id_cupon)
-                                      VALUES(?,?)
-                                      """;
+                                   INSERT INTO PedidosProgramados(id_pedido, id_cupon)
+                                   VALUES(?,?)
+                                   """;
 
         String comandoDetalleSQL = """
                                    INSERT INTO DetallesPedidos(nota, cantidad, precio, total, id_pedido, id_producto)
@@ -87,6 +88,7 @@ public class PedidoDAO implements iPedidoDAO {
                 }
 
                 if (ps.executeUpdate() == 0) {
+                    LOG.log(Level.WARNING, "No se pudo insertar el pedido: {0}", pedido);
                     throw new PersistenciaException("No se pudo insertar el pedido");
                 }
 
@@ -129,8 +131,8 @@ public class PedidoDAO implements iPedidoDAO {
                         ps3.setInt(2, d.getCantidad());
                         ps3.setFloat(3, d.getPrecio());
                         ps3.setFloat(4, d.getSubtotal());
-                        ps3.setInt(5, pedido.getId());          
-                        ps3.setInt(6, d.getProducto().getId());  
+                        ps3.setInt(5, pedido.getId());
+                        ps3.setInt(6, d.getProducto().getId());
 
                         ps3.executeUpdate();
                     }
@@ -139,6 +141,7 @@ public class PedidoDAO implements iPedidoDAO {
             }
 
             conn.commit(); // Se confirma la transaccinn
+            LOG.log(Level.INFO, "Pedido programado insertado correctamente. ID: {0}", pedido.getId());
             return pedido;
 
         } catch (SQLException ex) {
@@ -151,6 +154,7 @@ public class PedidoDAO implements iPedidoDAO {
                 }
             }
 
+            LOG.log(Level.SEVERE, "Error al insertar pedido programado", ex);
             throw new PersistenciaException(ex.getMessage());
 
         } finally {
