@@ -13,10 +13,18 @@ import javax.swing.JFrame;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
+import java.sql.SQLException;
+import negocio.BOs.ProductoBO;
+import persistencia.Conexion.ConexionBD;
+import persistencia.Conexion.iConexionBD;
+import persistencia.DAOs.ProductoDAO;
 
 public class Menu extends JFrame {
 
+    
     public Menu() {
+        
+        
         setTitle("Panadería");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(820, 620);
@@ -148,7 +156,24 @@ public class Menu extends JFrame {
 
         // ---- Acciones de botones ----
         btnFlecha.addActionListener(e -> JOptionPane.showMessageDialog(this, "Regresar (Empleado)"));
-        btnProgramado.addActionListener(e -> JOptionPane.showMessageDialog(this, "Ir a Pedido Programado (Login requerido)"));
+        btnProgramado.addActionListener(e -> {
+            try {
+                iConexionBD con = new ConexionBD();
+                ProductoDAO productoDAO = new ProductoDAO(con); // como lo tengas tú
+                ProductoBO productoBO = new ProductoBO(productoDAO);
+
+                PantallaCatalogo pantalla = new PantallaCatalogo(productoBO);
+                pantalla.setVisible(true);
+
+                this.dispose(); // cierra el menú actual
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Error al abrir catálogo: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
         btnExpress.addActionListener(e -> JOptionPane.showMessageDialog(this, "Ir a Pedido Express"));
         lblLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         userIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -162,137 +187,6 @@ public class Menu extends JFrame {
         lblLogin.addMouseListener(clickLogin);
         userIcon.addMouseListener(clickLogin);
     }
-    
-//    public PantallaCatalogo() {
-//        setTitle("Panadería - Catálogo");
-//        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        setSize(920, 600);
-//        setLocationRelativeTo(null);
-//
-//        // Fondo beige (marco)
-//        JPanel root = new JPanel(new GridBagLayout());
-//        root.setBackground(new Color(214, 186, 150));
-//        setContentPane(root);
-//
-//        // Tarjeta blanca con borde
-//        JPanel card = new JPanel(new BorderLayout());
-//        card.setBackground(Color.WHITE);
-//        card.setBorder(new CompoundBorder(
-//                new LineBorder(new Color(30, 30, 30), 2, false),
-//                new EmptyBorder(18, 22, 18, 22)
-//        ));
-//        card.setPreferredSize(new Dimension(860, 520));
-//
-//        root.add(card);
-//
-//        // =================== TOP BAR ===================
-//        JPanel topBar = new JPanel(new BorderLayout());
-//        topBar.setOpaque(false);
-//
-//        // Izquierda: flecha grande
-//        JButton btnFlecha = new JButton("↩");
-//        btnFlecha.setFocusPainted(false);
-//        btnFlecha.setBorderPainted(false);
-//        btnFlecha.setContentAreaFilled(false);
-//        btnFlecha.setFont(new Font("Segoe UI", Font.PLAIN, 40));
-//        btnFlecha.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-//        btnFlecha.addActionListener(e -> JOptionPane.showMessageDialog(this, "Regresar"));
-//
-//        JPanel panelIzquierdo = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-//        panelIzquierdo.setOpaque(false);
-//        panelIzquierdo.add(btnFlecha);
-//
-//        // Derecha: carrito con badge "4"
-//        JPanel panelCarrito = new JPanel(null);
-//        panelCarrito.setOpaque(false);
-//        panelCarrito.setPreferredSize(new Dimension(90, 50));
-//
-//        JLabel lblCarrito = new JLabel("🛒");
-//        lblCarrito.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 34));
-//        lblCarrito.setBounds(35, 2, 50, 45);
-//        lblCarrito.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-//
-//        JLabel badge = new JLabel("4", SwingConstants.CENTER);
-//        badge.setFont(new Font("Segoe UI", Font.BOLD, 12));
-//        badge.setOpaque(true);
-//        badge.setBackground(Color.WHITE);
-//        badge.setBorder(new LineBorder(new Color(30, 30, 30), 1));
-//        badge.setBounds(18, 0, 22, 18);
-//
-//        panelCarrito.add(badge);
-//        panelCarrito.add(lblCarrito);
-//
-//        lblCarrito.addMouseListener(new java.awt.event.MouseAdapter() {
-//            @Override public void mouseClicked(java.awt.event.MouseEvent e) {
-//                JOptionPane.showMessageDialog(PantallaCatalogo.this, "Abrir carrito");
-//            }
-//        });
-//
-//        topBar.add(panelIzquierdo, BorderLayout.WEST);
-//        topBar.add(panelCarrito, BorderLayout.EAST);
-//
-//        // =================== HEADER (TÍTULOS) ===================
-//        JPanel header = new JPanel();
-//        header.setOpaque(false);
-//        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
-//
-//        JLabel title = new JLabel("Panadería");
-//        title.setAlignmentX(Component.CENTER_ALIGNMENT);
-//        title.setFont(new Font("Segoe UI", Font.BOLD, 56));
-//
-//        JLabel subtitle = new JLabel("Catálogo de productos");
-//        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-//        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 22));
-//
-//        header.add(Box.createVerticalStrut(2));
-//        header.add(title);
-//        header.add(Box.createVerticalStrut(4));
-//        header.add(subtitle);
-//        header.add(Box.createVerticalStrut(10));
-//
-//        // =================== GRID SCROLL ===================
-//        List<Producto> productos = List.of(
-//                new Producto("Concha Tradicional", "Dulce", 16),
-//                new Producto("Pan de Mantequilla", "Dulce", 20),
-//                new Producto("Croissant Clásico", "Dulce", 23),
-//                new Producto("Pan de Caja Artesanal", "Integral", 55),
-//                new Producto("Baguette Tradicional", "Salado", 30),
-//                new Producto("Cuernito Dulce", "Dulce", 18)
-//        );
-//
-//        JPanel grid = new JPanel(new GridLayout(0, 3, 28, 18));
-//        grid.setBackground(Color.WHITE);
-//        grid.setBorder(new EmptyBorder(6, 10, 12, 10));
-//
-//        for (Producto p : productos) {
-//            grid.add(crearTarjetaProducto(p));
-//        }
-//
-//        JScrollPane scroll = new JScrollPane(grid);
-//        scroll.setBorder(null);
-//        scroll.getViewport().setBackground(Color.WHITE);
-//        scroll.getVerticalScrollBar().setUnitIncrement(18);
-//
-//        // =================== CENTRO COMPLETO ===================
-//        JPanel center = new JPanel(new BorderLayout());
-//        center.setOpaque(false);
-//        center.add(header, BorderLayout.NORTH);
-//        center.add(scroll, BorderLayout.CENTER);
-//
-//        // =================== FOOTER ===================
-//        JLabel footer = new JLabel("© 2026 Panadería. Todos los derechos reservados.");
-//        footer.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-//        footer.setForeground(new Color(80, 80, 80));
-//
-//        JPanel bottom = new JPanel(new BorderLayout());
-//        bottom.setOpaque(false);
-//        bottom.add(footer, BorderLayout.WEST);
-//
-//        // Ensamble final
-//        card.add(topBar, BorderLayout.NORTH);
-//        card.add(center, BorderLayout.CENTER);
-//        card.add(bottom, BorderLayout.SOUTH);
-//    }
 
     private JButton crearBotonGrande(String text) {
         JButton b = new JButton(text);
