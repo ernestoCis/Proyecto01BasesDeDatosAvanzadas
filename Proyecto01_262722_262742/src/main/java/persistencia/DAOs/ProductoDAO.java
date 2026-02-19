@@ -5,6 +5,7 @@
 package persistencia.DAOs;
 
 import dominio.EstadoProducto;
+import dominio.Ingrediente;
 import dominio.Producto;
 import dominio.TipoProducto;
 import java.sql.Connection;
@@ -12,6 +13,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import persistencia.Conexion.iConexionBD;
@@ -47,25 +50,60 @@ public class ProductoDAO implements iProductoDAO{
 
     @Override
     public Producto consultarProducto(Producto producto) throws PersistenciaException {
-        String comandoSQL = """
+        String comandoSQLProducto = """
                                 SELECT id, nombre, tipo, precio, estado, descripcion FROM Productos
                                 WHERE id = ?
                             """;
         
-        try (Connection conn = this.conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
-            ps.setInt(1, producto.getId());
+        String comandoSQLIngredientes = """
+                                        SELECT i.id, i.nombre
+                                        FROM ProductosIngredientes pi
+                                        INNER JOIN Ingredientes i ON i.id = pi.id_ingrediente
+                                        WHERE pi.id_producto = ?
+                                        """;
+        
+        try (Connection conn = this.conexionBD.crearConexion();) {
             
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {
-                    LOG.log(Level.WARNING, "No se encontró el producto con id {0}", producto.getId());
-                    throw new PersistenciaException("No existe el producto con el ID proporcionado.");
+            // ----- consulta producto -----
+            Producto p;
+            try (PreparedStatement ps = conn.prepareStatement(comandoSQLProducto)) {
+                ps.setInt(1, producto.getId());
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        LOG.log(Level.WARNING, "No se encontró el producto con id {0}", producto.getId());
+                        throw new PersistenciaException("No existe el producto con el ID proporcionado.");
+                    }
+
+                    p = new Producto(
+                            rs.getInt("id"),
+                            rs.getString("nombre"),
+                            TipoProducto.valueOf(rs.getString("tipo").toUpperCase()),
+                            rs.getFloat("precio"),
+                            EstadoProducto.valueOf(rs.getString("estado").toUpperCase()),
+                            rs.getString("descripcion")
+                    );
                 }
-                
-                //regresamos un producto con los datos de la consulta
-                return new Producto(rs.getInt("id"), rs.getString("nombre"), TipoProducto.valueOf(rs.getString("tipo")), 
-                        rs.getFloat("precio"), EstadoProducto.valueOf(rs.getString("Estado")), rs.getString("descripcion"));
-                
             }
+
+            // ----- consulta ingredientes -----
+            List<Ingrediente> ingredientes = new ArrayList<>();
+            try (PreparedStatement psIng = conn.prepareStatement(comandoSQLIngredientes)) {
+                psIng.setInt(1, p.getId());
+
+                try (ResultSet rsIng = psIng.executeQuery()) {
+                    while (rsIng.next()) {
+                        Ingrediente ing = new Ingrediente(
+                                rsIng.getInt("id"),
+                                rsIng.getString("nombre")
+                        );
+                        ingredientes.add(ing);
+                    }
+                }
+            }
+
+            p.setIngredientes(ingredientes);
+            return p;
             
         }catch(SQLException ex){
             LOG.log(Level.SEVERE, "Error de SQL al consultar el producto", ex);
