@@ -175,9 +175,9 @@ public class ProductoDAO implements iProductoDAO{
                 Producto p = new Producto(
                         rs.getInt("id"),
                         rs.getString("nombre"),
-                        TipoProducto.valueOf(rs.getString("tipo").toUpperCase()),
+                        TipoProducto.valueOf(rs.getString("tipo")),
                         rs.getFloat("precio"),
-                        EstadoProducto.valueOf(rs.getString("estado").toUpperCase()),
+                        EstadoProducto.valueOf(rs.getString("estado")),
                         rs.getString("descripcion")
                 );
                 productos.add(p);
