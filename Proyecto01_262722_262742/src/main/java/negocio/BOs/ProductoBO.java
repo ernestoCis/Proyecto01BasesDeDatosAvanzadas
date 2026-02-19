@@ -5,6 +5,7 @@
 package negocio.BOs;
 
 import dominio.Producto;
+import java.util.List;
 import java.util.logging.Logger;
 import negocio.Excepciones.NegocioException;
 import persistencia.DAOs.ProductoDAO;
@@ -68,6 +69,15 @@ public class ProductoBO implements iProductoBO{
         } catch (PersistenciaException ex) {
             LOG.warning("Error al actualizar el producto " + ex);
             throw new NegocioException("Error al aztualizar el producto. " + ex.getMessage());
+        }
+    }
+
+    @Override
+    public List<Producto> listarProductos() throws NegocioException {
+        try {
+            return productoDAO.listarProductos();
+        } catch (PersistenciaException ex) {
+            throw new NegocioException("No se pudieron listar los productos.", ex);
         }
     }
     
