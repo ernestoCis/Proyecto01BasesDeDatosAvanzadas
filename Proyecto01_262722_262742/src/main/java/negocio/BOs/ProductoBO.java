@@ -45,19 +45,30 @@ public class ProductoBO implements iProductoBO{
             return productoConsultado;
             
         }catch(PersistenciaException ex){
-            LOG.warning("No se pudo obtener el tecnico con id: " + producto.getId());
-            throw new NegocioException("Problemas al intentar consultar el producto con id: " + producto.getId(), ex);
+            LOG.warning("No se pudo obtener el tecnico con id: " + producto.getId() + ". " + ex);
+            throw new NegocioException("Problemas al intentar consultar el producto con id: " + producto.getId() + ". " + ex.getMessage());
         }
     }
 
     @Override
     public Producto insertarProducto(Producto producto) throws NegocioException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            return productoDAO.insertarProducto(producto);
+        } catch (PersistenciaException ex) {
+            LOG.warning("Error al agregar el produtco" + ex);
+            throw new NegocioException("Error al agregar el producto: " + ex.getMessage());
+        }
     }
 
     @Override
     public Producto actualizarProducto(Producto producto) throws NegocioException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            return productoDAO.actualizarProducto(producto);
+            
+        } catch (PersistenciaException ex) {
+            LOG.warning("Error al actualizar el producto " + ex);
+            throw new NegocioException("Error al aztualizar el producto. " + ex.getMessage());
+        }
     }
     
 }
