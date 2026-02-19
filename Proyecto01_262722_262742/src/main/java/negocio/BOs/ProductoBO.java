@@ -25,6 +25,12 @@ public class ProductoBO implements iProductoBO{
         this.productoDAO = producto; // asignamos valor al DAO
     }
 
+    /**
+     * metodo que obtiene del DAO los valores de un producto
+     * @param producto 
+     * @return
+     * @throws NegocioException 
+     */
     @Override
     public Producto consultarProducto(Producto producto) throws NegocioException {
         try{
