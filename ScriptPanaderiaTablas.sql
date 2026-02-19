@@ -105,8 +105,9 @@ CREATE TABLE PedidosExpress(
 
 -- Tabla PedidosProgramados
 CREATE TABLE PedidosProgramados(
-	id_pedido INT PRIMARY KEY AUTO_INCREMENT,
+	id_pedido INT PRIMARY KEY,
     id_cupon INT,
+    FOREIGN KEY(id_pedido) REFERENCES Pedidos(id),
     FOREIGN KEY(id_cupon) REFERENCES Cupones(id)
 );
 
