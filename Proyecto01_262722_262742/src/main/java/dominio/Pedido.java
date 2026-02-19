@@ -6,13 +6,14 @@ package dominio;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  *
  * @author Isaac
  */
 public abstract class Pedido {
-    
+
     private int id;
     private EstadoPedido estado;
     private LocalDateTime fechaCreacion;
@@ -21,10 +22,11 @@ public abstract class Pedido {
     private float total;
     private int numeroPedido;
     private Cliente cliente;
+    private List<DetallePedido> detalles;
 
     public Pedido() {
     }
-    
+
     public Pedido(int id, EstadoPedido estado, LocalDateTime fechaCreacion, LocalDateTime fechaEntrega, MetodoPago metodoPago, float total, int numeroPedido, Cliente cliente) {
         this.id = id;
         this.estado = estado;
@@ -68,6 +70,10 @@ public abstract class Pedido {
         return cliente;
     }
 
+    public List<DetallePedido> getDetalles() {
+        return detalles;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -99,5 +105,9 @@ public abstract class Pedido {
     public void setCliente(Cliente cliente) {
         this.cliente = cliente;
     }
-    
+
+    public void setDetalles(List<DetallePedido> detalles) {
+        this.detalles = detalles;
+    }
+
 }
