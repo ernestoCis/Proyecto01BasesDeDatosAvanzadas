@@ -5,7 +5,6 @@
 package persistencia.DAOs;
 
 import dominio.EstadoProducto;
-import dominio.Ingrediente;
 import dominio.Producto;
 import dominio.TipoProducto;
 import java.sql.Connection;
@@ -48,25 +47,23 @@ public class ProductoDAO implements iProductoDAO{
         this.conexionBD = conexionBD;
     }
 
+    /**
+     * metodo que consulta un producto en la BD
+     * @param producto producto a consultar
+     * @return producto consultado
+     * @throws PersistenciaException excepcion por si el SQL falla
+     */
     @Override
     public Producto consultarProducto(Producto producto) throws PersistenciaException {
-        String comandoSQLProducto = """
+        String comandoSQL = """
                                 SELECT id, nombre, tipo, precio, estado, descripcion FROM Productos
                                 WHERE id = ?
                             """;
         
-        String comandoSQLIngredientes = """
-                                        SELECT i.id, i.nombre
-                                        FROM ProductosIngredientes pi
-                                        INNER JOIN Ingredientes i ON i.id = pi.id_ingrediente
-                                        WHERE pi.id_producto = ?
-                                        """;
-        
         try (Connection conn = this.conexionBD.crearConexion();) {
             
-            // ----- consulta producto -----
             Producto p;
-            try (PreparedStatement ps = conn.prepareStatement(comandoSQLProducto)) {
+            try (PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
                 ps.setInt(1, producto.getId());
 
                 try (ResultSet rs = ps.executeQuery()) {
@@ -86,23 +83,6 @@ public class ProductoDAO implements iProductoDAO{
                 }
             }
 
-            // ----- consulta ingredientes -----
-            List<Ingrediente> ingredientes = new ArrayList<>();
-            try (PreparedStatement psIng = conn.prepareStatement(comandoSQLIngredientes)) {
-                psIng.setInt(1, p.getId());
-
-                try (ResultSet rsIng = psIng.executeQuery()) {
-                    while (rsIng.next()) {
-                        Ingrediente ing = new Ingrediente(
-                                rsIng.getInt("id"),
-                                rsIng.getString("nombre")
-                        );
-                        ingredientes.add(ing);
-                    }
-                }
-            }
-
-            p.setIngredientes(ingredientes);
             return p;
             
         }catch(SQLException ex){

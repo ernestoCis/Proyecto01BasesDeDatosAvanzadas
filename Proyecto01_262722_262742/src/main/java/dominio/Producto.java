@@ -17,7 +17,6 @@ public class Producto {
     private float precio;
     private EstadoProducto estado;
     private String descripcion;
-    private List<Ingrediente> ingredientes;
 
     public Producto() {
     }
@@ -78,15 +77,4 @@ public class Producto {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
-
-    public List<Ingrediente> getIngredientes() {
-        return ingredientes;
-    }
-
-    public void setIngredientes(List<Ingrediente> ingredientes) {
-        this.ingredientes = ingredientes;
-    }
-    
-    
-    
 }
