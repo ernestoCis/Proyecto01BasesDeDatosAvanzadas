@@ -175,51 +175,56 @@ public class PedidoDAO implements iPedidoDAO {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
+//    @Override
+//    public Pedido consultarPedidoPorId(int idPedido) throws PersistenciaException {
+//
+//        String comandoSQL = """
+//                            SELECT Pedidos.id, Pedidos.estado, Pedidos.fecha_creacion, Pedidos.fecha_entrega, Pedidos.metodo_pago, Pedidos.numero_pedido, Pedidos.id_cliente,
+//                            Clientes.nombres, Clientes.apellido_paterno, Clientes.apellido_materno, Clientes.fecha_nacimiento,
+//                            PedidosExpress.pin, PedidosExpress.folio,
+//                            PedidosProgramados.id_cupon
+//                            FROM Pedidos
+//                            INNER JOIN Clientes ON Pedidos.id_cliente = Clientes.id_usuario
+//                            LEFT JOIN PedidosExpress ON PedidosExpress.id_pedido = Pedidos.id
+//                            LEFT JOIN PedidosProgramados ON PedidosProgramados.id_pedido = Pedidos.id
+//                            WHERE Pedidos.id = ?
+//                            """;
+//
+//        String totalSQL = """
+//                          SELECT SUM(DetallesPedidos.total) AS total_pedido
+//                          FROM DetallesPedidos
+//                          WHERE DetallesPedidos.id_pedido = ?
+//                          """;
+//
+//        try (Connection conn = this.conexionBD.crearConexion()) {
+//
+//            Pedido pedido;
+//
+//            try (PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
+//                ps.setInt(1, idPedido);
+//
+//                try (ResultSet rs = ps.executeQuery()) {
+//
+//                    if (!rs.next()) {
+//                        LOG.log(Level.WARNING, "No se encontró el pedido con id {0}", idPedido);
+//                        throw new PersistenciaException("No existe el pedido con el ID proporcionado.");
+//                    }
+//
+//
+//                }
+//            }
+//
+//            return pedido;
+//
+//        } catch (SQLException ex) {
+//            LOG.log(Level.SEVERE, "Error de SQL al consultar el pedido", ex);
+//            throw new PersistenciaException(ex.getMessage());
+//        }
+//    }
+
     @Override
     public Pedido consultarPedidoPorId(int idPedido) throws PersistenciaException {
-
-        String comandoSQL = """
-                            SELECT Pedidos.id, Pedidos.estado, Pedidos.fecha_creacion, Pedidos.fecha_entrega, Pedidos.metodo_pago, Pedidos.numero_pedido, Pedidos.id_cliente,
-                            Clientes.nombres, Clientes.apellido_paterno, Clientes.apellido_materno, Clientes.fecha_nacimiento,
-                            PedidosExpress.pin, PedidosExpress.folio,
-                            PedidosProgramados.id_cupon
-                            FROM Pedidos
-                            INNER JOIN Clientes ON Pedidos.id_cliente = Clientes.id_usuario
-                            LEFT JOIN PedidosExpress ON PedidosExpress.id_pedido = Pedidos.id
-                            LEFT JOIN PedidosProgramados ON PedidosProgramados.id_pedido = Pedidos.id
-                            WHERE Pedidos.id = ?
-                            """;
-
-        String totalSQL = """
-                          SELECT SUM(DetallesPedidos.total) AS total_pedido
-                          FROM DetallesPedidos
-                          WHERE DetallesPedidos.id_pedido = ?
-                          """;
-
-        try (Connection conn = this.conexionBD.crearConexion()) {
-
-            Pedido pedido;
-
-            try (PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
-                ps.setInt(1, idPedido);
-
-                try (ResultSet rs = ps.executeQuery()) {
-
-                    if (!rs.next()) {
-                        LOG.log(Level.WARNING, "No se encontró el pedido con id {0}", idPedido);
-                        throw new PersistenciaException("No existe el pedido con el ID proporcionado.");
-                    }
-
-
-                }
-            }
-
-            return pedido;
-
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, "Error de SQL al consultar el pedido", ex);
-            throw new PersistenciaException(ex.getMessage());
-        }
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
 }
