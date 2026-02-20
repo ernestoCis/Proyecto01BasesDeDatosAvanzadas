@@ -1,5 +1,6 @@
 package presentacion;
 
+import dominio.ItemCarrito;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
@@ -11,9 +12,11 @@ public class PantallaCarrito extends JFrame {
     private DefaultTableModel modelo;
     private JLabel lblTotal;
     private PantallaCatalogo pantallaCatalogo;
+    private final java.util.List<ItemCarrito> carrito;
 
-    public PantallaCarrito(PantallaCatalogo pantallaCatalogo) {
+    public PantallaCarrito(PantallaCatalogo pantallaCatalogo, java.util.List<ItemCarrito> carrito) {
         this.pantallaCatalogo = pantallaCatalogo;
+        this.carrito = carrito;
         
         setTitle("Panadería - Carrito");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -196,20 +199,17 @@ public class PantallaCarrito extends JFrame {
 
         south.add(stackSouth, BorderLayout.CENTER);
         card.add(south, BorderLayout.SOUTH);
-    }
-
-    private void agregarFila(String nombre, int precio, int cantidad) {
-        int subtotal = precio * cantidad;
-        modelo.addRow(new Object[]{nombre, "$" + precio, cantidad, "$" + subtotal, "Eliminar"});
+        
+        cargarTabla();
+        actualizarTotal();
     }
 
     private void actualizarTotal() {
-        int total = 0;
-        for (int i = 0; i < modelo.getRowCount(); i++) {
-            String sub = String.valueOf(modelo.getValueAt(i, 3)).replace("$", "").trim();
-            try { total += Integer.parseInt(sub); } catch (NumberFormatException ignored) {}
+        float total = 0;
+        for (ItemCarrito it : carrito) {
+            total += it.getProducto().getPrecio() * it.getCantidad();
         }
-        lblTotal.setText("Total: $" + total);
+        lblTotal.setText("Total: $" + Math.round(total));
     }
 
     // ----- estilos para el boton eliminar -----
@@ -245,7 +245,16 @@ public class PantallaCarrito extends JFrame {
 
             button.addActionListener(e -> {
                 if (row >= 0 && row < modelo.getRowCount()) {
-                    modelo.removeRow(row);
+
+                    // 1) Eliminar también de la lista
+                    if (row >= 0 && row < carrito.size()) {
+                        carrito.remove(row);
+                    }
+
+                    // 2) Recargar tabla (ya con lista actual)
+                    cargarTabla();
+
+                    // 3) Actualizar total
                     actualizarTotal();
                 }
                 fireEditingStopped();
@@ -262,6 +271,25 @@ public class PantallaCarrito extends JFrame {
         @Override
         public Object getCellEditorValue() {
             return "Eliminar";
+        }
+    }
+    
+    private void cargarTabla() {
+        modelo.setRowCount(0);
+
+        for (ItemCarrito it : carrito) {
+            String nombre = it.getProducto().getNombre();
+            float precio = it.getProducto().getPrecio();
+            int cantidad = it.getCantidad();
+            float subtotal = precio * cantidad;
+
+            modelo.addRow(new Object[]{
+                nombre,
+                "$" + Math.round(precio),
+                cantidad,
+                "$" + Math.round(subtotal),
+                "Eliminar"
+            });
         }
     }
 }

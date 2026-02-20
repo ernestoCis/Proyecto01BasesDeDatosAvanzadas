@@ -1,5 +1,6 @@
 package presentacion;
 
+import dominio.ItemCarrito;
 import dominio.Producto;          
 import javax.swing.*;
 import javax.swing.border.*;
@@ -11,6 +12,7 @@ import negocio.Excepciones.NegocioException;
 public class PantallaCatalogo extends JFrame {
 
     private final ProductoBO productoBO;
+    private final java.util.List<ItemCarrito> carrito = new java.util.ArrayList<>();
 
     private JPanel grid;
     private JLabel badgeCarrito;
@@ -82,8 +84,8 @@ public class PantallaCatalogo extends JFrame {
 
         lblCarrito.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override public void mouseClicked(java.awt.event.MouseEvent e) {
-                PantallaCarrito carrito = new PantallaCarrito(PantallaCatalogo.this);
-                carrito.setVisible(true);
+                PantallaCarrito pantallaCarrito = new PantallaCarrito(PantallaCatalogo.this, carrito);
+                pantallaCarrito.setVisible(true);
                 setVisible(false);
             }
         });
@@ -237,7 +239,7 @@ public class PantallaCatalogo extends JFrame {
             );
         });
 
-        JPanel stepper = crearStepperCantidad();
+        JPanel stepper = crearStepperCantidad(p);
 
         row.add(btnInfo);
         row.add(stepper);
@@ -253,27 +255,29 @@ public class PantallaCatalogo extends JFrame {
         return item;
     }
 
-    private JPanel crearStepperCantidad() {
+    private JPanel crearStepperCantidad(dominio.Producto producto) {
         JPanel stepper = new JPanel(new BorderLayout());
         stepper.setOpaque(false);
         stepper.setPreferredSize(new Dimension(130, 26));
 
-        JButton btnMenos = new JButton("-");
+        JButton btnMenos = new JButton("−");
         JButton btnMas = new JButton("+");
 
-        JTextField txtCantidad = new JTextField("0");
+        int inicial = 0;
+        ItemCarrito it = buscarItem(producto.getId());
+        if (it != null) {
+            inicial = it.getCantidad();
+        }
+
+        JTextField txtCantidad = new JTextField(String.valueOf(inicial));
         txtCantidad.setHorizontalAlignment(SwingConstants.CENTER);
         txtCantidad.setEditable(false);
 
-        Dimension btnSize = new Dimension(56, 26);
+        Dimension btnSize = new Dimension(46, 26);
         btnMenos.setPreferredSize(btnSize);
         btnMas.setPreferredSize(btnSize);
-
-        for (JButton b : new JButton[]{btnMenos, btnMas}) {
-            b.setFocusPainted(false);
-            b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        }
-
+        btnMenos.setFocusPainted(false);
+        btnMas.setFocusPainted(false);
         txtCantidad.setBorder(new LineBorder(new Color(120, 120, 120), 1));
 
         stepper.add(btnMenos, BorderLayout.WEST);
@@ -283,15 +287,19 @@ public class PantallaCatalogo extends JFrame {
         btnMenos.addActionListener(e -> {
             int v = Integer.parseInt(txtCantidad.getText());
             if (v > 0) {
-                txtCantidad.setText(String.valueOf(v - 1));
-                actualizarBadgeCarrito(-1);
+                v--;
             }
+            txtCantidad.setText(String.valueOf(v));
+            setCantidad(producto, v);
+            badgeCarrito.setText(String.valueOf(totalPiezas()));
         });
 
         btnMas.addActionListener(e -> {
             int v = Integer.parseInt(txtCantidad.getText());
-            txtCantidad.setText(String.valueOf(v + 1));
-            actualizarBadgeCarrito(+1);
+            v++;
+            txtCantidad.setText(String.valueOf(v));
+            setCantidad(producto, v);
+            badgeCarrito.setText(String.valueOf(totalPiezas()));
         });
 
         return stepper;
@@ -301,5 +309,39 @@ public class PantallaCatalogo extends JFrame {
         int actual = Integer.parseInt(badgeCarrito.getText());
         int nuevo = Math.max(0, actual + delta);
         badgeCarrito.setText(String.valueOf(nuevo));
+    }
+    
+    private ItemCarrito buscarItem(int idProducto) {
+        for (ItemCarrito it : carrito) {
+            if (it.getProducto().getId() == idProducto) {
+                return it;
+            }
+        }
+        return null;
+    }
+
+    private void setCantidad(dominio.Producto producto, int cantidad) {
+        ItemCarrito it = buscarItem(producto.getId());
+
+        if (cantidad <= 0) {
+            if (it != null) {
+                carrito.remove(it);
+            }
+            return;
+        }
+
+        if (it == null) {
+            carrito.add(new ItemCarrito(producto, cantidad));
+        } else {
+            it.setCantidad(cantidad);
+        }
+    }
+
+    private int totalPiezas() {
+        int s = 0;
+        for (ItemCarrito it : carrito) {
+            s += it.getCantidad();
+        }
+        return s;
     }
 }
