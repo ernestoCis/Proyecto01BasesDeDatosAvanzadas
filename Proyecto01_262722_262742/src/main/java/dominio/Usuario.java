@@ -11,7 +11,7 @@ package dominio;
 public abstract class Usuario {
 
     private int id;
-    private String usario;
+    private String usuario;
     private String contrasenia;
     private RolUsuario rol;
 
@@ -20,7 +20,7 @@ public abstract class Usuario {
 
     public Usuario(int id, String usario, String contrasenia, RolUsuario rol) {
         this.id = id;
-        this.usario = usario;
+        this.usuario = usario;
         this.contrasenia = contrasenia;
         this.rol = rol;
     }
@@ -29,8 +29,8 @@ public abstract class Usuario {
         return id;
     }
 
-    public String getUsario() {
-        return usario;
+    public String getUsuario() {
+        return usuario;
     }
 
     public String getContrasenia() {
@@ -45,8 +45,8 @@ public abstract class Usuario {
         this.id = id;
     }
 
-    public void setUsario(String usario) {
-        this.usario = usario;
+    public void setUsuario(String usario) {
+        this.usuario = usario;
     }
 
     public void setContrasenia(String contrasenia) {

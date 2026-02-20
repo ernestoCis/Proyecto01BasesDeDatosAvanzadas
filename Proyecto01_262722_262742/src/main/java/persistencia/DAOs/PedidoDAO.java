@@ -4,7 +4,11 @@
  */
 package persistencia.DAOs;
 
+import dominio.Cliente;
+import dominio.Cupon;
 import dominio.DetallePedido;
+import dominio.EstadoPedido;
+import dominio.MetodoPago;
 import dominio.Pedido;
 import dominio.PedidoExpress;
 import dominio.PedidoProgramado;
@@ -179,38 +183,108 @@ public class PedidoDAO implements iPedidoDAO {
     public Pedido consultarPedidoPorId(int idPedido) throws PersistenciaException {
 
         String comandoSQL = """
-                            SELECT Pedidos.id, Pedidos.estado, Pedidos.fecha_creacion, Pedidos.fecha_entrega, Pedidos.metodo_pago, Pedidos.numero_pedido, Pedidos.id_cliente,
-                            Clientes.nombres, Clientes.apellido_paterno, Clientes.apellido_materno, Clientes.fecha_nacimiento,
-                            PedidosExpress.pin, PedidosExpress.folio,
-                            PedidosProgramados.id_cupon
-                            FROM Pedidos
-                            INNER JOIN Clientes ON Pedidos.id_cliente = Clientes.id_usuario
-                            LEFT JOIN PedidosExpress ON PedidosExpress.id_pedido = Pedidos.id
-                            LEFT JOIN PedidosProgramados ON PedidosProgramados.id_pedido = Pedidos.id
-                            WHERE Pedidos.id = ?
-                            """;
+                        SELECT Pedidos.id, Pedidos.estado, Pedidos.fecha_creacion, Pedidos.fecha_entrega, Pedidos.metodo_pago, Pedidos.numero_pedido, Pedidos.id_cliente,
+                        Clientes.nombres, Clientes.apellido_paterno, Clientes.apellido_materno, Clientes.fecha_nacimiento,
+                        PedidosExpress.pin, PedidosExpress.folio,
+                        PedidosProgramados.id_cupon
+                        FROM Pedidos
+                        INNER JOIN Clientes ON Pedidos.id_cliente = Clientes.id_usuario
+                        LEFT JOIN PedidosExpress ON PedidosExpress.id_pedido = Pedidos.id
+                        LEFT JOIN PedidosProgramados ON PedidosProgramados.id_pedido = Pedidos.id
+                        WHERE Pedidos.id = ?
+                        """;
 
         String totalSQL = """
-                          SELECT SUM(DetallesPedidos.total) AS total_pedido
-                          FROM DetallesPedidos
-                          WHERE DetallesPedidos.id_pedido = ?
-                          """;
+                      SELECT SUM(DetallesPedidos.total) AS total_pedido
+                      FROM DetallesPedidos
+                      WHERE DetallesPedidos.id_pedido = ?
+                      """;
 
         try (Connection conn = this.conexionBD.crearConexion()) {
 
             Pedido pedido;
 
+            // Se prepara la consulta principal
             try (PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
                 ps.setInt(1, idPedido);
 
+                // Se ejecuta la consulta
                 try (ResultSet rs = ps.executeQuery()) {
 
+                    // Se valida que exista el pedido
                     if (!rs.next()) {
-                        LOG.log(Level.WARNING, "No se encontró el pedido con id {0}", idPedido);
+                        LOG.log(Level.WARNING, "No se encontro el pedido con id {0}", idPedido);
                         throw new PersistenciaException("No existe el pedido con el ID proporcionado.");
                     }
 
+                    Cliente cliente = new Cliente();
+                    cliente.setId(rs.getInt("id_cliente"));
+                    cliente.setNombres(rs.getString("nombres"));
+                    cliente.setApellidoPaterno(rs.getString("apellido_paterno"));
+                    cliente.setApellidoMaterno(rs.getString("apellido_materno"));
+                    cliente.setFechaNacimiento(rs.getDate("fecha_nacimiento").toLocalDate());
 
+                    // Datos comunes del pedido
+                    int id = rs.getInt("id");
+                    EstadoPedido estado = EstadoPedido.valueOf(rs.getString("estado").toUpperCase());
+                    LocalDateTime fechaCreacion = rs.getDate("fecha_creacion").toLocalDate().atStartOfDay();
+                    LocalDateTime fechaEntrega = rs.getDate("fecha_entrega").toLocalDate().atStartOfDay();
+                    MetodoPago metodoPago = MetodoPago.valueOf(rs.getString("metodo_pago").toUpperCase());
+                    int numeroPedido = rs.getInt("numero_pedido");
+
+                    // Obtener pin en caso de ser pedido express
+                    int pinValor = rs.getInt("pin");
+                    Integer pin;
+                    if (rs.wasNull()) {
+                        pin = null;
+                    } else {
+                        pin = pinValor;
+                    }
+
+                    // Obtener folio (puede ser null si no es express)
+                    String folio = rs.getString("folio");
+
+                    // Obtener id del cupón en caso de ser pedido programado
+                    int idCuponValor = rs.getInt("id_cupon");
+                    Integer idCupon;
+                    if (rs.wasNull()) {
+                        idCupon = null;
+                    } else {
+                        idCupon = idCuponValor;
+                    }
+
+                    // Calcular el total del pedido
+                    float total;
+                    try (PreparedStatement psTotal = conn.prepareStatement(totalSQL)) {
+                        psTotal.setInt(1, idPedido);
+
+                        try (ResultSet rsTotal = psTotal.executeQuery()) {
+                            rsTotal.next();
+                            total = rsTotal.getFloat("total_pedido");
+                        }
+                    }
+
+                    // Crear cupon si existe
+                    Cupon cupon = null;
+                    if (idCupon != null) {
+                        cupon = new Cupon();
+                        cupon.setId(idCupon);
+                    }
+
+                    // Determinar el tipo de pedido 
+                    if (pin != null) {
+                        pedido = new PedidoExpress(
+                                id, estado, fechaCreacion, fechaEntrega,
+                                metodoPago, total, numeroPedido,
+                                cliente, pin, folio
+                        );
+                    } else {
+                        pedido = new PedidoProgramado(
+                                id, estado, fechaCreacion, fechaEntrega,
+                                metodoPago, total, numeroPedido,
+                                cliente, cupon
+                        );
+                    }
                 }
             }
 
