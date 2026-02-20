@@ -10,7 +10,6 @@ package dominio;
  */
 public enum EstadoPedido {
     Pendiente,
-    En_preparacion,
     Listo,
     Entregado,
     Cancelado,
