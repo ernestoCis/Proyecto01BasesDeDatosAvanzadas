@@ -13,6 +13,7 @@ import java.time.LocalDate;
 public class Cupon {
     
     private int id;
+    private String nombre;
     private int descuento; 
     private LocalDate fechaInicio;
     private LocalDate fechaVencimiento;
@@ -22,8 +23,9 @@ public class Cupon {
     public Cupon() {
     }
 
-    public Cupon(int id, int descuento, LocalDate fechaInicio, LocalDate fechaVencimiento, int numUsos, int topeUsos) {
+    public Cupon(int id, String nombre, int descuento, LocalDate fechaInicio, LocalDate fechaVencimiento, int numUsos, int topeUsos) {
         this.id = id;
+        this.nombre = nombre;
         this.descuento = descuento;
         this.fechaInicio = fechaInicio;
         this.fechaVencimiento = fechaVencimiento;
@@ -77,6 +79,14 @@ public class Cupon {
 
     public void setTopeUsos(int topeUsos) {
         this.topeUsos = topeUsos;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
     
 }
