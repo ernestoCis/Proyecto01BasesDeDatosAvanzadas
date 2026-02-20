@@ -167,8 +167,8 @@ public class PantallaInicioSesionCliente extends JFrame {
         });
 
         btnCrear.addActionListener(e -> {
-            // TODO: abrir pantalla de registro cliente
-            JOptionPane.showMessageDialog(this, "Abrir registro de cliente (pendiente)");
+            new PantallaCrearCuenta().setVisible(true);
+            this.dispose();
         });
     }
 
