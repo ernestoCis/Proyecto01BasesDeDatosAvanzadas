@@ -18,7 +18,9 @@ CREATE TABLE Productos(
     estado ENUM("Disponible", "No disponible"),
     descripcion VARCHAR(100) NOT NULL
 );
-
+insert into productos(nombre, tipo, precio, estado, descripcion) values("Concha", "Dulce", 12, "Disponible", "Pan dulce: concha");
+insert into productos(nombre, tipo, precio, estado, descripcion) values("Cuernito", "Salado", 25, "Disponible", "Pan panecito");
+select * from productos;
 -- Tabla ProductosIngredientes
 CREATE TABLE ProductosIngredientes(
 	id INT PRIMARY KEY AUTO_INCREMENT,
