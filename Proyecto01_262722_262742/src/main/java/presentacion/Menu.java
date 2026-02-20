@@ -21,10 +21,8 @@ import persistencia.DAOs.ProductoDAO;
 
 public class Menu extends JFrame {
 
-    
     public Menu() {
-        
-        
+
         setTitle("Panadería");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(820, 620);
@@ -155,7 +153,10 @@ public class Menu extends JFrame {
         panelPrincipal.add(panelInferior, BorderLayout.SOUTH);
 
         // ---- Acciones de botones ----
-        btnFlecha.addActionListener(e -> JOptionPane.showMessageDialog(this, "Regresar (Empleado)"));
+        btnFlecha.addActionListener(e -> {
+            new PantallaInicioSesionEmpleado().setVisible(true);
+            this.dispose();
+        });
         btnProgramado.addActionListener(e -> {
             try {
                 iConexionBD con = new ConexionBD();
@@ -178,10 +179,12 @@ public class Menu extends JFrame {
         lblLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         userIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        // Click simulando login
+        // Click login
         MouseAdapter clickLogin = new MouseAdapter() {
-            @Override public void mouseClicked(java.awt.event.MouseEvent e) {
-                JOptionPane.showMessageDialog(Menu.this, "Abrir pantalla de Iniciar Sesión");
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                new PantallaInicioSesionCliente().setVisible(true);
+                Menu.this.dispose();
             }
         };
         lblLogin.addMouseListener(clickLogin);
@@ -204,6 +207,7 @@ public class Menu extends JFrame {
     }
 
     // Para clicks "tipo link"
-    private static abstract class MouseAdapter extends java.awt.event.MouseAdapter {}
+    private static abstract class MouseAdapter extends java.awt.event.MouseAdapter {
+    }
 
 }

@@ -195,10 +195,10 @@ public class PedidoDAO implements iPedidoDAO {
                         """;
 
         String totalSQL = """
-                      SELECT SUM(DetallesPedidos.total) AS total_pedido
-                      FROM DetallesPedidos
-                      WHERE DetallesPedidos.id_pedido = ?
-                      """;
+                          SELECT SUM(DetallesPedidos.total) AS total_pedido
+                          FROM DetallesPedidos
+                          WHERE DetallesPedidos.id_pedido = ?
+                          """;
 
         try (Connection conn = this.conexionBD.crearConexion()) {
 
