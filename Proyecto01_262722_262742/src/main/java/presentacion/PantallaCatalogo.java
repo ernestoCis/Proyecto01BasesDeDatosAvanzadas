@@ -1,13 +1,12 @@
 package presentacion;
 
-import dominio.Producto;          // Ajusta el paquete real de tu clase Producto
-import negocio.BOs.ProductoBO;        // Ajusta el paquete real de tu ProductoBO
-
+import dominio.Producto;          
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.util.List;
 import negocio.BOs.ProductoBO;
+import negocio.Excepciones.NegocioException;
 
 public class PantallaCatalogo extends JFrame {
 
@@ -24,7 +23,7 @@ public class PantallaCatalogo extends JFrame {
         setSize(920, 600);
         setLocationRelativeTo(null);
 
-        // Fondo beige (marco)
+        // Fondo beige
         JPanel root = new JPanel(new GridBagLayout());
         root.setBackground(new Color(214, 186, 150));
         setContentPane(root);
@@ -39,22 +38,21 @@ public class PantallaCatalogo extends JFrame {
         card.setPreferredSize(new Dimension(860, 520));
         root.add(card);
 
-        // =================== TOP BAR ===================
+        //----- parte de arriba -----
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setOpaque(false);
 
-        // Izquierda: flecha grande (regresar)
-        JButton btnFlecha = new JButton("↩");
+        // parte izquierda
+        JButton btnFlecha = new JButton("⬅️");
         btnFlecha.setFocusPainted(false);
         btnFlecha.setBorderPainted(false);
         btnFlecha.setContentAreaFilled(false);
         btnFlecha.setFont(new Font("Segoe UI", Font.PLAIN, 40));
         btnFlecha.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        // Acción: regresar (ajústalo a tu navegación real)
+        // Acción: regresar
         btnFlecha.addActionListener(e -> {
-            // Ejemplo: volver al menu
-            // new Menu().setVisible(true);
+            new Menu().setVisible(true);
             dispose();
         });
 
@@ -62,7 +60,7 @@ public class PantallaCatalogo extends JFrame {
         panelIzquierdo.setOpaque(false);
         panelIzquierdo.add(btnFlecha);
 
-        // Derecha: carrito con badge
+        // ----- parte izquierda -----
         JPanel panelCarrito = new JPanel(null);
         panelCarrito.setOpaque(false);
         panelCarrito.setPreferredSize(new Dimension(90, 50));
@@ -91,7 +89,7 @@ public class PantallaCatalogo extends JFrame {
         topBar.add(panelIzquierdo, BorderLayout.WEST);
         topBar.add(panelCarrito, BorderLayout.EAST);
 
-        // =================== HEADER (TÍTULOS) ===================
+        // ----- titulos -----
         JPanel header = new JPanel();
         header.setOpaque(false);
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
@@ -110,7 +108,7 @@ public class PantallaCatalogo extends JFrame {
         header.add(subtitle);
         header.add(Box.createVerticalStrut(10));
 
-        // =================== GRID SCROLL ===================
+        // ----- grid scroll -----
         grid = new JPanel(new GridLayout(0, 3, 28, 18));
         grid.setBackground(Color.WHITE);
         grid.setBorder(new EmptyBorder(6, 10, 12, 10));
@@ -125,7 +123,7 @@ public class PantallaCatalogo extends JFrame {
         center.add(header, BorderLayout.NORTH);
         center.add(scroll, BorderLayout.CENTER);
 
-        // =================== FOOTER ===================
+        // ----- parte de abajo -----
         JLabel footer = new JLabel("© 2026 Panadería. Todos los derechos reservados.");
         footer.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         footer.setForeground(new Color(80, 80, 80));
@@ -164,7 +162,7 @@ public class PantallaCatalogo extends JFrame {
             grid.revalidate();
             grid.repaint();
 
-        } catch (Exception e) { // cambia a NegocioException si ya la tienes
+        } catch (NegocioException e) {
             JOptionPane.showMessageDialog(
                     this,
                     "Error al cargar productos: " + e.getMessage(),
@@ -227,8 +225,7 @@ public class PantallaCatalogo extends JFrame {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "ID: " + p.getId() +
-                            "\nNombre: " + p.getNombre() +
+                    "Nombre: " + p.getNombre() +
                             "\nTipo: " + tipo +
                             "\nPrecio: $" + p.getPrecio() +
                             "\nEstado: " + estado +
@@ -299,7 +296,6 @@ public class PantallaCatalogo extends JFrame {
     }
 
     private void actualizarBadgeCarrito(int delta) {
-        // Esto es solo visual. Luego lo conectas a tu Carrito real.
         int actual = Integer.parseInt(badgeCarrito.getText());
         int nuevo = Math.max(0, actual + delta);
         badgeCarrito.setText(String.valueOf(nuevo));
