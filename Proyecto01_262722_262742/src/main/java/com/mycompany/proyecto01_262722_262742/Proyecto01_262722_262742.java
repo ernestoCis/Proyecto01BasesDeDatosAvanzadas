@@ -4,6 +4,11 @@
 
 package com.mycompany.proyecto01_262722_262742;
 
+import java.sql.Connection;
+import negocio.BOs.ProductoBO;
+import persistencia.Conexion.ConexionBD;
+import persistencia.Conexion.iConexionBD;
+import persistencia.DAOs.ProductoDAO;
 import presentacion.Menu;
 
 /**
@@ -13,7 +18,9 @@ import presentacion.Menu;
 public class Proyecto01_262722_262742 {
 
     public static void main(String[] args){
+        
         Menu menu = new Menu();
         menu.setVisible(true);
+        
     }
 }

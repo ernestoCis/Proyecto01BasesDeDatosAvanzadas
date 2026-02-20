@@ -5,6 +5,7 @@
 package negocio.BOs;
 
 import dominio.Producto;
+import java.util.List;
 import negocio.Excepciones.NegocioException;
 
 /**
@@ -35,4 +36,11 @@ public interface iProductoBO {
      * @throws NegocioException NegocioException excepcion por regla de negocio
      */
     public Producto actualizarProducto(Producto producto) throws NegocioException;
+    
+    /**
+     * metodo que lista todos los productos del DAO
+     * @return lista de productos
+     * @throws NegocioException excepcion por regla de negocio
+     */
+    public List<Producto> listarProductos() throws NegocioException;
 }

@@ -294,6 +294,7 @@ public class PedidoDAO implements iPedidoDAO {
             LOG.log(Level.SEVERE, "Error de SQL al consultar el pedido", ex);
             throw new PersistenciaException(ex.getMessage());
         }
+
     }
 
 }

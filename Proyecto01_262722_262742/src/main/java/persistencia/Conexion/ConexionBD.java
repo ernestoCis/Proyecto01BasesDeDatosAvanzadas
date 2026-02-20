@@ -17,7 +17,7 @@ public class ConexionBD implements iConexionBD{
      * Cadena de conexión utilizada para establecer comunicación con la base de
      * datos.
      */
-    private final String CADENA_CONEXION = "jdbc:mysql://localhost:3306/panaderia";
+    private final String CADENA_CONEXION = "jdbc:mysql://localhost:3306/Panaderia";
 
     /**
      * Usuario de la base de datos.
@@ -27,7 +27,7 @@ public class ConexionBD implements iConexionBD{
     /**
      * Contraseña asociada al usuario de la base de datos.
      */
-    private final String CONTRASENIA = "Admin123";
+    private final String CONTRASENIA = "Ernesto_0611";
 
     /**
      * Crea y retorna una conexión activa con la base de datos.

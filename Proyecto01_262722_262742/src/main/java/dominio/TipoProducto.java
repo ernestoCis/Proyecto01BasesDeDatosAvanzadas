@@ -9,7 +9,7 @@ package dominio;
  * @author Isaac
  */
 public enum TipoProducto {
-    DULCE,
-    SALADO,
-    INTEGRAL
+    Dulce,
+    Salado,
+    Integral
 }

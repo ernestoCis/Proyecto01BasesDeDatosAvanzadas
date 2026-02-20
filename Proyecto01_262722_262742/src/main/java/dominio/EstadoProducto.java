@@ -9,6 +9,6 @@ package dominio;
  * @author Isaac
  */
 public enum EstadoProducto {
-    DISPONIBLE,
-    NO_DISPONIBLE
+    Disponible,
+    No_disponible
 }

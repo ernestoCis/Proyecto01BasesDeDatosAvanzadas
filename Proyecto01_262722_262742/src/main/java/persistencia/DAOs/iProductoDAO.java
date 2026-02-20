@@ -5,6 +5,7 @@
 package persistencia.DAOs;
 
 import dominio.Producto;
+import java.util.List;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
@@ -16,7 +17,7 @@ public interface iProductoDAO {
      * Metodo para consultar un producto a la BD
      * @param producto producto a buscar
      * @return regresa el producto consultado
-     * @throws NegocioException excepcion por regla de negocio
+     * @throws PersistenciaException PersistenciaException por falla en SQL
      */
     public Producto consultarProducto(Producto producto) throws PersistenciaException;
     
@@ -24,7 +25,7 @@ public interface iProductoDAO {
      * metodo para agregar un preoducto a la BD
      * @param producto producto a ingresar
      * @return producto insertado
-     * @throws NegocioException NegocioException excepcion por regla de negocio
+     * @throws PersistenciaException PersistenciaException excepcion por falla en SQL
      */
     public Producto insertarProducto(Producto producto) throws PersistenciaException;
     
@@ -32,7 +33,14 @@ public interface iProductoDAO {
      * metodo para actualizar a un produtco en la BD
      * @param producto producto a actualizazar
      * @return producto actualizado
-     * @throws NegocioException NegocioException excepcion por regla de negocio
+     * @throws PersistenciaException PersistenciaException excepcion por falla en SQL
      */
     public Producto actualizarProducto(Producto producto) throws PersistenciaException;
+    
+    /**
+     * metodo que enlista todos los productos de la BD
+     * @return regresa una lista con todos los productos
+     * @throws PersistenciaException excepcion por falla en SQL
+     */
+    public List<Producto> listarProductos() throws PersistenciaException;
 }

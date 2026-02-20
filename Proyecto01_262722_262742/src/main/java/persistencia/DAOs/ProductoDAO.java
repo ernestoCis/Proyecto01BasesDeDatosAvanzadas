@@ -158,5 +158,38 @@ public class ProductoDAO implements iProductoDAO{
             throw new PersistenciaException(ex.getMessage());
         }
     }
+
+    @Override
+    public List<Producto> listarProductos() throws PersistenciaException {
+        String comandoSQL = """
+                            SELECT id, nombre, tipo, precio, estado, descripcion
+                            FROM Productos
+                            WHERE estado = 'Disponible'
+                            """;
+        
+        List<Producto> productos = new ArrayList<>();
+        
+        try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Producto p = new Producto(
+                        rs.getInt("id"),
+                        rs.getString("nombre"),
+                        TipoProducto.valueOf(rs.getString("tipo")),
+                        rs.getFloat("precio"),
+                        EstadoProducto.valueOf(rs.getString("estado")),
+                        rs.getString("descripcion")
+                );
+                productos.add(p);
+            }
+
+            return productos;
+
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, "Error SQL al listar productos", ex);
+            throw new PersistenciaException(ex.getMessage());
+        }
+        
+    }
     
 }

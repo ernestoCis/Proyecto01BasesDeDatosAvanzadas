@@ -9,10 +9,10 @@ package dominio;
  * @author Isaac
  */
 public enum EstadoPedido {
-    PENDIENTE,
-    EN_PREPARACION,
-    LISTO,
-    ENTREGADO,
-    CANCELADO,
-    NO_RECLAMADO
+    Pendiente,
+    En_preparacion,
+    Listo,
+    Entregado,
+    Cancelado,
+    No_reclamado
 }
