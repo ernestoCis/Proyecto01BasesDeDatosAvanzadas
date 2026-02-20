@@ -82,7 +82,9 @@ public class PantallaCatalogo extends JFrame {
 
         lblCarrito.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override public void mouseClicked(java.awt.event.MouseEvent e) {
-                JOptionPane.showMessageDialog(PantallaCatalogo.this, "Abrir carrito (pendiente)");
+                PantallaCarrito carrito = new PantallaCarrito(PantallaCatalogo.this);
+                carrito.setVisible(true);
+                setVisible(false);
             }
         });
 
