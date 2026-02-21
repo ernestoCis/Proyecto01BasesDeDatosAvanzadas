@@ -5,6 +5,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 import java.awt.*;
+import negocio.BOs.iCuponBO;
+import negocio.BOs.iProductoBO;
 
 public class PantallaCarrito extends JFrame {
 
@@ -13,10 +15,16 @@ public class PantallaCarrito extends JFrame {
     private JLabel lblTotal;
     private PantallaCatalogo pantallaCatalogo;
     private final java.util.List<ItemCarrito> carrito;
+    
+    private final iProductoBO productoBO;
+    private final iCuponBO cuponBO;
 
-    public PantallaCarrito(PantallaCatalogo pantallaCatalogo, java.util.List<ItemCarrito> carrito) {
+    public PantallaCarrito(PantallaCatalogo pantallaCatalogo, java.util.List<ItemCarrito> carrito, iProductoBO productoBO, iCuponBO cuponBO) {
         this.pantallaCatalogo = pantallaCatalogo;
         this.carrito = carrito;
+        
+        this.productoBO = productoBO;
+        this.cuponBO = cuponBO;
         
         setTitle("Panadería - Carrito");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -173,9 +181,16 @@ public class PantallaCarrito extends JFrame {
         btnContinuar.setBorder(new LineBorder(new Color(60, 60, 60), 2));
         btnContinuar.setBackground(new Color(245, 245, 245));
 
-        btnContinuar.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Continuar (pendiente flujo)")
-        );
+        btnContinuar.addActionListener(e -> {
+            if (carrito == null || carrito.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tu carrito está vacío.", "Aviso", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            PantallaConfirmarPedido confirmar = new PantallaConfirmarPedido(this, carrito, productoBO, cuponBO);
+            confirmar.setVisible(true);
+            this.setVisible(false); 
+        });
 
         JPanel panelBtn = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 10));
         panelBtn.setOpaque(false);
