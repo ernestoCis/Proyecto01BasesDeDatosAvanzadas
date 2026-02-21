@@ -297,4 +297,30 @@ public class PedidoDAO implements iPedidoDAO {
 
     }
 
+    /**
+     * metodo que consulta en la BD si el numeroPedido ya esta registrado
+     * @param numeroPedido numero de pedido a validar
+     * @return true= si ya esta registrado, false = si no esta registrado
+     * @throws PersistenciaException excepcion por si el sql falla
+     */
+    @Override
+    public boolean existeNumeroDePedido(int numeroPedido) throws PersistenciaException {
+        String comandoSQL = """
+                            SELECT 1 FROM pedidos WHERE numero_pedido = ? LIMIT 1
+                            """;
+
+        try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
+
+            ps.setInt(1, numeroPedido);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, "Error al verificar número de pedido", ex);
+            throw new PersistenciaException("Error al verificar número de pedido", ex);
+        }
+    }
+
 }
