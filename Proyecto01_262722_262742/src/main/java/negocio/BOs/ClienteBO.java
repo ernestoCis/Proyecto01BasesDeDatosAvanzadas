@@ -7,6 +7,7 @@ package negocio.BOs;
 import dominio.Cliente;
 import java.util.logging.Logger;
 import negocio.Excepciones.NegocioException;
+import negocio.util.PasswordUtil;
 import persistencia.DAOs.iClienteDAO;
 import persistencia.Excepciones.PersistenciaException;
 
@@ -46,6 +47,10 @@ public class ClienteBO implements iClienteBO{
             if (existente != null) {
                 throw new NegocioException("Ya existe un cliente con ese usuario.");
             }
+            
+            // hasheo de la contraseña
+            String hash = PasswordUtil.hash(cliente.getContrasenia());
+            cliente.setContrasenia(hash);
 
             return clienteDAO.insertarCliente(cliente);
 
