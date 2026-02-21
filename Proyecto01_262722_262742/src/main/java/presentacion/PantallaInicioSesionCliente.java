@@ -16,6 +16,7 @@ import negocio.BOs.iCuponBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
 import negocio.BOs.iUsuarioBO;
+import negocio.Excepciones.NegocioException;
 
 public class PantallaInicioSesionCliente extends JFrame {
 
@@ -168,21 +169,25 @@ public class PantallaInicioSesionCliente extends JFrame {
         });
 
         btnIniciar.addActionListener(e -> {
-            // TODO: validar + autenticar cliente
+
             String u = txtUsuario.getText().trim();
             String p = new String(txtContrasena.getPassword());
 
-            if (u.isEmpty() || p.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Completa usuario y contraseña.");
-                return;
+            try {
+                boolean ok = usuarioBO.autenticarCliente(u, p);
+
+                if (ok) {
+                    // Aquí decides a dónde entra el cliente al iniciar sesión.
+                    // Por ejemplo: catálogo (pedido programado) o menú cliente.
+                    new PantallaCatalogo(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
+                    this.dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos.");
+                }
+
+            } catch (NegocioException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-
-            JOptionPane.showMessageDialog(this, "Login cliente (pendiente de conectar)");
-        });
-
-        btnCrear.addActionListener(e -> {
-            new PantallaCrearCuenta(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
-            this.dispose();
         });
     }
 
