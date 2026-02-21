@@ -287,7 +287,7 @@ public class PantallaConfirmarPedido extends JFrame {
                 pedidoProgramado.setMetodoPago(metodoPago);
                 pedidoProgramado.setTotal(subtotal - descuentoActual);
                 pedidoProgramado.setNumeroPedido(pedidoBO.generarNumeroDePedido());
-                pedidoProgramado.setCliente(cliente);
+//                pedidoProgramado.setCliente(cliente);
                 
                 if(!txtCupon.getText().trim().isEmpty()){
                     pedidoProgramado.setCupon(cuponBO.consultarCupon(txtCupon.getText()));
