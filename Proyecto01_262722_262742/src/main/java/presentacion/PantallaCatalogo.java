@@ -7,18 +7,22 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.util.List;
 import negocio.BOs.ProductoBO;
+import negocio.BOs.iCuponBO;
+import negocio.BOs.iProductoBO;
 import negocio.Excepciones.NegocioException;
 
 public class PantallaCatalogo extends JFrame {
 
-    private final ProductoBO productoBO;
+    private final iProductoBO productoBO;
+    private final iCuponBO cuponBO;
     private final java.util.List<ItemCarrito> carrito = new java.util.ArrayList<>();
 
     private JPanel grid;
     private JLabel badgeCarrito;
 
-    public PantallaCatalogo(ProductoBO productoBO) {
+    public PantallaCatalogo(iProductoBO productoBO, iCuponBO cuponBO) {
         this.productoBO = productoBO;
+        this.cuponBO = cuponBO;
 
         setTitle("Panadería - Catálogo");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -54,7 +58,7 @@ public class PantallaCatalogo extends JFrame {
 
         // Acción: regresar
         btnFlecha.addActionListener(e -> {
-            new Menu().setVisible(true);
+            new Menu(productoBO, cuponBO).setVisible(true);
             dispose();
         });
 
@@ -84,7 +88,7 @@ public class PantallaCatalogo extends JFrame {
 
         lblCarrito.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override public void mouseClicked(java.awt.event.MouseEvent e) {
-                PantallaCarrito pantallaCarrito = new PantallaCarrito(PantallaCatalogo.this, carrito);
+                PantallaCarrito pantallaCarrito = new PantallaCarrito(PantallaCatalogo.this, carrito, productoBO, cuponBO);
                 pantallaCarrito.setVisible(true);
                 setVisible(false);
             }

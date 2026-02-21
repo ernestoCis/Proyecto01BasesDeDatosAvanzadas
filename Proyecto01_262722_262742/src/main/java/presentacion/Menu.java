@@ -14,14 +14,23 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.sql.SQLException;
+import negocio.BOs.CuponBO;
 import negocio.BOs.ProductoBO;
+import negocio.BOs.iCuponBO;
+import negocio.BOs.iProductoBO;
 import persistencia.Conexion.ConexionBD;
 import persistencia.Conexion.iConexionBD;
 import persistencia.DAOs.ProductoDAO;
 
 public class Menu extends JFrame {
+    
+    private final iProductoBO productoBO;
+    private final iCuponBO cuponBO;
 
-    public Menu() {
+    public Menu(iProductoBO productoBO, iCuponBO cuponBO) {
+        
+        this.productoBO = productoBO;
+        this.cuponBO = cuponBO;
 
         setTitle("Panadería");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -154,16 +163,13 @@ public class Menu extends JFrame {
 
         // ---- Acciones de botones ----
         btnFlecha.addActionListener(e -> {
-            new PantallaInicioSesionEmpleado().setVisible(true);
+            new PantallaInicioSesionEmpleado(productoBO, cuponBO).setVisible(true);
             this.dispose();
         });
         btnProgramado.addActionListener(e -> {
             try {
-                iConexionBD con = new ConexionBD();
-                ProductoDAO productoDAO = new ProductoDAO(con); // como lo tengas tú
-                ProductoBO productoBO = new ProductoBO(productoDAO);
 
-                PantallaCatalogo pantalla = new PantallaCatalogo(productoBO);
+                PantallaCatalogo pantalla = new PantallaCatalogo(productoBO, cuponBO);
                 pantalla.setVisible(true);
 
                 this.dispose(); // cierra el menú actual
@@ -183,7 +189,7 @@ public class Menu extends JFrame {
         MouseAdapter clickLogin = new MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                new PantallaInicioSesionCliente().setVisible(true);
+                new PantallaInicioSesionCliente(productoBO, cuponBO).setVisible(true);
                 Menu.this.dispose();
             }
         };

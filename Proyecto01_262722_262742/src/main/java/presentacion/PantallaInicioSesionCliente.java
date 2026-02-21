@@ -12,14 +12,23 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import negocio.BOs.iCuponBO;
+import negocio.BOs.iProductoBO;
 
 public class PantallaInicioSesionCliente extends JFrame {
 
     private JTextField txtUsuario;
     private JPasswordField txtContrasena;
     private char echoDefault;
+    
+    private final iProductoBO productoBO;
+    private final iCuponBO cuponBO;
 
-    public PantallaInicioSesionCliente() {
+    public PantallaInicioSesionCliente(iProductoBO productoBO, iCuponBO cuponBO) {
+        
+        this.productoBO = productoBO;
+        this.cuponBO = cuponBO;
+        
         setTitle("Panadería - Iniciar Sesión");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(820, 620);
@@ -149,7 +158,7 @@ public class PantallaInicioSesionCliente extends JFrame {
 
         // ---- Acciones ----
         btnBack.addActionListener(e -> {
-            new Menu().setVisible(true);
+            new Menu(productoBO, cuponBO).setVisible(true);
             this.dispose();
         });
 
@@ -167,7 +176,7 @@ public class PantallaInicioSesionCliente extends JFrame {
         });
 
         btnCrear.addActionListener(e -> {
-            new PantallaCrearCuenta().setVisible(true);
+            new PantallaCrearCuenta(productoBO, cuponBO).setVisible(true);
             this.dispose();
         });
     }

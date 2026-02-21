@@ -22,6 +22,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import negocio.BOs.iCuponBO;
+import negocio.BOs.iProductoBO;
 
 public class PantallaCrearCuenta extends JFrame {
 
@@ -46,8 +48,15 @@ public class PantallaCrearCuenta extends JFrame {
     private JTextField txtEtiqueta;
 
     private JButton btnCrear;
+    
+    private final iProductoBO productoBO;
+    private final iCuponBO cuponBO;
 
-    public PantallaCrearCuenta() {
+    public PantallaCrearCuenta(iProductoBO productoBO, iCuponBO cuponBO) {
+        
+        this.productoBO = productoBO;
+        this.cuponBO = cuponBO;
+        
         setTitle("Panadería - Crear cuenta");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(820, 620);
@@ -335,7 +344,7 @@ public class PantallaCrearCuenta extends JFrame {
 
         // ====== Acciones ======
         btnBack.addActionListener(e -> {
-            new PantallaInicioSesionCliente().setVisible(true);
+            new PantallaInicioSesionCliente(productoBO, cuponBO).setVisible(true);
             this.dispose();
         });
 

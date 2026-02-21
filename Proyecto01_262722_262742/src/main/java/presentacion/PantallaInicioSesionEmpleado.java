@@ -12,14 +12,23 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import negocio.BOs.iCuponBO;
+import negocio.BOs.iProductoBO;
 
 public class PantallaInicioSesionEmpleado extends JFrame {
 
     private JTextField txtUsuario;
     private JPasswordField txtContrasena;
     private char echoDefault;
+    
+    private iProductoBO productoBO;
+    private iCuponBO cuponBO;
 
-    public PantallaInicioSesionEmpleado() {
+    public PantallaInicioSesionEmpleado(iProductoBO productoBO, iCuponBO cuponBO) {
+        
+        this.productoBO = productoBO;
+        this.cuponBO = cuponBO;
+        
         setTitle("Panadería - Iniciar Sesión Empleado");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(820, 620);
@@ -146,7 +155,7 @@ public class PantallaInicioSesionEmpleado extends JFrame {
 
         // ---- Acciones ----
         btnBack.addActionListener(e -> {
-            new Menu().setVisible(true);
+            new Menu(productoBO, cuponBO).setVisible(true);
             this.dispose();
         });
 
