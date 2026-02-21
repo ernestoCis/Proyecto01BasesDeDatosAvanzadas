@@ -35,7 +35,7 @@ public class ProductoBO implements iProductoBO{
     @Override
     public Producto consultarProducto(Producto producto) throws NegocioException {
         try{
-            //llamamos al DAO y guardamos el producto
+            //llamamos al DAO y consultamos el producto
             Producto productoConsultado = this.productoDAO.consultarProducto(producto);
             if(productoConsultado == null){
                 LOG.warning("No se pudó obtener el producto con id: " + producto.getId());
@@ -46,7 +46,7 @@ public class ProductoBO implements iProductoBO{
             return productoConsultado;
             
         }catch(PersistenciaException ex){
-            LOG.warning("No se pudo obtener el tecnico con id: " + producto.getId() + ". " + ex);
+            LOG.warning("No se pudo obtener el producto con id: " + producto.getId() + ". " + ex);
             throw new NegocioException("Problemas al intentar consultar el producto con id: " + producto.getId() + ". " + ex.getMessage());
         }
     }
