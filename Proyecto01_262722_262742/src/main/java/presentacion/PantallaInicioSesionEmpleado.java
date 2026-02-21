@@ -15,23 +15,26 @@ import java.awt.event.MouseEvent;
 import negocio.BOs.iCuponBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
+import negocio.BOs.iUsuarioBO;
+import negocio.Excepciones.NegocioException;
 
 public class PantallaInicioSesionEmpleado extends JFrame {
 
     private JTextField txtUsuario;
     private JPasswordField txtContrasena;
     private char echoDefault;
-    
+
     private iProductoBO productoBO;
     private iCuponBO cuponBO;
     private iPedidoBO pedidoBO;
+    private iUsuarioBO usuarioBO;
 
-    public PantallaInicioSesionEmpleado(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
-        
+    public PantallaInicioSesionEmpleado(iUsuarioBO usuarioBO, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
         this.pedidoBO = pedidoBO;
-        
+        this.usuarioBO = usuarioBO;
+
         setTitle("Panadería - Iniciar Sesión Empleado");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(820, 620);
@@ -135,12 +138,16 @@ public class PantallaInicioSesionEmpleado extends JFrame {
 
         JButton btnIniciar = crearBotonMediano("Iniciar Sesión");
         btnIniciar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JButton btnCrearCuenta = crearBotonMediano("Crear cuenta");
+        btnCrearCuenta.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         form.add(txtUsuario);
         form.add(Box.createVerticalStrut(10));
         form.add(passRow);
         form.add(Box.createVerticalStrut(14));
         form.add(btnIniciar);
+        form.add(Box.createVerticalStrut(8));
+        form.add(btnCrearCuenta);
 
         panelCentro.add(form);
         panelPrincipal.add(panelCentro, BorderLayout.CENTER);
@@ -158,22 +165,40 @@ public class PantallaInicioSesionEmpleado extends JFrame {
 
         // ---- Acciones ----
         btnBack.addActionListener(e -> {
-            new Menu(productoBO, cuponBO, pedidoBO).setVisible(true);
+            new Menu(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
             this.dispose();
         });
 
         btnIniciar.addActionListener(e -> {
-            // TODO: validar + autenticar empleado
-            String u = txtUsuario.getText().trim();
-            String p = new String(txtContrasena.getPassword());
 
-            if (u.isEmpty() || p.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Completa usuario y contraseña.");
-                return;
+            String usuario = txtUsuario.getText().trim();
+            String contrasenia = new String(txtContrasena.getPassword());
+
+            try {
+
+                boolean autenticado = usuarioBO.autenticarEmpleado(usuario, contrasenia);
+
+                if (autenticado) {
+                    new MenuEmpleado(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
+                    this.dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "Usuario o contraseña incorrectos.");
+                }
+
+            } catch (NegocioException ex) {
+                JOptionPane.showMessageDialog(this,
+                        ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
-
-            JOptionPane.showMessageDialog(this, "Login empleado (pendiente de conectar)");
         });
+
+        btnCrearCuenta.addActionListener(e -> {
+            new PantallaCrearCuentaEmpleado(this).setVisible(true);
+            this.setVisible(false); // no cierres el login, solo escóndelo
+        });
+
     }
 
     private void configurarCampo(JTextField t, String tooltip) {

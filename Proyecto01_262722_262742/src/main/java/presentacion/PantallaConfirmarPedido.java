@@ -14,6 +14,7 @@ import java.util.List;
 import negocio.BOs.iCuponBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
+import negocio.BOs.iUsuarioBO;
 import negocio.Excepciones.NegocioException;
 
 public class PantallaConfirmarPedido extends JFrame {
@@ -35,18 +36,20 @@ public class PantallaConfirmarPedido extends JFrame {
     private final iProductoBO productoBO;
     private final iPedidoBO pedidoBO;
     private final iCuponBO cuponBO;
+    private final iUsuarioBO usuarioBO;
 
     private float descuentoActual = 0;
     private float subtotal = 0;
     private MetodoPago metodoPago = MetodoPago.Efectivo; //efectivo como default
 
-    public PantallaConfirmarPedido(JFrame pantallaAnterior, List<ItemCarrito> carrito, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
+    public PantallaConfirmarPedido(JFrame pantallaAnterior, List<ItemCarrito> carrito, iUsuarioBO usuarioBO, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
         this.pantallaAnterior = pantallaAnterior;
         this.carrito = carrito;
         
         this.productoBO = productoBO;
         this.pedidoBO = pedidoBO;
         this.cuponBO = cuponBO;
+        this.usuarioBO = usuarioBO;
         
 
         setTitle("Panadería - Confirmar pedido");
@@ -294,7 +297,7 @@ public class PantallaConfirmarPedido extends JFrame {
                 }
 
                 if(pedidoBO.agregarPedidoProgramado(pedidoProgramado) != null){
-                    PantallaPedidoProgramadoRealizado pantallaPedidoRealizado = new PantallaPedidoProgramadoRealizado(pedidoProgramado, productoBO, cuponBO, pedidoBO);
+                    PantallaPedidoProgramadoRealizado pantallaPedidoRealizado = new PantallaPedidoProgramadoRealizado(usuarioBO, pedidoProgramado, productoBO, cuponBO, pedidoBO);
                     pantallaPedidoRealizado.setVisible(true);
                     dispose();
                 }else{

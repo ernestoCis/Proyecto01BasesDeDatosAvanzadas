@@ -6,7 +6,7 @@ package presentacion;
 
 /**
  *
- * @author 
+ * @author
  */
 import javax.swing.*;
 import javax.swing.border.*;
@@ -15,23 +15,25 @@ import java.awt.event.MouseEvent;
 import negocio.BOs.iCuponBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
+import negocio.BOs.iUsuarioBO;
 
 public class PantallaInicioSesionCliente extends JFrame {
 
     private JTextField txtUsuario;
     private JPasswordField txtContrasena;
     private char echoDefault;
-    
+
     private final iProductoBO productoBO;
     private final iCuponBO cuponBO;
     private final iPedidoBO pedidoBO;
+    private final iUsuarioBO usuarioBO;
 
-    public PantallaInicioSesionCliente(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
-        
+    public PantallaInicioSesionCliente(iUsuarioBO usuarioBO, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
+        this.usuarioBO = usuarioBO;
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
         this.pedidoBO = pedidoBO;
-        
+
         setTitle("Panadería - Iniciar Sesión");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(820, 620);
@@ -161,7 +163,7 @@ public class PantallaInicioSesionCliente extends JFrame {
 
         // ---- Acciones ----
         btnBack.addActionListener(e -> {
-            new Menu(productoBO, cuponBO, pedidoBO).setVisible(true);
+            new Menu(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
             this.dispose();
         });
 
@@ -179,7 +181,7 @@ public class PantallaInicioSesionCliente extends JFrame {
         });
 
         btnCrear.addActionListener(e -> {
-            new PantallaCrearCuenta(productoBO, cuponBO, pedidoBO).setVisible(true);
+            new PantallaCrearCuenta(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
             this.dispose();
         });
     }

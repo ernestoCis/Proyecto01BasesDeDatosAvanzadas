@@ -16,16 +16,17 @@ import java.awt.*;
 import negocio.BOs.iCuponBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
-
+import negocio.BOs.iUsuarioBO;
 
 public class Menu extends JFrame {
-    
+
     private final iProductoBO productoBO;
     private final iCuponBO cuponBO;
     private final iPedidoBO pedidoBO;
+    private final iUsuarioBO usuarioBO;
 
-    public Menu(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
-        
+    public Menu(iUsuarioBO usuarioBO, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
+        this.usuarioBO = usuarioBO;
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
         this.pedidoBO = pedidoBO;
@@ -161,13 +162,13 @@ public class Menu extends JFrame {
 
         // ---- Acciones de botones ----
         btnFlecha.addActionListener(e -> {
-            new PantallaInicioSesionEmpleado(productoBO, cuponBO, pedidoBO).setVisible(true);
+            new PantallaInicioSesionEmpleado(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
             this.dispose();
         });
         btnProgramado.addActionListener(e -> {
             try {
 
-                PantallaCatalogo pantalla = new PantallaCatalogo(productoBO, cuponBO, pedidoBO);
+                PantallaCatalogo pantalla = new PantallaCatalogo(usuarioBO, productoBO, cuponBO, pedidoBO);
                 pantalla.setVisible(true);
 
                 this.dispose(); // cierra el menú actual
@@ -187,7 +188,7 @@ public class Menu extends JFrame {
         MouseAdapter clickLogin = new MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                new PantallaInicioSesionCliente(productoBO, cuponBO, pedidoBO).setVisible(true);
+                new PantallaInicioSesionCliente(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
                 Menu.this.dispose();
             }
         };

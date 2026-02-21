@@ -1,7 +1,7 @@
 package presentacion;
 
 import dominio.ItemCarrito;
-import dominio.Producto;          
+import dominio.Producto;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
@@ -9,6 +9,7 @@ import java.util.List;
 import negocio.BOs.iCuponBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
+import negocio.BOs.iUsuarioBO;
 import negocio.Excepciones.NegocioException;
 
 public class PantallaCatalogo extends JFrame {
@@ -16,12 +17,14 @@ public class PantallaCatalogo extends JFrame {
     private final iProductoBO productoBO;
     private final iCuponBO cuponBO;
     private final iPedidoBO pedidoBO;
+    private final iUsuarioBO usuarioBO;
     private final java.util.List<ItemCarrito> carrito = new java.util.ArrayList<>();
 
     private JPanel grid;
     private JLabel badgeCarrito;
 
-    public PantallaCatalogo(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
+    public PantallaCatalogo(iUsuarioBO usuarioBO, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
+        this.usuarioBO = usuarioBO;
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
         this.pedidoBO = pedidoBO;
@@ -60,7 +63,7 @@ public class PantallaCatalogo extends JFrame {
 
         // Acción: regresar
         btnFlecha.addActionListener(e -> {
-            new Menu(productoBO, cuponBO, pedidoBO).setVisible(true);
+            new Menu(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
             dispose();
         });
 
@@ -89,8 +92,9 @@ public class PantallaCatalogo extends JFrame {
         panelCarrito.add(lblCarrito);
 
         lblCarrito.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override public void mouseClicked(java.awt.event.MouseEvent e) {
-                PantallaCarrito pantallaCarrito = new PantallaCarrito(PantallaCatalogo.this, carrito, productoBO, cuponBO, pedidoBO);
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                PantallaCarrito pantallaCarrito = new PantallaCarrito(PantallaCatalogo.this, carrito, usuarioBO, productoBO, cuponBO, pedidoBO);
                 pantallaCarrito.setVisible(true);
                 setVisible(false);
             }
@@ -194,17 +198,18 @@ public class PantallaCatalogo extends JFrame {
 
         // Placeholder de imagen
         JPanel img = new JPanel() {
-            @Override protected void paintComponent(Graphics g) {
+            @Override
+            protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 g.setColor(new Color(245, 245, 245));
                 g.fillRoundRect(0, 0, getWidth(), getHeight(), 18, 18);
                 g.setColor(new Color(200, 200, 200));
-                g.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 18, 18);
+                g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 18, 18);
                 g.setColor(new Color(120, 120, 120));
                 g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
                 FontMetrics fm = g.getFontMetrics();
                 String t = "Imagen";
-                g.drawString(t, (getWidth()-fm.stringWidth(t))/2, getHeight()/2);
+                g.drawString(t, (getWidth() - fm.stringWidth(t)) / 2, getHeight() / 2);
             }
         };
         img.setPreferredSize(new Dimension(180, 100));
@@ -235,11 +240,11 @@ public class PantallaCatalogo extends JFrame {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Nombre: " + p.getNombre() +
-                            "\nTipo: " + tipo +
-                            "\nPrecio: $" + p.getPrecio() +
-                            "\nEstado: " + estado +
-                            "\nDescripción: " + desc,
+                    "Nombre: " + p.getNombre()
+                    + "\nTipo: " + tipo
+                    + "\nPrecio: $" + p.getPrecio()
+                    + "\nEstado: " + estado
+                    + "\nDescripción: " + desc,
                     "Detalle del producto",
                     JOptionPane.INFORMATION_MESSAGE
             );
@@ -310,7 +315,7 @@ public class PantallaCatalogo extends JFrame {
 
         return stepper;
     }
-    
+
     private ItemCarrito buscarItem(int idProducto) {
         for (ItemCarrito it : carrito) {
             if (it.getProducto().getId() == idProducto) {

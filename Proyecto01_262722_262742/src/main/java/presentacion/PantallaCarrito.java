@@ -8,6 +8,7 @@ import java.awt.*;
 import negocio.BOs.iCuponBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
+import negocio.BOs.iUsuarioBO;
 
 public class PantallaCarrito extends JFrame {
 
@@ -20,14 +21,16 @@ public class PantallaCarrito extends JFrame {
     private final iProductoBO productoBO;
     private final iCuponBO cuponBO;
     private final iPedidoBO pedidoBO;
+    private final iUsuarioBO usuarioBO;
 
-    public PantallaCarrito(PantallaCatalogo pantallaCatalogo, java.util.List<ItemCarrito> carrito, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
+    public PantallaCarrito(PantallaCatalogo pantallaCatalogo, java.util.List<ItemCarrito> carrito, iUsuarioBO usuarioBO, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
         this.pantallaCatalogo = pantallaCatalogo;
         this.carrito = carrito;
         
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
         this.pedidoBO = pedidoBO;
+        this.usuarioBO = usuarioBO;
         
         setTitle("Panadería - Carrito");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -190,7 +193,7 @@ public class PantallaCarrito extends JFrame {
                 return;
             }
 
-            PantallaConfirmarPedido confirmar = new PantallaConfirmarPedido(this, carrito, productoBO, cuponBO, pedidoBO);
+            PantallaConfirmarPedido confirmar = new PantallaConfirmarPedido(this, carrito, usuarioBO, productoBO, cuponBO, pedidoBO);
             confirmar.setVisible(true);
             this.setVisible(false); 
         });

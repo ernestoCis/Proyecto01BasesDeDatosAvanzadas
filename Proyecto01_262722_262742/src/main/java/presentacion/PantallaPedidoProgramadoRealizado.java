@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import negocio.BOs.iCuponBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
+import negocio.BOs.iUsuarioBO;
 
 public class PantallaPedidoProgramadoRealizado extends JFrame {
 
@@ -20,13 +21,14 @@ public class PantallaPedidoProgramadoRealizado extends JFrame {
     private final iProductoBO productoBO;
     private final iCuponBO cuponBO;
     private final iPedidoBO pedidoBO;
+    private final iUsuarioBO usuarioBO;
 
-
-    public PantallaPedidoProgramadoRealizado(PedidoProgramado pedidoProgramado, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
+    public PantallaPedidoProgramadoRealizado(iUsuarioBO usuarioBO, PedidoProgramado pedidoProgramado, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
 
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
         this.pedidoBO = pedidoBO;
+        this.usuarioBO = usuarioBO;
         
         setTitle("Panadería - Pedido realizado");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -99,7 +101,7 @@ public class PantallaPedidoProgramadoRealizado extends JFrame {
         btnListo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         btnListo.addActionListener(e -> {
-            PantallaInicioSesionCliente pantallaInicioSesionCliente = new PantallaInicioSesionCliente(productoBO, cuponBO, pedidoBO);
+            PantallaInicioSesionCliente pantallaInicioSesionCliente = new PantallaInicioSesionCliente(usuarioBO, productoBO, cuponBO, pedidoBO);
             pantallaInicioSesionCliente.setVisible(true);
             dispose();
         });
