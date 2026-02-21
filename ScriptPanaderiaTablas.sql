@@ -37,9 +37,11 @@ CREATE TABLE Cupones(
     fecha_vencimiento DATE,
     fecha_inicio DATE NOT NULL,
     nombre VARCHAR(30) NOT NULL,
-    numero_usos INT NOT NULL,
+    numero_usos INT DEFAULT 0,
     tope_usos INT NOT NULL
 );
+
+insert into cupones(descuento, fecha_vencimiento, fecha_inicio, nombre, tope_usos) values(10, now(), now(), "PAN10", 10);
 
 -- Tabla usuarios
 CREATE TABLE Usuarios(
