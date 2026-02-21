@@ -18,9 +18,7 @@ CREATE TABLE Productos(
     estado ENUM("Disponible", "No disponible"),
     descripcion VARCHAR(100) NOT NULL
 );
-insert into productos(nombre, tipo, precio, estado, descripcion) values("Concha", "Dulce", 12, "Disponible", "Pan dulce: concha");
-insert into productos(nombre, tipo, precio, estado, descripcion) values("Cuernito", "Salado", 25, "Disponible", "Pan panecito");
-select * from productos;
+
 -- Tabla ProductosIngredientes
 CREATE TABLE ProductosIngredientes(
 	id INT PRIMARY KEY AUTO_INCREMENT,
@@ -41,7 +39,6 @@ CREATE TABLE Cupones(
     tope_usos INT NOT NULL
 );
 
-insert into cupones(descuento, fecha_vencimiento, fecha_inicio, nombre, tope_usos) values(10, now(), now(), "PAN10", 10);
 
 -- Tabla usuarios
 CREATE TABLE Usuarios(
@@ -90,7 +87,7 @@ CREATE TABLE Empleados(
 -- Tabla Pedidos
 CREATE TABLE Pedidos(
 	id INT PRIMARY KEY AUTO_INCREMENT,
-    estado ENUM("Pendiente", "En preparación", "Listo", "Entregado", "Cancelado", "No reclamado") NOT NULL,
+    estado ENUM("Pendiente", "Listo", "Entregado", "Cancelado", "No reclamado") NOT NULL,
     fecha_creacion DATE NOT NULL,
     fecha_entrega DATE NOT NULL,
     metodo_pago ENUM("Efectivo", "Credito", "Debito") NOT NULL,
@@ -126,4 +123,15 @@ CREATE TABLE DetallesPedidos(
 	FOREIGN KEY(id_pedido) REFERENCES Pedidos(id),
     id_producto INT NOT NULL,
     FOREIGN KEY(id_producto) REFERENCES Productos(id)
+);
+
+-- Tabla HistorialCambios
+CREATE TABLE HistorialCambios(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    id_pedido INT NOT NULL,
+    FOREIGN KEY(id_pedido) REFERENCES Pedidos(id),
+    id_usuario INT NOT NULL,
+    FOREIGN KEY(id_usuario) REFERENCES Usuarios(id),
+    estado ENUM("Pendiente", "Listo", "Entregado", "Cancelado", "No reclamado"),
+    fecha_cambio DATEtIME NOT NULL DEFAULT NOW()
 );
