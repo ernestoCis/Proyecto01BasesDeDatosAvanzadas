@@ -18,7 +18,8 @@ CREATE TABLE Productos(
     estado ENUM("Disponible", "No disponible"),
     descripcion VARCHAR(100) NOT NULL
 );
-
+insert into productos(nombre, tipo, precio, estado, descripcion) values("Pan prueba 1", "Dulce", 15 , "Disponible", "Pan de prueba");
+select * from pedidosProgramados;
 -- Tabla ProductosIngredientes
 CREATE TABLE ProductosIngredientes(
 	id INT PRIMARY KEY AUTO_INCREMENT,
@@ -38,7 +39,7 @@ CREATE TABLE Cupones(
     numero_usos INT DEFAULT 0,
     tope_usos INT NOT NULL
 );
-
+insert into cupones(descuento, fecha_vencimiento, fecha_inicio, nombre, tope_usos) values(10, curdate(), curdate(), "pan10", 100);
 
 -- Tabla usuarios
 CREATE TABLE Usuarios(
@@ -89,7 +90,7 @@ CREATE TABLE Pedidos(
 	id INT PRIMARY KEY AUTO_INCREMENT,
     estado ENUM("Pendiente", "Listo", "Entregado", "Cancelado", "No reclamado") NOT NULL,
     fecha_creacion DATE NOT NULL,
-    fecha_entrega DATE NOT NULL,
+    fecha_entrega DATE,
     metodo_pago ENUM("Efectivo", "Credito", "Debito") NOT NULL,
     numero_pedido INT UNIQUE NOT NULL,
     id_cliente INT,
@@ -135,3 +136,5 @@ CREATE TABLE HistorialCambios(
     estado ENUM("Pendiente", "Listo", "Entregado", "Cancelado", "No reclamado"),
     fecha_cambio DATEtIME NOT NULL DEFAULT NOW()
 );
+
+
