@@ -5,6 +5,7 @@
 package negocio.BOs;
 
 import dominio.Cliente;
+import dominio.Telefono;
 import java.util.logging.Logger;
 import negocio.Excepciones.NegocioException;
 import negocio.util.PasswordUtil;
@@ -27,7 +28,7 @@ public class ClienteBO implements iClienteBO{
     
 
     @Override
-    public Cliente registrarCliente(Cliente cliente) throws NegocioException {
+    public Cliente registrarCliente(Cliente cliente, Telefono telefono) throws NegocioException {
         try {
             if (cliente == null) {
                 throw new NegocioException("El cliente es obligatorio.");
@@ -52,7 +53,7 @@ public class ClienteBO implements iClienteBO{
             String hash = PasswordUtil.hash(cliente.getContrasenia());
             cliente.setContrasenia(hash);
 
-            return clienteDAO.insertarCliente(cliente);
+            return clienteDAO.insertarCliente(cliente, telefono);
 
         } catch (PersistenciaException ex) {
             LOG.warning("No se pudo registrar al cliente. " + ex);
@@ -61,16 +62,24 @@ public class ClienteBO implements iClienteBO{
     }
 
     @Override
-    public Cliente consultarCliente(String usuario) throws NegocioException {
+    public Cliente consultarCliente(String usuario, String contrasenia) throws NegocioException {
         try {
             if (usuario == null || usuario.trim().isEmpty()) {
                 throw new NegocioException("El usuario es obligatorio.");
             }
+            
+            if (contrasenia == null || contrasenia.trim().isEmpty()) {
+                throw new NegocioException("La contraseña es obligatoria.");
+            }
 
             Cliente cliente = clienteDAO.consultarCliente(usuario.trim());
+            
+            if(cliente == null){
+                throw new NegocioException("Usuario o contraseña incorrectos.");
+            }
 
-            if (cliente == null) {
-                throw new NegocioException("No existe un cliente con ese usuario.");
+            if(!PasswordUtil.verificar(contrasenia, cliente.getContrasenia())){
+                throw new NegocioException("Usuario o contraseña incorrectos.");
             }
 
             return cliente;

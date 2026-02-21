@@ -101,7 +101,7 @@ public class PantallaPedidoProgramadoRealizado extends JFrame {
         btnListo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         btnListo.addActionListener(e -> {
-            PantallaInicioSesionCliente pantallaInicioSesionCliente = new PantallaInicioSesionCliente(usuarioBO, productoBO, cuponBO, pedidoBO);
+            PantallaInicioSesionCliente pantallaInicioSesionCliente = new PantallaInicioSesionCliente(productoBO, cuponBO, pedidoBO);
             pantallaInicioSesionCliente.setVisible(true);
             dispose();
         });

@@ -5,6 +5,7 @@
 package negocio.BOs;
 
 import dominio.Cliente;
+import dominio.Telefono;
 import negocio.Excepciones.NegocioException;
 
 /**
@@ -18,7 +19,7 @@ public interface iClienteBO {
      * @return cliente registrado
      * @throws NegocioException excepcion por reglas de negocio
      */
-    public Cliente registrarCliente(Cliente cliente) throws NegocioException;
+    public Cliente registrarCliente(Cliente cliente, Telefono telefono) throws NegocioException;
     
     /**
      * metodo que busca si un cliente ya esta registrado
@@ -26,5 +27,5 @@ public interface iClienteBO {
      * @return cliente que esta registrado
      * @throws NegocioException excepcion por reglas de negocio
      */
-    public Cliente consultarCliente(String usuario) throws NegocioException;
+    public Cliente consultarCliente(String usuario, String contrasenia) throws NegocioException;
 }

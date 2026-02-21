@@ -5,12 +5,15 @@
 package persistencia.DAOs;
 
 import dominio.Cliente;
+import dominio.Telefono;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import persistencia.Conexion.iConexionBD;
@@ -37,10 +40,11 @@ public class ClienteDAO implements iClienteDAO{
 
     @Override
     public Cliente consultarCliente(String usuario) throws PersistenciaException {
-        String sql = """
+        String comandoSQL = """
                     SELECT 
                         u.id,
                         u.usuario,
+                        u.contrasenia,
                         c.nombres,
                         c.apellido_paterno,
                         c.apellido_materno,
@@ -50,18 +54,19 @@ public class ClienteDAO implements iClienteDAO{
                     WHERE u.usuario = ?
                     """;
 
-        try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
 
             ps.setString(1, usuario);
 
             try (ResultSet rs = ps.executeQuery()) {
 
                 if (!rs.next()) {
-                    return null; // no existe cliente con ese correo
+                    return null; // no existe cliente con ese usuario
                 }
 
                 Cliente cliente = new Cliente();
                 cliente.setId(rs.getInt("id_usuario"));
+                cliente.setContrasenia(rs.getString("contrasenia"));
                 cliente.setNombres(rs.getString("nombres"));
                 cliente.setApellidoPaterno(rs.getString("apellido_paterno"));
                 if(rs.getString("apellido_materno") != null){
@@ -78,8 +83,20 @@ public class ClienteDAO implements iClienteDAO{
     }
 
     @Override
-    public Cliente insertarCliente(Cliente cliente) throws PersistenciaException {
+    public Cliente insertarCliente(Cliente cliente, Telefono telefono) throws PersistenciaException {
 
+        List<Telefono> telefonos = cliente.getTelefonos();
+
+        if (telefonos == null) {
+            telefonos = new ArrayList<>();
+        }
+
+        // Agregar telefono recibido (si viene)
+        telefonos.add(telefono);
+        
+        // Re-settear la lista al cliente
+        cliente.setTelefonos(telefonos);
+        
         String comandoSQLUsuario = """
                                    INSERT INTO usuarios(usuario, contrasenia, rol)
                                    VALUES(?, ?, ?)
@@ -87,8 +104,18 @@ public class ClienteDAO implements iClienteDAO{
         
         String comandoSQLCliente = """
                                    INSERT INTO clientes(id_usuario, nombres, apellido_paterno, apellido_materno, fecha_nacimiento)
-                                   VALUES(?, ?)
+                                   VALUES(?, ?, ?, ?, ?)
                                    """;
+        
+        String comandoSQLDireccion = """
+                                     INSERT INTO direcciones(id_cliente, calle, colonia, cp, numero)
+                                     VALUES(?, ?, ?, ?, ?)
+                                     """;
+        
+        String comandoSQLTelefono = """
+                                    INSERT INTO telefonos(id_cliente, telefono, etiqueta)
+                                    VALUES(?, ?, ?)
+                                    """;
 
         Connection conn = null;
 
@@ -119,14 +146,52 @@ public class ClienteDAO implements iClienteDAO{
             try (PreparedStatement ps = conn.prepareStatement(comandoSQLCliente)) {
                 ps.setInt(1, cliente.getId());
                 ps.setString(2, cliente.getNombres());
-                ps.setString(3, cliente.getApellidoPaterno());
-                if(!cliente.getApellidoMaterno().isEmpty() || cliente.getApellidoMaterno() != null){
-                    ps.setString(4, cliente.getApellidoMaterno());
+                ps.setString(3, cliente.getApellidoPaterno().trim());
+                if(cliente.getApellidoMaterno() == null || cliente.getApellidoMaterno().trim().isEmpty()){
+                    ps.setNull(4, java.sql.Types.VARCHAR);
+                }else{
+                    ps.setString(4, cliente.getApellidoMaterno().trim());
                 }
                 ps.setDate(5, Date.valueOf(cliente.getFechaNacimiento()));
 
                 if (ps.executeUpdate() == 0) {
                     throw new PersistenciaException("No se pudo insertar cliente");
+                }
+            }
+            
+            //insertar en direcciones
+            if (cliente.getDireccion() != null) {
+                try (PreparedStatement ps = conn.prepareStatement(comandoSQLDireccion)) {
+                    ps.setInt(1, cliente.getId());
+                    ps.setString(2, cliente.getDireccion().getCalle());
+                    ps.setString(3, cliente.getDireccion().getColonia());
+                    ps.setInt(4, cliente.getDireccion().getCp());
+                    ps.setInt(5, cliente.getDireccion().getNumero());
+
+                    if (ps.executeUpdate() == 0) {
+                        throw new PersistenciaException("No se pudo insertar la dirección del cliente");
+                    }
+                }
+            }
+            
+            //insertar telefono
+            
+            if (cliente.getTelefonos() != null && !cliente.getTelefonos().isEmpty()) {
+
+                try (PreparedStatement ps = conn.prepareStatement(comandoSQLTelefono)) {
+
+                    for (Telefono t : cliente.getTelefonos()) {
+                        if (t == null) {
+                            continue;
+                        }
+                        ps.setInt(1, cliente.getId()); // FK id_cliente / id_usuario
+                        ps.setString(2, t.getTelefono());
+                        ps.setString(3, t.getEtiqueta());
+
+                        ps.addBatch();
+                    }
+
+                    ps.executeBatch();
                 }
             }
 

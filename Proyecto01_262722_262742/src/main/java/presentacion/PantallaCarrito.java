@@ -1,5 +1,6 @@
 package presentacion;
 
+import dominio.Cliente;
 import dominio.ItemCarrito;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -21,16 +22,16 @@ public class PantallaCarrito extends JFrame {
     private final iProductoBO productoBO;
     private final iCuponBO cuponBO;
     private final iPedidoBO pedidoBO;
-    private final iUsuarioBO usuarioBO;
+    private final Cliente cliente;
 
-    public PantallaCarrito(PantallaCatalogo pantallaCatalogo, java.util.List<ItemCarrito> carrito, iUsuarioBO usuarioBO, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
+    public PantallaCarrito(PantallaCatalogo pantallaCatalogo, java.util.List<ItemCarrito> carrito, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO, Cliente cliente) {
         this.pantallaCatalogo = pantallaCatalogo;
         this.carrito = carrito;
         
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
         this.pedidoBO = pedidoBO;
-        this.usuarioBO = usuarioBO;
+        this.cliente = cliente;
         
         setTitle("Panadería - Carrito");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -193,7 +194,7 @@ public class PantallaCarrito extends JFrame {
                 return;
             }
 
-            PantallaConfirmarPedido confirmar = new PantallaConfirmarPedido(this, carrito, usuarioBO, productoBO, cuponBO, pedidoBO);
+            PantallaConfirmarPedido confirmar = new PantallaConfirmarPedido(this, carrito, productoBO, cuponBO, pedidoBO, cliente);
             confirmar.setVisible(true);
             this.setVisible(false); 
         });

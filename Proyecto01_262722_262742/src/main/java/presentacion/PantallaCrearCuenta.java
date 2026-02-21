@@ -8,24 +8,20 @@ package presentacion;
  *
  * @author Isaac
  */
+import dominio.Cliente;
+import dominio.RolUsuario;
+import dominio.Telefono;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.*;
 import java.awt.event.MouseEvent;
-
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.*;
-import java.awt.event.MouseEvent;
+import java.time.LocalDate;
+import negocio.BOs.iClienteBO;
 import negocio.BOs.iCuponBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
-import negocio.BOs.iUsuarioBO;
+import negocio.Excepciones.NegocioException;
 
 public class PantallaCrearCuenta extends JFrame {
 
@@ -54,18 +50,18 @@ public class PantallaCrearCuenta extends JFrame {
     private final iProductoBO productoBO;
     private final iCuponBO cuponBO;
     private final iPedidoBO pedidoBO;
-    private final iUsuarioBO usuarioBO;
+    private final iClienteBO clienteBO;
 
-    public PantallaCrearCuenta(iUsuarioBO usuarioBO, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
+    public PantallaCrearCuenta(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO, iClienteBO clienteBO) {
         
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
         this.pedidoBO = pedidoBO;
-        this.usuarioBO = usuarioBO;
+        this.clienteBO = clienteBO;
         
         setTitle("Panadería - Crear cuenta");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(820, 620);
+        setSize(820, 720);
         setLocationRelativeTo(null);
 
         // Fondo general
@@ -80,7 +76,7 @@ public class PantallaCrearCuenta extends JFrame {
                 new LineBorder(new Color(30, 30, 30), 2, false),
                 new EmptyBorder(18, 22, 18, 22)
         ));
-        panelPrincipal.setPreferredSize(new Dimension(760, 540));
+        panelPrincipal.setPreferredSize(new Dimension(760, 640));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -350,12 +346,43 @@ public class PantallaCrearCuenta extends JFrame {
 
         // ====== Acciones ======
         btnBack.addActionListener(e -> {
-            new PantallaInicioSesionCliente(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
+//            new PantallaInicioSesionCliente(productoBO, cuponBO, pedidoBO).setVisible(true);
             this.dispose();
         });
 
         btnCrear.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Crear cuenta (pendiente de lógica/BD)");
+            Cliente cliente = new Cliente();
+            cliente.setUsuario(txtUsuario.getText());
+            
+            char[] passArray = txtContrasena.getPassword();
+            String password = new String(passArray);
+            cliente.setContrasenia(password);
+            
+            cliente.setNombres(txtNombres.getText());
+            cliente.setApellidoPaterno(txtApellidoP.getText());
+            
+            if(!txtApellidoM.getText().trim().isEmpty()){
+                cliente.setApellidoMaterno(txtApellidoM.getText());
+            }
+            
+            Telefono telefono = new Telefono();
+            telefono.setTelefono(txtTelefono.getText());
+            telefono.setEtiqueta(txtEtiqueta.getText());
+            
+            cliente.setRol(RolUsuario.CLIENTE);
+            
+            LocalDate fecha = LocalDate.of(Integer.parseInt(txtAnio.getText()), Integer.parseInt(txtMes.getText()), Integer.parseInt(txtDia.getText()));
+            cliente.setFechaNacimiento(fecha);
+            
+            try {
+                
+                clienteBO.registrarCliente(cliente, telefono);
+                
+                JOptionPane.showMessageDialog(this, "cuenta creada");
+                
+            } catch (NegocioException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage());
+            }
         });
     }
 

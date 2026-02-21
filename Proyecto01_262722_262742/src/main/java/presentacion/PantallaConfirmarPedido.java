@@ -1,5 +1,6 @@
 package presentacion;
 
+import dominio.Cliente;
 import dominio.Cupon;
 import dominio.EstadoPedido;
 import dominio.ItemCarrito;
@@ -36,20 +37,20 @@ public class PantallaConfirmarPedido extends JFrame {
     private final iProductoBO productoBO;
     private final iPedidoBO pedidoBO;
     private final iCuponBO cuponBO;
-    private final iUsuarioBO usuarioBO;
+    private final Cliente cliente;
 
     private float descuentoActual = 0;
     private float subtotal = 0;
     private MetodoPago metodoPago = MetodoPago.Efectivo; //efectivo como default
 
-    public PantallaConfirmarPedido(JFrame pantallaAnterior, List<ItemCarrito> carrito, iUsuarioBO usuarioBO, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
+    public PantallaConfirmarPedido(JFrame pantallaAnterior, List<ItemCarrito> carrito, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO, Cliente cliente) {
         this.pantallaAnterior = pantallaAnterior;
         this.carrito = carrito;
         
         this.productoBO = productoBO;
         this.pedidoBO = pedidoBO;
         this.cuponBO = cuponBO;
-        this.usuarioBO = usuarioBO;
+        this.cliente = cliente;
         
 
         setTitle("Panadería - Confirmar pedido");
@@ -290,7 +291,7 @@ public class PantallaConfirmarPedido extends JFrame {
                 pedidoProgramado.setMetodoPago(metodoPago);
                 pedidoProgramado.setTotal(subtotal - descuentoActual);
                 pedidoProgramado.setNumeroPedido(pedidoBO.generarNumeroDePedido());
-//                pedidoProgramado.setCliente(cliente);
+                pedidoProgramado.setCliente(cliente);
                 
                 if(!txtCupon.getText().trim().isEmpty()){
                     pedidoProgramado.setCupon(cuponBO.consultarCupon(txtCupon.getText()));

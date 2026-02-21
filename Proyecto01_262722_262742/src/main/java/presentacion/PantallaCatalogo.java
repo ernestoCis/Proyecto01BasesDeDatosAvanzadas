@@ -1,5 +1,6 @@
 package presentacion;
 
+import dominio.Cliente;
 import dominio.ItemCarrito;
 import dominio.Producto;
 import javax.swing.*;
@@ -17,17 +18,17 @@ public class PantallaCatalogo extends JFrame {
     private final iProductoBO productoBO;
     private final iCuponBO cuponBO;
     private final iPedidoBO pedidoBO;
-    private final iUsuarioBO usuarioBO;
+    private final Cliente cliente;
     private final java.util.List<ItemCarrito> carrito = new java.util.ArrayList<>();
 
     private JPanel grid;
     private JLabel badgeCarrito;
 
-    public PantallaCatalogo(iUsuarioBO usuarioBO, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
-        this.usuarioBO = usuarioBO;
+    public PantallaCatalogo(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO, Cliente cliente) {
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
         this.pedidoBO = pedidoBO;
+        this.cliente = cliente;
 
         setTitle("Panadería - Catálogo");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -63,7 +64,8 @@ public class PantallaCatalogo extends JFrame {
 
         // Acción: regresar
         btnFlecha.addActionListener(e -> {
-            new Menu(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
+            JOptionPane.showMessageDialog(this, "Falta pantalla con sesion ya iniciada");
+//            new Menu(productoBO, cuponBO, pedidoBO).setVisible(true);
             dispose();
         });
 
@@ -92,9 +94,8 @@ public class PantallaCatalogo extends JFrame {
         panelCarrito.add(lblCarrito);
 
         lblCarrito.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                PantallaCarrito pantallaCarrito = new PantallaCarrito(PantallaCatalogo.this, carrito, usuarioBO, productoBO, cuponBO, pedidoBO);
+            @Override public void mouseClicked(java.awt.event.MouseEvent e) {
+                PantallaCarrito pantallaCarrito = new PantallaCarrito(PantallaCatalogo.this, carrito, productoBO, cuponBO, pedidoBO, cliente);
                 pantallaCarrito.setVisible(true);
                 setVisible(false);
             }

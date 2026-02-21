@@ -5,6 +5,7 @@
 package persistencia.DAOs;
 
 import dominio.Cliente;
+import dominio.Telefono;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
@@ -20,5 +21,5 @@ public interface iClienteDAO {
      */
     public Cliente consultarCliente(String usuario) throws PersistenciaException;
     
-    public Cliente insertarCliente(Cliente cliente) throws PersistenciaException;
+    public Cliente insertarCliente(Cliente cliente, Telefono telefono) throws PersistenciaException;
 }
