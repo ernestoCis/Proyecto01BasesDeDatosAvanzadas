@@ -9,7 +9,7 @@ package dominio;
  * @author Isaac
  */
 public enum MetodoPago {
-    EFECTIVO,
-    TARJETA_CREDITO,
-    TARJETA_DEBITO
+    Efectivo,
+    Credito,
+    Debito
 }
