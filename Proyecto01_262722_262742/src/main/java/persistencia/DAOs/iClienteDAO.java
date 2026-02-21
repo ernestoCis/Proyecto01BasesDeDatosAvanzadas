@@ -4,10 +4,21 @@
  */
 package persistencia.DAOs;
 
+import dominio.Cliente;
+import persistencia.Excepciones.PersistenciaException;
+
 /**
  *
  * @author 
  */
 public interface iClienteDAO {
     
+    /**
+     * metodo para consultar a un cliente en la BD
+     * @return regresa el cliente cnsultado
+     * @throws PersistenciaException 
+     */
+    public Cliente consultarCliente(String usuario) throws PersistenciaException;
+    
+    public Cliente insertarCliente(Cliente cliente) throws PersistenciaException;
 }
