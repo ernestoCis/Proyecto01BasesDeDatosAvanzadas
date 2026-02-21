@@ -20,6 +20,7 @@ CREATE TABLE Productos(
 );
 insert into productos(nombre, tipo, precio, estado, descripcion) values("Pan prueba 1", "Dulce", 15 , "Disponible", "Pan de prueba");
 select * from pedidosProgramados;
+select * from pedidos;
 -- Tabla ProductosIngredientes
 CREATE TABLE ProductosIngredientes(
 	id INT PRIMARY KEY AUTO_INCREMENT,
@@ -44,7 +45,7 @@ insert into cupones(descuento, fecha_vencimiento, fecha_inicio, nombre, tope_uso
 -- Tabla usuarios
 CREATE TABLE Usuarios(
 	id INT PRIMARY KEY AUTO_INCREMENT,
-    usuario VARCHAR(20) NOT NULL,
+    usuario VARCHAR(20) UNIQUE NOT NULL,
     contrasenia VARCHAR(100) NOT NULL,
     rol ENUM("Cliente", "Empleado")
 );

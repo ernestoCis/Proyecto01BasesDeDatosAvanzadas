@@ -8,13 +8,16 @@ package presentacion;
  *
  * @author 
  */
+import dominio.Cliente;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import negocio.BOs.iClienteBO;
 import negocio.BOs.iCuponBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
+import negocio.Excepciones.NegocioException;
 
 public class PantallaInicioSesionCliente extends JFrame {
 
@@ -25,12 +28,14 @@ public class PantallaInicioSesionCliente extends JFrame {
     private final iProductoBO productoBO;
     private final iCuponBO cuponBO;
     private final iPedidoBO pedidoBO;
+    private final iClienteBO clienteBO;
 
-    public PantallaInicioSesionCliente(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
+    public PantallaInicioSesionCliente(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO, iClienteBO clienteBO) {
         
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
         this.pedidoBO = pedidoBO;
+        this.clienteBO = clienteBO;
         
         setTitle("Panadería - Iniciar Sesión");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -161,25 +166,30 @@ public class PantallaInicioSesionCliente extends JFrame {
 
         // ---- Acciones ----
         btnBack.addActionListener(e -> {
-            new Menu(productoBO, cuponBO, pedidoBO).setVisible(true);
+            new Menu(productoBO, cuponBO, pedidoBO, clienteBO).setVisible(true);
             this.dispose();
         });
 
         btnIniciar.addActionListener(e -> {
-            // TODO: validar + autenticar cliente
-            String u = txtUsuario.getText().trim();
-            String p = new String(txtContrasena.getPassword());
+            try{
+                
+                char[] passArray = txtContrasena.getPassword();
+                String password = new String(passArray);
 
-            if (u.isEmpty() || p.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Completa usuario y contraseña.");
-                return;
+                Cliente cliente = clienteBO.consultarCliente(
+                        txtUsuario.getText().trim(),
+                        password
+                );
+                
+                new PantallaCatalogo(productoBO, cuponBO, pedidoBO, cliente).setVisible(true);
+                dispose();
+            }catch(NegocioException ex){
+                JOptionPane.showMessageDialog(this, ex.getMessage());
             }
-
-            JOptionPane.showMessageDialog(this, "Login cliente (pendiente de conectar)");
         });
 
         btnCrear.addActionListener(e -> {
-            new PantallaCrearCuenta(productoBO, cuponBO, pedidoBO).setVisible(true);
+            new PantallaCrearCuenta(productoBO, cuponBO, pedidoBO, clienteBO).setVisible(true);
             this.dispose();
         });
     }

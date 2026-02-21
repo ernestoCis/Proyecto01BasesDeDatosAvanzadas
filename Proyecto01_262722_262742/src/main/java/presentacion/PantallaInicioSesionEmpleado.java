@@ -158,7 +158,7 @@ public class PantallaInicioSesionEmpleado extends JFrame {
 
         // ---- Acciones ----
         btnBack.addActionListener(e -> {
-            new Menu(productoBO, cuponBO, pedidoBO).setVisible(true);
+//            new Menu(productoBO, cuponBO, pedidoBO).setVisible(true);
             this.dispose();
         });
 

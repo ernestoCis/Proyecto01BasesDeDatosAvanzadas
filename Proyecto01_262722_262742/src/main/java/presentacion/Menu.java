@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
+import negocio.BOs.iClienteBO;
 import negocio.BOs.iCuponBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
@@ -23,12 +24,14 @@ public class Menu extends JFrame {
     private final iProductoBO productoBO;
     private final iCuponBO cuponBO;
     private final iPedidoBO pedidoBO;
+    private final iClienteBO clienteBO;
 
-    public Menu(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
+    public Menu(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO, iClienteBO clienteBO) {
         
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
         this.pedidoBO = pedidoBO;
+        this.clienteBO = clienteBO;
 
         setTitle("Panadería");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -167,10 +170,10 @@ public class Menu extends JFrame {
         btnProgramado.addActionListener(e -> {
             try {
 
-                PantallaCatalogo pantalla = new PantallaCatalogo(productoBO, cuponBO, pedidoBO);
-                pantalla.setVisible(true);
-
-                this.dispose(); // cierra el menú actual
+                PantallaInicioSesionCliente pantallaInicioSesionCliente = new PantallaInicioSesionCliente(productoBO, cuponBO, pedidoBO, clienteBO);
+                pantallaInicioSesionCliente.setVisible(true);
+                
+                this.dispose();
 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this,
@@ -187,7 +190,7 @@ public class Menu extends JFrame {
         MouseAdapter clickLogin = new MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                new PantallaInicioSesionCliente(productoBO, cuponBO, pedidoBO).setVisible(true);
+                new PantallaInicioSesionCliente(productoBO, cuponBO, pedidoBO, clienteBO).setVisible(true);
                 Menu.this.dispose();
             }
         };
