@@ -6,6 +6,7 @@ import javax.swing.border.*;
 import javax.swing.table.*;
 import java.awt.*;
 import negocio.BOs.iCuponBO;
+import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
 
 public class PantallaCarrito extends JFrame {
@@ -18,13 +19,15 @@ public class PantallaCarrito extends JFrame {
     
     private final iProductoBO productoBO;
     private final iCuponBO cuponBO;
+    private final iPedidoBO pedidoBO;
 
-    public PantallaCarrito(PantallaCatalogo pantallaCatalogo, java.util.List<ItemCarrito> carrito, iProductoBO productoBO, iCuponBO cuponBO) {
+    public PantallaCarrito(PantallaCatalogo pantallaCatalogo, java.util.List<ItemCarrito> carrito, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
         this.pantallaCatalogo = pantallaCatalogo;
         this.carrito = carrito;
         
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
+        this.pedidoBO = pedidoBO;
         
         setTitle("Panadería - Carrito");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -187,7 +190,7 @@ public class PantallaCarrito extends JFrame {
                 return;
             }
 
-            PantallaConfirmarPedido confirmar = new PantallaConfirmarPedido(this, carrito, productoBO, cuponBO);
+            PantallaConfirmarPedido confirmar = new PantallaConfirmarPedido(this, carrito, productoBO, cuponBO, pedidoBO);
             confirmar.setVisible(true);
             this.setVisible(false); 
         });

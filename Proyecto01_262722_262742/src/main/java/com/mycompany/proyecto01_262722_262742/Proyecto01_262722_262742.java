@@ -6,8 +6,10 @@ package com.mycompany.proyecto01_262722_262742;
 
 import java.sql.Connection;
 import negocio.BOs.CuponBO;
+import negocio.BOs.PedidoBO;
 import negocio.BOs.ProductoBO;
 import negocio.BOs.iCuponBO;
+import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
 import persistencia.Conexion.ConexionBD;
 import persistencia.Conexion.iConexionBD;
@@ -30,9 +32,6 @@ public class Proyecto01_262722_262742 {
         //conexion
         iConexionBD conexion = new ConexionBD();
         
-        //pedido
-        iPedidoDAO pedidoDAO = new PedidoDAO(conexion);
-        
         //producto
         iProductoDAO productoDAO = new ProductoDAO(conexion);
         iProductoBO productoBO = new ProductoBO(productoDAO);
@@ -41,9 +40,12 @@ public class Proyecto01_262722_262742 {
         iCuponDAO cuponDAO = new CuponDAO(conexion);
         iCuponBO cuponBO = new CuponBO(cuponDAO);
         
+        //pedido
+        iPedidoDAO pedidoDAO = new PedidoDAO(conexion);
+        iPedidoBO pedidoBO = new PedidoBO(pedidoDAO);
         
-        
-        Menu menu = new Menu(productoBO, cuponBO);
+        //ejecutar menu
+        Menu menu = new Menu(productoBO, cuponBO, pedidoBO);
         menu.setVisible(true);
         
     }

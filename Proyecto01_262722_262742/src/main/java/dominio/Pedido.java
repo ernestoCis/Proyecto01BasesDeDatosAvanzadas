@@ -4,13 +4,11 @@
  */
 package dominio;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  *
- * @author Isaac
+ * @author 
  */
 public abstract class Pedido {
 
@@ -22,7 +20,6 @@ public abstract class Pedido {
     private float total;
     private int numeroPedido;
     private Cliente cliente;
-    private List<DetallePedido> detalles;
 
     public Pedido() {
     }
@@ -70,10 +67,6 @@ public abstract class Pedido {
         return cliente;
     }
 
-    public List<DetallePedido> getDetalles() {
-        return detalles;
-    }
-
     public void setId(int id) {
         this.id = id;
     }
@@ -104,10 +97,6 @@ public abstract class Pedido {
 
     public void setCliente(Cliente cliente) {
         this.cliente = cliente;
-    }
-
-    public void setDetalles(List<DetallePedido> detalles) {
-        this.detalles = detalles;
     }
 
 }

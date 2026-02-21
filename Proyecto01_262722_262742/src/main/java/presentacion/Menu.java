@@ -13,24 +13,22 @@ import javax.swing.JFrame;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
-import java.sql.SQLException;
-import negocio.BOs.CuponBO;
-import negocio.BOs.ProductoBO;
 import negocio.BOs.iCuponBO;
+import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
-import persistencia.Conexion.ConexionBD;
-import persistencia.Conexion.iConexionBD;
-import persistencia.DAOs.ProductoDAO;
+
 
 public class Menu extends JFrame {
     
     private final iProductoBO productoBO;
     private final iCuponBO cuponBO;
+    private final iPedidoBO pedidoBO;
 
-    public Menu(iProductoBO productoBO, iCuponBO cuponBO) {
+    public Menu(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
         
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
+        this.pedidoBO = pedidoBO;
 
         setTitle("Panadería");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -163,13 +161,13 @@ public class Menu extends JFrame {
 
         // ---- Acciones de botones ----
         btnFlecha.addActionListener(e -> {
-            new PantallaInicioSesionEmpleado(productoBO, cuponBO).setVisible(true);
+            new PantallaInicioSesionEmpleado(productoBO, cuponBO, pedidoBO).setVisible(true);
             this.dispose();
         });
         btnProgramado.addActionListener(e -> {
             try {
 
-                PantallaCatalogo pantalla = new PantallaCatalogo(productoBO, cuponBO);
+                PantallaCatalogo pantalla = new PantallaCatalogo(productoBO, cuponBO, pedidoBO);
                 pantalla.setVisible(true);
 
                 this.dispose(); // cierra el menú actual
@@ -189,7 +187,7 @@ public class Menu extends JFrame {
         MouseAdapter clickLogin = new MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                new PantallaInicioSesionCliente(productoBO, cuponBO).setVisible(true);
+                new PantallaInicioSesionCliente(productoBO, cuponBO, pedidoBO).setVisible(true);
                 Menu.this.dispose();
             }
         };

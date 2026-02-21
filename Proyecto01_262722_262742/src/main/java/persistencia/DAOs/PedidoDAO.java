@@ -81,7 +81,11 @@ public class PedidoDAO implements iPedidoDAO {
 
                 ps.setString(1, String.valueOf(pedido.getEstado()));
                 ps.setDate(2, java.sql.Date.valueOf(pedido.getFechaCreacion().toLocalDate()));
-                ps.setDate(3, java.sql.Date.valueOf(pedido.getFechaEntrega().toLocalDate()));
+                if(pedido.getFechaEntrega() != null){
+                    ps.setDate(3, java.sql.Date.valueOf(pedido.getFechaEntrega().toLocalDate()));
+                }else{
+                    ps.setDate(3, null);
+                }
                 ps.setString(4, String.valueOf(pedido.getMetodoPago()));
                 ps.setInt(5, pedido.getNumeroPedido());
 
@@ -122,27 +126,6 @@ public class PedidoDAO implements iPedidoDAO {
 
                 ps2.executeUpdate();
 
-            }
-
-            // Insertar los detalles si existen
-            if (!pedido.getDetalles().isEmpty()) {
-
-                try (PreparedStatement ps3 = conn.prepareStatement(comandoDetalleSQL)) {
-
-                    // Se recorren los detalles asociados al pedido
-                    for (DetallePedido d : pedido.getDetalles()) {
-
-                        ps3.setString(1, d.getNota());
-                        ps3.setInt(2, d.getCantidad());
-                        ps3.setFloat(3, d.getPrecio());
-                        ps3.setFloat(4, d.getSubtotal());
-                        ps3.setInt(5, pedido.getId());
-                        ps3.setInt(6, d.getProducto().getId());
-
-                        ps3.executeUpdate();
-                    }
-
-                }
             }
 
             conn.commit(); // Se confirma la transaccinn

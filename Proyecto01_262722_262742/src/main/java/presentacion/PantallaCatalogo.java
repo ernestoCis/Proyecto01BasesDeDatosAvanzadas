@@ -6,8 +6,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.util.List;
-import negocio.BOs.ProductoBO;
 import negocio.BOs.iCuponBO;
+import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
 import negocio.Excepciones.NegocioException;
 
@@ -15,14 +15,16 @@ public class PantallaCatalogo extends JFrame {
 
     private final iProductoBO productoBO;
     private final iCuponBO cuponBO;
+    private final iPedidoBO pedidoBO;
     private final java.util.List<ItemCarrito> carrito = new java.util.ArrayList<>();
 
     private JPanel grid;
     private JLabel badgeCarrito;
 
-    public PantallaCatalogo(iProductoBO productoBO, iCuponBO cuponBO) {
+    public PantallaCatalogo(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
+        this.pedidoBO = pedidoBO;
 
         setTitle("Panadería - Catálogo");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,7 +60,7 @@ public class PantallaCatalogo extends JFrame {
 
         // Acción: regresar
         btnFlecha.addActionListener(e -> {
-            new Menu(productoBO, cuponBO).setVisible(true);
+            new Menu(productoBO, cuponBO, pedidoBO).setVisible(true);
             dispose();
         });
 
@@ -88,7 +90,7 @@ public class PantallaCatalogo extends JFrame {
 
         lblCarrito.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override public void mouseClicked(java.awt.event.MouseEvent e) {
-                PantallaCarrito pantallaCarrito = new PantallaCarrito(PantallaCatalogo.this, carrito, productoBO, cuponBO);
+                PantallaCarrito pantallaCarrito = new PantallaCarrito(PantallaCatalogo.this, carrito, productoBO, cuponBO, pedidoBO);
                 pantallaCarrito.setVisible(true);
                 setVisible(false);
             }
@@ -307,12 +309,6 @@ public class PantallaCatalogo extends JFrame {
         });
 
         return stepper;
-    }
-
-    private void actualizarBadgeCarrito(int delta) {
-        int actual = Integer.parseInt(badgeCarrito.getText());
-        int nuevo = Math.max(0, actual + delta);
-        badgeCarrito.setText(String.valueOf(nuevo));
     }
     
     private ItemCarrito buscarItem(int idProducto) {
