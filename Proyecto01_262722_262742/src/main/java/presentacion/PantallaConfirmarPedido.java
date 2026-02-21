@@ -1,12 +1,18 @@
 package presentacion;
 
+import dominio.Cupon;
+import dominio.EstadoPedido;
 import dominio.ItemCarrito;
+import dominio.MetodoPago;
+import dominio.PedidoProgramado;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 import java.awt.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import negocio.BOs.iCuponBO;
+import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
 import negocio.Excepciones.NegocioException;
 
@@ -27,16 +33,19 @@ public class PantallaConfirmarPedido extends JFrame {
     private JLabel lblTotal;
     
     private final iProductoBO productoBO;
+    private final iPedidoBO pedidoBO;
     private final iCuponBO cuponBO;
 
     private float descuentoActual = 0;
     private float subtotal = 0;
+    private MetodoPago metodoPago = MetodoPago.Efectivo; //efectivo como default
 
-    public PantallaConfirmarPedido(JFrame pantallaAnterior, List<ItemCarrito> carrito, iProductoBO productoBO, iCuponBO cuponBO) {
+    public PantallaConfirmarPedido(JFrame pantallaAnterior, List<ItemCarrito> carrito, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
         this.pantallaAnterior = pantallaAnterior;
         this.carrito = carrito;
         
         this.productoBO = productoBO;
+        this.pedidoBO = pedidoBO;
         this.cuponBO = cuponBO;
         
 
@@ -228,8 +237,31 @@ public class PantallaConfirmarPedido extends JFrame {
         centro.setLayout(new BoxLayout(centro, BoxLayout.Y_AXIS));
         centro.setBorder(new EmptyBorder(0, 40, 0, 40));
 
+        // ----- metodo de pago -----
+        JPanel panelMetodoPago = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        panelMetodoPago.setOpaque(false);
+        panelMetodoPago.setBorder(new EmptyBorder(8, 0, 8, 0));
+
+        JLabel lblMetodo = new JLabel("Metodo de pago:");
+        lblMetodo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+
+        JComboBox<MetodoPago> comboMetodoPago
+                = new JComboBox<>(MetodoPago.values());
+
+        comboMetodoPago.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        comboMetodoPago.setSelectedItem(MetodoPago.Efectivo); // default
+
+        comboMetodoPago.addActionListener(e -> {
+            metodoPago = (MetodoPago) comboMetodoPago.getSelectedItem();
+        });
+
+        panelMetodoPago.add(lblMetodo);
+        panelMetodoPago.add(Box.createHorizontalStrut(10));
+        panelMetodoPago.add(comboMetodoPago);
+        
         centro.add(scroll);
         centro.add(panelCupon);
+        centro.add(panelMetodoPago);
         centro.add(Box.createVerticalStrut(6));
         centro.add(panelResumen);
 
@@ -245,7 +277,35 @@ public class PantallaConfirmarPedido extends JFrame {
         btnRealizar.setBackground(new Color(245, 245, 245));
 
         btnRealizar.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Pedido confirmado (pendiente lógica).");
+            
+            try{
+                //crear el pedido para mandarlo a la ultima pantalla
+                PedidoProgramado pedidoProgramado = new PedidoProgramado();
+                pedidoProgramado.setEstado(EstadoPedido.Pendiente);
+                pedidoProgramado.setFechaCreacion(LocalDateTime.now());
+                // fecha de entrega vacia por ahora (se cambia hasta que el estado pasa a Entregado)
+                pedidoProgramado.setMetodoPago(metodoPago);
+                pedidoProgramado.setTotal(subtotal - descuentoActual);
+                pedidoProgramado.setNumeroPedido(pedidoBO.generarNumeroDePedido());
+                pedidoProgramado.setCliente(cliente);
+                
+                if(!txtCupon.getText().trim().isEmpty()){
+                    pedidoProgramado.setCupon(cuponBO.consultarCupon(txtCupon.getText()));
+                }
+
+                if(pedidoBO.agregarPedidoProgramado(pedidoProgramado) != null){
+                    PantallaPedidoProgramadoRealizado pantallaPedidoRealizado = new PantallaPedidoProgramadoRealizado(pedidoProgramado, productoBO, cuponBO, pedidoBO);
+                    pantallaPedidoRealizado.setVisible(true);
+                    dispose();
+                }else{
+                    JOptionPane.showMessageDialog(this, "Error al agregar el pedido.");
+                }
+                
+                
+            }catch(NegocioException ex){
+                JOptionPane.showMessageDialog(this, ex.getMessage());
+            }
+            
         });
 
         JPanel panelBtn = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 10));
