@@ -28,4 +28,12 @@ public interface iClienteBO {
      * @throws NegocioException excepcion por reglas de negocio
      */
     public Cliente consultarCliente(String usuario, String contrasenia) throws NegocioException;
+    
+    /**
+     * metodo que actualiza un cliente mediante el DAO
+     * @param cliente cliente con datos actualizados
+     * @return cliente actualizado
+     * @throws NegocioException excepcion por reglas de negocio
+     */
+    public Cliente actualizarCliente(Cliente cliente) throws NegocioException;
 }
