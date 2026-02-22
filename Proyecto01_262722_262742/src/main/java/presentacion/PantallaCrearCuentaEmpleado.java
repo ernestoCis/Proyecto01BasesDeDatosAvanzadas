@@ -186,15 +186,12 @@ public class PantallaCrearCuentaEmpleado extends JFrame {
                 Empleado emp = new Empleado();
                 emp.setUsuario(usuario);
                 emp.setContrasenia(pass);
-                emp.setRol(RolUsuario.EMPLEADO);
+                emp.setRol(RolUsuario.Empleado);
 
-                // ===========================
-                // PENDIENTE:
-                // Implementar en UsuarioBO:
-                // ctx.getUsuarioBO().registrarEmpleado(emp);
-                // ===========================
+                ctx.getEmpleadoBO().registrarEmpleado(emp);
+
                 JOptionPane.showMessageDialog(this,
-                        "Empleado creado (lógica pendiente de persistencia).");
+                        "Empleado creado correctamente.");
 
                 // Regresar al login empleado
                 new PantallaInicioSesionEmpleado(ctx).setVisible(true);

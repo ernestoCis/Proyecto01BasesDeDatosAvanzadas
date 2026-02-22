@@ -168,7 +168,6 @@ public class PantallaInicioSesionEmpleado extends JFrame {
             }
 
             try {
-                // ✅ ideal: que el BO regrese el objeto Empleado
                 Empleado emp = ctx.getUsuarioBO().iniciarSesionEmpleado(usuario, contrasenia);
 
                 // guardar sesión

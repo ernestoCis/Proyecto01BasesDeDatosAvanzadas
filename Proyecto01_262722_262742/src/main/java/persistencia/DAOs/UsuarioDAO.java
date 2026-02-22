@@ -56,7 +56,7 @@ public class UsuarioDAO implements iUsuarioDAO {
                 emp.setUsuario(rs.getString("usuario"));
                 emp.setContrasenia(rs.getString("contrasenia"));
 
-                emp.setRol(RolUsuario.valueOf(rs.getString("rol").toUpperCase()));
+                emp.setRol(RolUsuario.valueOf(rs.getString("rol")));
 
                 return emp;
             }
@@ -91,7 +91,7 @@ public class UsuarioDAO implements iUsuarioDAO {
                 cli.setId(rs.getInt("id"));
                 cli.setUsuario(rs.getString("usuario"));
                 cli.setContrasenia(rs.getString("contrasenia"));
-                cli.setRol(RolUsuario.valueOf(rs.getString("rol").toUpperCase()));
+                cli.setRol(RolUsuario.valueOf(rs.getString("rol")));
 
                 cli.setNombres(rs.getString("nombres"));
                 cli.setApellidoPaterno(rs.getString("apellido_paterno"));

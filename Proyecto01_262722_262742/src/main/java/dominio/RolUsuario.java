@@ -9,6 +9,6 @@ package dominio;
  * @author Isaac
  */
 public enum RolUsuario {
-    CLIENTE,
-    EMPLEADO
+    Cliente,
+    Empleado
 }

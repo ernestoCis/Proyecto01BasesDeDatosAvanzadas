@@ -26,6 +26,7 @@ public class FabricaAplicacion {
         iPedidoDAO pedidoDAO = new PedidoDAO(conexion);
         iClienteDAO clienteDAO = new ClienteDAO(conexion);
         iDetallePedidoDAO detallePedidoDAO = new DetallePedidoDAO(conexion);
+        iEmpleadoDAO empleadoDAO = new EmpleadoDAO(conexion);
 
         // BOs
         iUsuarioBO usuarioBO = new UsuarioBO(usuarioDAO);
@@ -33,7 +34,8 @@ public class FabricaAplicacion {
         iCuponBO cuponBO = new CuponBO(cuponDAO);
         iPedidoBO pedidoBO = new PedidoBO(pedidoDAO, detallePedidoDAO);
         iClienteBO clienteBO = new ClienteBO(clienteDAO);
+        iEmpleadoBO empleadoBO = new EmpleadoBO(empleadoDAO);
 
-        return new AppContext(usuarioBO, productoBO, cuponBO, pedidoBO, clienteBO);
+        return new AppContext(usuarioBO, productoBO, cuponBO, pedidoBO, clienteBO, empleadoBO);
     }
 }
