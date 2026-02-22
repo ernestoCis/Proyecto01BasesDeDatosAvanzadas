@@ -362,7 +362,7 @@ public class PantallaCrearCuenta extends JFrame {
             telefono.setTelefono(txtTelefono.getText());
             telefono.setEtiqueta(txtEtiqueta.getText());
 
-            cliente.setRol(RolUsuario.CLIENTE);
+            cliente.setRol(RolUsuario.Cliente);
 
             LocalDate fecha = LocalDate.of(Integer.parseInt(txtAnio.getText()), Integer.parseInt(txtMes.getText()), Integer.parseInt(txtDia.getText()));
             cliente.setFechaNacimiento(fecha);

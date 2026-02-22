@@ -8,6 +8,7 @@ import dominio.Cliente;
 import dominio.Empleado;
 import negocio.BOs.iClienteBO;
 import negocio.BOs.iCuponBO;
+import negocio.BOs.iEmpleadoBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
 import negocio.BOs.iUsuarioBO;
@@ -23,17 +24,24 @@ public class AppContext {
     private final iCuponBO cuponBO;
     private final iPedidoBO pedidoBO;
     private final iClienteBO clienteBO;
+    private final iEmpleadoBO empleadoBO; 
 
     // Sesión (pueden ser null si no hay sesión iniciada)
     private Cliente clienteActual;
     private Empleado empleadoActual;
 
-    public AppContext(iUsuarioBO usuarioBO, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO, iClienteBO clienteBO) {
+    public AppContext(iUsuarioBO usuarioBO,
+                      iProductoBO productoBO,
+                      iCuponBO cuponBO,
+                      iPedidoBO pedidoBO,
+                      iClienteBO clienteBO,
+                      iEmpleadoBO empleadoBO) { 
         this.usuarioBO = usuarioBO;
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
         this.pedidoBO = pedidoBO;
         this.clienteBO = clienteBO;
+        this.empleadoBO = empleadoBO;
     }
 
     public iUsuarioBO getUsuarioBO() {
@@ -54,6 +62,11 @@ public class AppContext {
 
     public iClienteBO getClienteBO() {
         return clienteBO;
+    }
+
+    // ✅ NUEVO
+    public iEmpleadoBO getEmpleadoBO() {
+        return empleadoBO;
     }
 
     public Cliente getClienteActual() {
