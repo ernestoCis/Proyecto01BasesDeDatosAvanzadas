@@ -27,7 +27,7 @@ public class UsuarioBO implements iUsuarioBO {
     /**
      * Metodo para iniciar sesión de un empleado. Valida que el usuario y la
      * contraseña no estén vacíos, consulta el empleado en la base de datos y
-     * verifica que la contraseña coincida.
+     * verifica la contraseña usando BCrypt.
      *
      * @param usuario nombre de usuario ingresado
      * @param contrasenia contraseña ingresada en texto plano
@@ -50,7 +50,15 @@ public class UsuarioBO implements iUsuarioBO {
             Empleado empleado = usuarioDAO.consultarEmpleadoPorUsuario(usuario.trim());
 
             if (empleado == null || empleado.getContrasenia() == null
-                    || !empleado.getContrasenia().equals(contrasenia)) {
+                    || empleado.getContrasenia().isEmpty()) {
+                throw new NegocioException("Usuario o contraseña incorrectos.");
+            }
+
+            String hashBD = empleado.getContrasenia();
+
+            boolean ok = org.mindrot.jbcrypt.BCrypt.checkpw(contrasenia, hashBD);
+
+            if (!ok) {
                 throw new NegocioException("Usuario o contraseña incorrectos.");
             }
 
@@ -65,7 +73,8 @@ public class UsuarioBO implements iUsuarioBO {
     /**
      * Metodo para iniciar sesión de un cliente. Valida que el usuario y la
      * contraseña no estén vacíos, consulta el cliente en la base de datos y
-     * verifica que la contraseña coincida.
+     * verifica la contraseña con BCrypt (no se desencripta, se compara contra
+     * el hash).
      *
      * @param usuario nombre de usuario ingresado
      * @param contrasenia contraseña ingresada en texto plano
@@ -87,8 +96,17 @@ public class UsuarioBO implements iUsuarioBO {
 
             Cliente cliente = usuarioDAO.consultarClientePorUsuario(usuario.trim());
 
-            if (cliente == null || cliente.getContrasenia() == null
-                    || !cliente.getContrasenia().equals(contrasenia)) {
+            // Si no existe o no tiene contraseña guardada
+            if (cliente == null || cliente.getContrasenia() == null || cliente.getContrasenia().isEmpty()) {
+                throw new NegocioException("Usuario o contraseña incorrectos.");
+            }
+
+            String hashBD = cliente.getContrasenia();
+
+            // ✅ BCrypt: comparar password en texto plano vs hash guardado
+            boolean ok = org.mindrot.jbcrypt.BCrypt.checkpw(contrasenia, hashBD);
+
+            if (!ok) {
                 throw new NegocioException("Usuario o contraseña incorrectos.");
             }
 
