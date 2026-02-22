@@ -6,6 +6,7 @@ package negocio.BOs;
 
 import dominio.Cliente;
 import dominio.Telefono;
+import java.time.LocalDate;
 import java.util.logging.Logger;
 import negocio.Excepciones.NegocioException;
 import negocio.util.PasswordUtil;
@@ -88,6 +89,64 @@ public class ClienteBO implements iClienteBO{
             LOG.warning("Error al consultar al cliente. " + ex);
             throw new NegocioException("Error al consultar cliente. " + ex.getMessage(), ex);
         }
+    }
+
+    @Override
+    public Cliente actualizarCliente(Cliente cliente) throws NegocioException {
+        if (cliente == null) {
+            throw new NegocioException("Cliente inválido.");
+        }
+        if (cliente.getId() <= 0) {
+            throw new NegocioException("ID de cliente inválido.");
+        }
+
+        if (isBlank(cliente.getUsuario())) {
+            throw new NegocioException("El usuario no puede estar vacío.");
+        }
+        if (isBlank(cliente.getNombres())) {
+            throw new NegocioException("El nombre no puede estar vacío.");
+        }
+        if (isBlank(cliente.getApellidoPaterno())) {
+            throw new NegocioException("El apellido paterno no puede estar vacío.");
+        }
+        if (cliente.getFechaNacimiento() == null) {
+            throw new NegocioException("La fecha de nacimiento es obligatoria.");
+        }
+
+        if (cliente.getFechaNacimiento().isAfter(LocalDate.now())) {
+            throw new NegocioException("La fecha de nacimiento no puede ser futura.");
+        }
+
+        if (!isBlank(cliente.getContrasenia())) {
+            try {
+                String hash = PasswordUtil.hash(cliente.getContrasenia().trim());
+                cliente.setContrasenia(hash);
+            } catch (Exception ex) {
+                throw new NegocioException("No se pudo procesar la contraseña.", ex);
+            }
+        } else {
+            try {
+                Cliente actual = clienteDAO.consultarCliente(cliente.getUsuario());
+                if (actual != null && !isBlank(actual.getContrasenia())) {
+                    cliente.setContrasenia(actual.getContrasenia()); // conservar hash actual
+                } else {
+                    throw new NegocioException("No se encontró la contraseña actual del usuario.");
+                }
+            } catch (PersistenciaException ex) {
+                throw new NegocioException("No se pudo conservar la contraseña actual.", ex);
+            }
+        }
+
+        try {
+            return clienteDAO.actualizarCliente(cliente);
+        } catch (PersistenciaException ex) {
+            LOG.warning("No se pudo actualizar el cliente: " + ex.getMessage());
+            throw new NegocioException("No se pudo actualizar el cliente.", ex);
+        }
+    }
+    
+    private boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
     }
     
 }

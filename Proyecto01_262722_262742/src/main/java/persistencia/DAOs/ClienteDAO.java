@@ -65,12 +65,12 @@ public class ClienteDAO implements iClienteDAO{
                 }
 
                 Cliente cliente = new Cliente(); 
-                cliente.setId(rs.getInt("id_usuario"));
+                cliente.setId(rs.getInt("id"));
                 cliente.setContrasenia(rs.getString("contrasenia"));
                 cliente.setNombres(rs.getString("nombres"));
                 cliente.setApellidoPaterno(rs.getString("apellido_paterno"));
                 if(rs.getString("apellido_materno") != null){
-                    cliente.setApellidoMaterno(rs.getString("apellido_paterno"));
+                    cliente.setApellidoMaterno(rs.getString("apellido_materno"));
                 }
                 cliente.setFechaNacimiento(rs.getDate("fecha_nacimiento").toLocalDate());
                 
@@ -213,6 +213,105 @@ public class ClienteDAO implements iClienteDAO{
                     conn.setAutoCommit(true);
                     conn.close();
                 } catch (SQLException ignored) {}
+            }
+        }
+    }
+
+    @Override
+    public Cliente actualizarCliente(Cliente cliente) throws PersistenciaException {
+        String comandoSQLUsuario = """
+                            UPDATE usuarios
+                            SET usuario = ?, contrasenia = ?
+                            WHERE id = ?
+                            """;
+
+        String comandoSQLCliente = """
+                            UPDATE clientes
+                            SET nombres = ?, apellido_paterno = ?, apellido_materno = ?, fecha_nacimiento = ?
+                            WHERE id_usuario = ?
+                            """;
+
+
+        String sqlUpdateDireccion = """
+                                    UPDATE direcciones
+                                    SET calle = ?, colonia = ?, cp = ?, numero = ?
+                                    WHERE id_cliente = ?
+                                    """;
+
+        Connection conn = null;
+
+        try {
+            conn = conexionBD.crearConexion();
+            conn.setAutoCommit(false);
+
+            // ----- actualizar usuario -----
+            try (PreparedStatement ps = conn.prepareStatement(comandoSQLUsuario)) {
+
+                ps.setString(1, cliente.getUsuario().trim());
+                ps.setString(2, cliente.getContrasenia().trim());
+                ps.setInt(3, cliente.getId());
+
+                if (ps.executeUpdate() == 0) {
+                    throw new PersistenciaException("No se pudo actualizar el usuario (id no existe).");
+                }
+            }
+
+            // ----- actualizar cliente -----
+            try (PreparedStatement ps = conn.prepareStatement(comandoSQLCliente)) {
+                ps.setString(1, cliente.getNombres().trim());
+                ps.setString(2, cliente.getApellidoPaterno().trim());
+
+                if (cliente.getApellidoMaterno() == null || cliente.getApellidoMaterno().trim().isEmpty()) {
+                    ps.setNull(3, java.sql.Types.VARCHAR);
+                } else {
+                    ps.setString(3, cliente.getApellidoMaterno().trim());
+                }
+
+                ps.setDate(4, Date.valueOf(cliente.getFechaNacimiento()));
+                ps.setInt(5, cliente.getId());
+
+                if (ps.executeUpdate() == 0) {
+                    throw new PersistenciaException("No se pudo actualizar el cliente (id_usuario no existe).");
+                }
+            }
+
+            // ----- actualizar direccion -----
+            if (cliente.getDireccion() != null) {
+
+                try (PreparedStatement ps = conn.prepareStatement(sqlUpdateDireccion)) {
+
+                    ps.setString(1, cliente.getDireccion().getCalle().trim());
+                    ps.setString(2, cliente.getDireccion().getColonia().trim());
+                    ps.setInt(3, cliente.getDireccion().getCp());
+                    ps.setInt(4, cliente.getDireccion().getNumero());
+                    ps.setInt(5, cliente.getId()); // id_cliente
+
+                    if (ps.executeUpdate() == 0) {
+                        throw new PersistenciaException("No se pudo actualizar la dirección.");
+                    }
+                }
+            }
+
+            conn.commit();
+            return cliente;
+
+        } catch (SQLException ex) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ignored) {
+                }
+            }
+            LOG.log(Level.INFO, "Error al actualizar cliente/usuario", ex);
+            throw new PersistenciaException("Error al actualizar cliente/usuario", ex);
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException ignored) {
+                }
             }
         }
     }
