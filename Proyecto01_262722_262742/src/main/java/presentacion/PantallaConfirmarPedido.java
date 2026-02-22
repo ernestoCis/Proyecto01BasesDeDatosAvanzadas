@@ -1,7 +1,7 @@
 package presentacion;
 
 import dominio.Cliente;
-import dominio.Cupon;
+import dominio.DetallePedido;
 import dominio.EstadoPedido;
 import dominio.ItemCarrito;
 import dominio.MetodoPago;
@@ -11,11 +11,8 @@ import javax.swing.border.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import negocio.BOs.iCuponBO;
-import negocio.BOs.iPedidoBO;
-import negocio.BOs.iProductoBO;
-import negocio.BOs.iUsuarioBO;
 import negocio.Excepciones.NegocioException;
 
 public class PantallaConfirmarPedido extends JFrame {
@@ -118,13 +115,13 @@ public class PantallaConfirmarPedido extends JFrame {
         card.add(north, BorderLayout.NORTH);
 
         // ----- tabla -----
-        String[] cols = {"Producto", "Precio pz.", "Cantidad", "Subtotal", "Notas"};
+        String[] cols = {"ID", "Producto", "Precio pz.", "Cantidad", "Subtotal", "Notas"};
 
         modelo = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
                 // solo la columna Notas editable
-                return col == 4;
+                return col == 5;
             }
         };
 
@@ -137,25 +134,32 @@ public class PantallaConfirmarPedido extends JFrame {
         // centrado de columnas numéricas
         DefaultTableCellRenderer center = new DefaultTableCellRenderer();
         center.setHorizontalAlignment(SwingConstants.CENTER);
-        tabla.getColumnModel().getColumn(1).setCellRenderer(center);
         tabla.getColumnModel().getColumn(2).setCellRenderer(center);
         tabla.getColumnModel().getColumn(3).setCellRenderer(center);
+        tabla.getColumnModel().getColumn(4).setCellRenderer(center);
 
         // notas a la izquierda
         DefaultTableCellRenderer left = new DefaultTableCellRenderer();
         left.setHorizontalAlignment(SwingConstants.LEFT);
-        tabla.getColumnModel().getColumn(4).setCellRenderer(left);
+        tabla.getColumnModel().getColumn(5).setCellRenderer(left);
 
         // para editar con 1 click
         DefaultCellEditor notasEditor = new DefaultCellEditor(new JTextField());
         notasEditor.setClickCountToStart(1);
-        tabla.getColumnModel().getColumn(4).setCellEditor(notasEditor);
-
-        tabla.getColumnModel().getColumn(0).setPreferredWidth(220); // Producto
-        tabla.getColumnModel().getColumn(1).setPreferredWidth(90);  // Precio
-        tabla.getColumnModel().getColumn(2).setPreferredWidth(70);  // Cantidad
-        tabla.getColumnModel().getColumn(3).setPreferredWidth(90);  // Subtotal
-        tabla.getColumnModel().getColumn(4).setPreferredWidth(320); // Notas
+        tabla.getColumnModel().getColumn(5).setCellEditor(notasEditor);
+        
+        tabla.getColumnModel().getColumn(0).setPreferredWidth(0);
+        tabla.getColumnModel().getColumn(1).setPreferredWidth(240); // Producto
+        tabla.getColumnModel().getColumn(2).setPreferredWidth(90);  // Precio
+        tabla.getColumnModel().getColumn(3).setPreferredWidth(80);  // Cantidad
+        tabla.getColumnModel().getColumn(4).setPreferredWidth(100);  // Subtotal
+        tabla.getColumnModel().getColumn(5).setPreferredWidth(320); // Notas
+        
+        //ocultar columna de id
+        tabla.getColumnModel().getColumn(0).setMinWidth(0);
+        tabla.getColumnModel().getColumn(0).setMaxWidth(0);
+        tabla.getColumnModel().getColumn(0).setWidth(0);
+        tabla.getColumnModel().getColumn(0).setPreferredWidth(0);
 
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBorder(new LineBorder(new Color(60, 60, 60), 1));
@@ -293,11 +297,21 @@ public class PantallaConfirmarPedido extends JFrame {
                 if (!txtCupon.getText().trim().isEmpty()) {
                     pedidoProgramado.setCupon(ctx.getCuponBO().consultarCupon(txtCupon.getText()));
                 }
+                
+                //lista con los detalles del pedido
+                if (tabla.isEditing()) {
+                    tabla.getCellEditor().stopCellEditing();
+                }
+                List<DetallePedido> detalles = crearDetallesDesdeTabla();
 
-                if (ctx.getPedidoBO().agregarPedidoProgramado(pedidoProgramado) != null) {
+                if (ctx.getPedidoBO().agregarPedidoProgramado(pedidoProgramado, detalles) != null) {
+                    
+                    
                     PantallaPedidoProgramadoRealizado pantallaPedidoRealizado = new PantallaPedidoProgramadoRealizado(ctx, pedidoProgramado);
                     pantallaPedidoRealizado.setVisible(true);
                     dispose();
+                    
+                    
                 } else {
                     JOptionPane.showMessageDialog(this, "Error al agregar el pedido.");
                 }
@@ -343,6 +357,7 @@ public class PantallaConfirmarPedido extends JFrame {
             String nota = "";
 
             modelo.addRow(new Object[]{
+                it.getProducto().getId(), // id oculto
                 nombre,
                 "$" + precio,
                 cantidad,
@@ -413,5 +428,51 @@ public class PantallaConfirmarPedido extends JFrame {
         p.setBorder(new LineBorder(new Color(60, 60, 60), 1));
         p.add(l, BorderLayout.CENTER);
         return p;
+    }
+    
+    private List<DetallePedido> crearDetallesDesdeTabla() throws NegocioException {
+
+        List<DetallePedido> detalles = new ArrayList<>();
+
+        for (int i = 0; i < modelo.getRowCount(); i++) {
+
+            int idProducto = Integer.parseInt(String.valueOf(modelo.getValueAt(i, 0)));
+            int cantidad = Integer.parseInt(String.valueOf(modelo.getValueAt(i, 3)));
+            String nota = String.valueOf(modelo.getValueAt(i, 5));
+
+            ItemCarrito item = buscarItemCarritoPorId(idProducto);
+
+            if (item == null) {
+                throw new NegocioException("Producto no encontrado en carrito.");
+            }
+
+            float precio = item.getProducto().getPrecio();
+            float subtotal = precio * cantidad;
+
+            DetallePedido d = new DetallePedido();
+            d.setProducto(item.getProducto());
+            d.setCantidad(cantidad);
+            d.setPrecio(precio);
+            d.setSubtotal(subtotal);
+
+            if (nota != null && !nota.trim().isEmpty()) {
+                d.setNota(nota.trim());
+            } else {
+                d.setNota(null);
+            }
+
+            detalles.add(d);
+        }
+
+        return detalles;
+    }
+    
+    private ItemCarrito buscarItemCarritoPorId(int idProducto) {
+        for (ItemCarrito it : carrito) {
+            if (it.getProducto().getId() == idProducto) {
+                return it;
+            }
+        }
+        return null;
     }
 }

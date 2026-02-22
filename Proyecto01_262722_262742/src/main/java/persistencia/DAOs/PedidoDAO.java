@@ -18,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import persistencia.Conexion.iConexionBD;
@@ -52,7 +53,7 @@ public class PedidoDAO implements iPedidoDAO {
     }
 
     @Override
-    public PedidoProgramado insertarPedidoProgramado(PedidoProgramado pedido) throws PersistenciaException {
+    public PedidoProgramado insertarPedidoProgramado(PedidoProgramado pedido, List<DetallePedido> detalles) throws PersistenciaException {
 
         String comandoPedidoSQL = """
                                   INSERT INTO Pedidos(estado, fecha_creacion, fecha_entrega, metodo_pago, numero_pedido, id_cliente)
@@ -123,9 +124,48 @@ public class PedidoDAO implements iPedidoDAO {
                 } else {
                     ps2.setNull(2, java.sql.Types.INTEGER);
                 }
+                
+                if(ps2.executeUpdate() == 0){
+                    throw new PersistenciaException("No se pudo insertar el pedido programado (tabla hija).");
+                }
+            }
+            
+            //insertar detalles pedidos
+            if (detalles == null || detalles.isEmpty()) {
+                throw new PersistenciaException("No se puede insertar un pedido sin detalles.");
+            }
 
-                ps2.executeUpdate();
+            try (PreparedStatement ps3 = conn.prepareStatement(comandoDetalleSQL)) {
 
+                for (DetallePedido d : detalles) {
+                    if (d == null) {
+                        continue;
+                    }
+
+                    // nota puede ser null
+                    String nota = d.getNota();
+                    if (nota == null || nota.trim().isEmpty()) {
+                        ps3.setNull(1, java.sql.Types.VARCHAR);
+                    } else {
+                        ps3.setString(1, nota.trim());
+                    }
+
+                    ps3.setInt(2, d.getCantidad());
+                    ps3.setFloat(3, d.getPrecio());
+                    ps3.setFloat(4, d.getSubtotal());
+
+                    ps3.setInt(5, pedido.getId());
+
+                    // producto obligatorio
+                    if (d.getProducto() == null) {
+                        throw new PersistenciaException("Un detalle no tiene producto asignado.");
+                    }
+                    ps3.setInt(6, d.getProducto().getId());
+
+                    ps3.addBatch();
+                }
+
+                ps3.executeBatch();
             }
 
             conn.commit(); // Se confirma la transaccinn

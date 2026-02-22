@@ -368,11 +368,16 @@ public class PantallaCrearCuenta extends JFrame {
             cliente.setFechaNacimiento(fecha);
 
             try {
-
+                
+                
                 ctx.getClienteBO().registrarCliente(cliente, telefono);
 
                 JOptionPane.showMessageDialog(this, "cuenta creada");
-
+                
+                //llevar a inicio con sesion iniciada
+                
+                
+                
             } catch (NegocioException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage());
             }

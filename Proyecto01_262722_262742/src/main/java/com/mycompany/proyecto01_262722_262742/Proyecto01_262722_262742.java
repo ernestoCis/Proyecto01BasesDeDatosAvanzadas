@@ -3,7 +3,6 @@
  */
 package com.mycompany.proyecto01_262722_262742;
 
-import java.sql.Connection;
 import javax.swing.SwingUtilities;
 import negocio.BOs.ClienteBO;
 import negocio.BOs.CuponBO;
@@ -19,11 +18,13 @@ import persistencia.Conexion.ConexionBD;
 import persistencia.Conexion.iConexionBD;
 import persistencia.DAOs.ClienteDAO;
 import persistencia.DAOs.CuponDAO;
+import persistencia.DAOs.DetallePedidoDAO;
 import persistencia.DAOs.PedidoDAO;
 import persistencia.DAOs.ProductoDAO;
 import persistencia.DAOs.UsuarioDAO;
 import persistencia.DAOs.iClienteDAO;
 import persistencia.DAOs.iCuponDAO;
+import persistencia.DAOs.iDetallePedidoDAO;
 import persistencia.DAOs.iPedidoDAO;
 import persistencia.DAOs.iProductoDAO;
 import persistencia.DAOs.iUsuarioDAO;
@@ -49,12 +50,13 @@ public class Proyecto01_262722_262742 {
             iCuponDAO cuponDAO = new CuponDAO(conexion);
             iPedidoDAO pedidoDAO = new PedidoDAO(conexion);
             iClienteDAO clienteDAO = new ClienteDAO(conexion);
+            iDetallePedidoDAO detallePedidoDAO = new DetallePedidoDAO(conexion);
 
             // ===== BOs =====
             iUsuarioBO usuarioBO = new UsuarioBO(usuarioDAO);
             iProductoBO productoBO = new ProductoBO(productoDAO);
             iCuponBO cuponBO = new CuponBO(cuponDAO);
-            iPedidoBO pedidoBO = new PedidoBO(pedidoDAO);
+            iPedidoBO pedidoBO = new PedidoBO(pedidoDAO, detallePedidoDAO);
             iClienteBO clienteBO = new ClienteBO(clienteDAO);
 
             // ===== AppContext =====

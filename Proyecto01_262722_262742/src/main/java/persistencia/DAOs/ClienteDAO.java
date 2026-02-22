@@ -64,13 +64,13 @@ public class ClienteDAO implements iClienteDAO{
                     return null; // no existe cliente con ese usuario
                 }
 
-                Cliente cliente = new Cliente();
+                Cliente cliente = new Cliente(); 
                 cliente.setId(rs.getInt("id_usuario"));
                 cliente.setContrasenia(rs.getString("contrasenia"));
                 cliente.setNombres(rs.getString("nombres"));
                 cliente.setApellidoPaterno(rs.getString("apellido_paterno"));
                 if(rs.getString("apellido_materno") != null){
-                    cliente.setApellidoMaterno("apellido_materno");
+                    cliente.setApellidoMaterno(rs.getString("apellido_paterno"));
                 }
                 cliente.setFechaNacimiento(rs.getDate("fecha_nacimiento").toLocalDate());
                 
@@ -78,7 +78,7 @@ public class ClienteDAO implements iClienteDAO{
             }
 
         } catch (SQLException e) {
-            throw new PersistenciaException("Error al consultar cliente por correo", e);
+            throw new PersistenciaException("Error al consultar cliente por usuario", e);
         }
     }
 

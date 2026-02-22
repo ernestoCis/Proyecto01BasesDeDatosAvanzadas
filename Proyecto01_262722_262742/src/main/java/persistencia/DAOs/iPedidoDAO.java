@@ -4,9 +4,11 @@
  */
 package persistencia.DAOs;
 
+import dominio.DetallePedido;
 import dominio.Pedido;
 import dominio.PedidoExpress;
 import dominio.PedidoProgramado;
+import java.util.List;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
@@ -21,7 +23,7 @@ public interface iPedidoDAO {
      * @return pedido programado insertado con IDs generados
      * @throws PersistenciaException si ocurre un error de persistencia
      */
-    PedidoProgramado insertarPedidoProgramado(PedidoProgramado pedido) throws PersistenciaException;
+    PedidoProgramado insertarPedidoProgramado(PedidoProgramado pedido, List<DetallePedido> detalles) throws PersistenciaException;
 
     /**
      * Metodo para insertar un pedido express en la BD.

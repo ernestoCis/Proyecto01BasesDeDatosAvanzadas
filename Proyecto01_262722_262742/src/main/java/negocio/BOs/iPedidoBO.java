@@ -4,7 +4,9 @@
  */
 package negocio.BOs;
 
+import dominio.DetallePedido;
 import dominio.PedidoProgramado;
+import java.util.List;
 import negocio.Excepciones.NegocioException;
 
 /**
@@ -24,5 +26,5 @@ public interface iPedidoBO {
      * @param pedidoProgramado pedido a agregar
      * @throws NegocioException excepcion por regla de negocio
      */
-    public PedidoProgramado agregarPedidoProgramado(PedidoProgramado pedidoProgramado) throws NegocioException;
+    public PedidoProgramado agregarPedidoProgramado(PedidoProgramado pedidoProgramado, List<DetallePedido> detalles) throws NegocioException;
 }

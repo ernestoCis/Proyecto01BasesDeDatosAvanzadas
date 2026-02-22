@@ -4,9 +4,12 @@
  */
 package negocio.BOs;
 
+import dominio.DetallePedido;
 import dominio.PedidoProgramado;
+import java.util.List;
 import java.util.logging.Logger;
 import negocio.Excepciones.NegocioException;
+import persistencia.DAOs.iDetallePedidoDAO;
 import persistencia.DAOs.iPedidoDAO;
 import persistencia.Excepciones.PersistenciaException;
 
@@ -18,10 +21,12 @@ public class PedidoBO implements iPedidoBO{
     
     //DAO comun
     private iPedidoDAO pedidoDAO;
+    private iDetallePedidoDAO detallePedidoDAO;
     private static final Logger LOG = Logger.getLogger(ProductoBO.class.getName());
     
-    public PedidoBO(iPedidoDAO pedido){
+    public PedidoBO(iPedidoDAO pedido, iDetallePedidoDAO detallePedidoDAO){
         this.pedidoDAO = pedido; // asignamos valor al DAO
+        this.detallePedidoDAO = detallePedidoDAO;
     }
 
     @Override
@@ -44,9 +49,19 @@ public class PedidoBO implements iPedidoBO{
     }
 
     @Override
-    public PedidoProgramado agregarPedidoProgramado(PedidoProgramado pedidoProgramado) throws NegocioException {
-        try{
-           return pedidoDAO.insertarPedidoProgramado(pedidoProgramado);
+    public PedidoProgramado agregarPedidoProgramado(PedidoProgramado pedidoProgramado, List<DetallePedido> detalles) throws NegocioException {
+        try {
+            if (pedidoProgramado == null) {
+                throw new NegocioException("El pedido es obligatorio.");
+            }
+            if (detalles == null || detalles.isEmpty()) {
+                throw new NegocioException("El pedido no tiene productos.");
+            }
+
+            // 1) Insertar pedido (debe regresar con ID seteado)
+            PedidoProgramado pedidoGuardado = pedidoDAO.insertarPedidoProgramado(pedidoProgramado, detalles);
+
+            return pedidoGuardado;
         }catch(PersistenciaException ex){
             LOG.warning("No se pudo agregar el pedido programado " + ex);
             throw new NegocioException("No se pudo agregar el pedido programado. ", ex);
