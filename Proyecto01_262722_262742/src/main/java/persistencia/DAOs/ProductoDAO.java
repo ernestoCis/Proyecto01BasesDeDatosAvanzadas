@@ -23,8 +23,8 @@ import persistencia.Excepciones.PersistenciaException;
  *
  * @author jesus
  */
-public class ProductoDAO implements iProductoDAO{
-    
+public class ProductoDAO implements iProductoDAO {
+
     /**
      * Componente encargado de crear conexiones con la base de datos. Se inyecta
      * por constructor para reducir acoplamiento y facilitar pruebas.
@@ -36,7 +36,7 @@ public class ProductoDAO implements iProductoDAO{
      * persistencia.
      */
     private static final Logger LOG = Logger.getLogger(ProductoDAO.class.getName());
-    
+
     /**
      * Constructor que inicializa la dependencia de conexión.
      *
@@ -49,6 +49,7 @@ public class ProductoDAO implements iProductoDAO{
 
     /**
      * metodo que consulta un producto en la BD
+     *
      * @param producto producto a consultar
      * @return producto consultado
      * @throws PersistenciaException excepcion por si el SQL falla
@@ -59,9 +60,9 @@ public class ProductoDAO implements iProductoDAO{
                                 SELECT id, nombre, tipo, precio, estado, descripcion FROM Productos
                                 WHERE id = ?
                             """;
-        
+
         try (Connection conn = this.conexionBD.crearConexion();) {
-            
+
             Producto p;
             try (PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
                 ps.setInt(1, producto.getId());
@@ -75,17 +76,17 @@ public class ProductoDAO implements iProductoDAO{
                     p = new Producto(
                             rs.getInt("id"),
                             rs.getString("nombre"),
-                            TipoProducto.valueOf(rs.getString("tipo").toUpperCase()),
+                            TipoProducto.valueOf(rs.getString("tipo")),
                             rs.getFloat("precio"),
-                            EstadoProducto.valueOf(rs.getString("estado").toUpperCase()),
+                            EstadoProducto.valueOf(rs.getString("estado").replace(" ", "_")),
                             rs.getString("descripcion")
                     );
                 }
             }
 
             return p;
-            
-        }catch(SQLException ex){
+
+        } catch (SQLException ex) {
             LOG.log(Level.SEVERE, "Error de SQL al consultar el producto", ex);
             throw new PersistenciaException(ex.getMessage());
         }
@@ -97,22 +98,22 @@ public class ProductoDAO implements iProductoDAO{
                             INSERT INTO Productos(nombre, tipo, precio, estado, descripcion) 
                             VALUES(?,?,?,?,?)
                             """;
-        
-        try (Connection conn = this.conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL, Statement.RETURN_GENERATED_KEYS)){
-            
+
+        try (Connection conn = this.conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL, Statement.RETURN_GENERATED_KEYS)) {
+
             ps.setString(1, producto.getNombre());
-            ps.setString(2, String.valueOf(producto.getTipo())) ;
+            ps.setString(2, String.valueOf(producto.getTipo()));
             ps.setFloat(3, producto.getPrecio());
-            ps.setString(4, String.valueOf(producto.getEstado()));
+            ps.setString(4, producto.getEstado().name().replace("_", " "));
             ps.setString(5, producto.getDescripcion());
-            
+
             int filasInsertadas = ps.executeUpdate();
 
             if (filasInsertadas == 0) {
                 LOG.log(Level.WARNING, "No se pudo insertar el producto: {0}", producto);
                 throw new PersistenciaException("No se pudo insertar el producto");
             }
-            
+
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
                     producto.setId(rs.getInt(1));
@@ -123,29 +124,31 @@ public class ProductoDAO implements iProductoDAO{
 
             LOG.log(Level.INFO, "Producto insertado con éxito. ID: {0}", producto.getId());
             return producto;
-            
-        }catch(SQLException ex){
+
+        } catch (SQLException ex) {
             LOG.log(Level.SEVERE, "Error de SQL al insertar el producto", ex);
             throw new PersistenciaException(ex.getMessage());
         }
-        
+
     }
 
     @Override
     public Producto actualizarProducto(Producto producto) throws PersistenciaException {
+
         String comandoSQL = """
                             UPDATE Productos
-                            SET nombres = ?, tipo = ?, precio = ?, estado = ?, descripcion = ?
+                            SET nombre = ?, tipo = ?, precio = ?, estado = ?, descripcion = ?
                             WHERE id = ?
                             """;
 
         try (Connection conn = this.conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
 
             ps.setString(1, producto.getNombre());
-            ps.setString(2, String.valueOf(producto.getTipo()));
+            ps.setString(2, producto.getTipo().name());
             ps.setFloat(3, producto.getPrecio());
-            ps.setString(4, String.valueOf(producto.getEstado()));
+            ps.setString(4, producto.getEstado().name().replace("_", " "));
             ps.setString(5, producto.getDescripcion());
+            ps.setInt(6, producto.getId());
 
             if (ps.executeUpdate() == 0) {
                 throw new PersistenciaException("No se pudo actualizar: el ID proporcionado no existe.");
@@ -154,32 +157,34 @@ public class ProductoDAO implements iProductoDAO{
             return producto;
 
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, "Error de SQL al actualizar técnico", ex);
+            LOG.log(Level.SEVERE, "Error de SQL al actualizar producto", ex);
             throw new PersistenciaException(ex.getMessage());
         }
     }
 
     @Override
     public List<Producto> listarProductos() throws PersistenciaException {
+
         String comandoSQL = """
                             SELECT id, nombre, tipo, precio, estado, descripcion
                             FROM Productos
-                            WHERE estado = 'Disponible'
                             """;
-        
+
         List<Producto> productos = new ArrayList<>();
-        
+
         try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
+
                 Producto p = new Producto(
                         rs.getInt("id"),
                         rs.getString("nombre"),
                         TipoProducto.valueOf(rs.getString("tipo")),
                         rs.getFloat("precio"),
-                        EstadoProducto.valueOf(rs.getString("estado")),
+                        EstadoProducto.valueOf(rs.getString("estado").replace(" ", "_")),
                         rs.getString("descripcion")
                 );
+
                 productos.add(p);
             }
 
@@ -189,7 +194,6 @@ public class ProductoDAO implements iProductoDAO{
             LOG.log(Level.SEVERE, "Error SQL al listar productos", ex);
             throw new PersistenciaException(ex.getMessage());
         }
-        
     }
-    
+
 }
