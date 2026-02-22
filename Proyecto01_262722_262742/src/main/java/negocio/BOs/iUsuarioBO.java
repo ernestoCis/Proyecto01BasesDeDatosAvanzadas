@@ -4,6 +4,8 @@
  */
 package negocio.BOs;
 
+import dominio.Cliente;
+import dominio.Empleado;
 import negocio.Excepciones.NegocioException;
 
 /**
@@ -17,18 +19,18 @@ public interface iUsuarioBO {
      *
      * @param usuario nombre de usuario ingresado
      * @param contrasenia contrasenia en texto plano ingresada
-     * @return true si la autenticacion es correcta, false en caso contrario
+     * @return Empleado empleado con toda su info
      * @throws NegocioException si ocurre un error en la capa de negocio
      */
-    boolean autenticarEmpleado(String usuario, String contrasenia) throws NegocioException;
+    Empleado iniciarSesionEmpleado(String usuario, String contrasenia) throws NegocioException;
 
     /**
      * Metodo para autenticar a un cliente del sistema.
      *
      * @param usuario nombre de usuario ingresado
      * @param contrasenia contraseña en texto plano ingresada
-     * @return true si la autenticacion es correcta, false en caso contrario
+     * @return Cliente cliente con toda su info
      * @throws NegocioException si ocurre un error en la capa de negocio
      */
-    boolean autenticarCliente(String usuario, String contrasenia) throws NegocioException;
+    Cliente iniciarSesionCliente(String usuario, String contrasenia) throws NegocioException;
 }

@@ -25,68 +25,78 @@ public class UsuarioBO implements iUsuarioBO {
     }
 
     /**
-     * Metodo para autenticar a un empleado.
-     * @param usuario usuario ingresado
-     * @param contrasenia contraseña ingresada 
-     * @return true si es correcto, false si usuario o c0ontraseña no coinciden
-     * @throws NegocioException si ocurre un error de persistencia o validación
+     * Metodo para iniciar sesión de un empleado. Valida que el usuario y la
+     * contraseña no estén vacíos, consulta el empleado en la base de datos y
+     * verifica que la contraseña coincida.
+     *
+     * @param usuario nombre de usuario ingresado
+     * @param contrasenia contraseña ingresada en texto plano
+     * @return Empleado autenticado si las credenciales son correctas
+     * @throws NegocioException si el usuario no existe, la contraseña es
+     * incorrecta o ocurre un error de persistencia
      */
     @Override
-    public boolean autenticarEmpleado(String usuario, String contrasenia) throws NegocioException {
+    public Empleado iniciarSesionEmpleado(String usuario, String contrasenia) throws NegocioException {
         try {
+
             if (usuario == null || usuario.trim().isEmpty()) {
                 throw new NegocioException("El usuario es obligatorio.");
             }
+
             if (contrasenia == null || contrasenia.isEmpty()) {
                 throw new NegocioException("La contraseña es obligatoria.");
             }
 
             Empleado empleado = usuarioDAO.consultarEmpleadoPorUsuario(usuario.trim());
 
-            // Si no existe, po no
-            if (empleado == null) {
-                return false;
+            if (empleado == null || empleado.getContrasenia() == null
+                    || !empleado.getContrasenia().equals(contrasenia)) {
+                throw new NegocioException("Usuario o contraseña incorrectos.");
             }
 
-            // Comparación directa (texto plano)
-            return empleado.getContrasenia() != null && empleado.getContrasenia().equals(contrasenia);
+            return empleado;
 
         } catch (PersistenciaException ex) {
-            LOG.warning("Error al autenticar empleado. " + ex);
-            throw new NegocioException("Error al autenticar empleado: " + ex.getMessage(), ex);
+            LOG.warning("Error al iniciar sesión empleado. " + ex);
+            throw new NegocioException("Error al iniciar sesión empleado: " + ex.getMessage(), ex);
         }
     }
 
     /**
-     * Metodo para autenticar a un cliente.
-     * @param usuario usuario ingresado
-     * @param contrasenia contraseña ingresada 
-     * @return true si es correcto, false si usuario/contraseña no coinciden
-     * @throws NegocioException si ocurre un error de persistencia o validación
+     * Metodo para iniciar sesión de un cliente. Valida que el usuario y la
+     * contraseña no estén vacíos, consulta el cliente en la base de datos y
+     * verifica que la contraseña coincida.
+     *
+     * @param usuario nombre de usuario ingresado
+     * @param contrasenia contraseña ingresada en texto plano
+     * @return Cliente autenticado si las credenciales son correctas
+     * @throws NegocioException si el usuario no existe, la contraseña es
+     * incorrecta o ocurre un error de persistencia
      */
     @Override
-    public boolean autenticarCliente(String usuario, String contrasenia) throws NegocioException {
+    public Cliente iniciarSesionCliente(String usuario, String contrasenia) throws NegocioException {
         try {
+
             if (usuario == null || usuario.trim().isEmpty()) {
                 throw new NegocioException("El usuario es obligatorio.");
             }
+
             if (contrasenia == null || contrasenia.isEmpty()) {
                 throw new NegocioException("La contraseña es obligatoria.");
             }
 
             Cliente cliente = usuarioDAO.consultarClientePorUsuario(usuario.trim());
 
-            // Si no existe, po no
-            if (cliente == null) {
-                return false;
+            if (cliente == null || cliente.getContrasenia() == null
+                    || !cliente.getContrasenia().equals(contrasenia)) {
+                throw new NegocioException("Usuario o contraseña incorrectos.");
             }
 
-            // Comparación directa (texto plano)
-            return cliente.getContrasenia() != null && cliente.getContrasenia().equals(contrasenia);
+            return cliente;
 
         } catch (PersistenciaException ex) {
-            LOG.warning("Error al autenticar cliente. " + ex);
-            throw new NegocioException("Error al autenticar cliente: " + ex.getMessage(), ex);
+            LOG.warning("Error al iniciar sesión cliente. " + ex);
+            throw new NegocioException("Error al iniciar sesión cliente: " + ex.getMessage(), ex);
         }
     }
 }

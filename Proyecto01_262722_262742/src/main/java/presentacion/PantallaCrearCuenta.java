@@ -46,19 +46,12 @@ public class PantallaCrearCuenta extends JFrame {
     private JTextField txtEtiqueta;
 
     private JButton btnCrear;
-    
-    private final iProductoBO productoBO;
-    private final iCuponBO cuponBO;
-    private final iPedidoBO pedidoBO;
-    private final iClienteBO clienteBO;
 
-    public PantallaCrearCuenta(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO, iClienteBO clienteBO) {
-        
-        this.productoBO = productoBO;
-        this.cuponBO = cuponBO;
-        this.pedidoBO = pedidoBO;
-        this.clienteBO = clienteBO;
-        
+    private final AppContext ctx;
+
+    public PantallaCrearCuenta(AppContext ctx) {
+        this.ctx = ctx;
+
         setTitle("Panadería - Crear cuenta");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(820, 720);
@@ -116,7 +109,7 @@ public class PantallaCrearCuenta extends JFrame {
         centro.add(Box.createVerticalStrut(6));
         centro.add(subtitulo);
         centro.add(Box.createVerticalStrut(6));
-        
+
         // Formulario (2 columnas)
         JPanel form = new JPanel(new GridBagLayout());
         form.setOpaque(false);
@@ -346,40 +339,40 @@ public class PantallaCrearCuenta extends JFrame {
 
         // ====== Acciones ======
         btnBack.addActionListener(e -> {
-//            new PantallaInicioSesionCliente(productoBO, cuponBO, pedidoBO).setVisible(true);
-            this.dispose();
+            new PantallaInicioSesionCliente(ctx).setVisible(true);
+            dispose();
         });
 
         btnCrear.addActionListener(e -> {
             Cliente cliente = new Cliente();
             cliente.setUsuario(txtUsuario.getText());
-            
+
             char[] passArray = txtContrasena.getPassword();
             String password = new String(passArray);
             cliente.setContrasenia(password);
-            
+
             cliente.setNombres(txtNombres.getText());
             cliente.setApellidoPaterno(txtApellidoP.getText());
-            
-            if(!txtApellidoM.getText().trim().isEmpty()){
+
+            if (!txtApellidoM.getText().trim().isEmpty()) {
                 cliente.setApellidoMaterno(txtApellidoM.getText());
             }
-            
+
             Telefono telefono = new Telefono();
             telefono.setTelefono(txtTelefono.getText());
             telefono.setEtiqueta(txtEtiqueta.getText());
-            
+
             cliente.setRol(RolUsuario.CLIENTE);
-            
+
             LocalDate fecha = LocalDate.of(Integer.parseInt(txtAnio.getText()), Integer.parseInt(txtMes.getText()), Integer.parseInt(txtDia.getText()));
             cliente.setFechaNacimiento(fecha);
-            
+
             try {
-                
-                clienteBO.registrarCliente(cliente, telefono);
-                
+
+                ctx.getClienteBO().registrarCliente(cliente, telefono);
+
                 JOptionPane.showMessageDialog(this, "cuenta creada");
-                
+
             } catch (NegocioException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage());
             }

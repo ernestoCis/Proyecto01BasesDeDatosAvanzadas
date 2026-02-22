@@ -1,14 +1,15 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  */
-
 package com.mycompany.proyecto01_262722_262742;
 
 import java.sql.Connection;
+import javax.swing.SwingUtilities;
 import negocio.BOs.ClienteBO;
 import negocio.BOs.CuponBO;
 import negocio.BOs.PedidoBO;
 import negocio.BOs.ProductoBO;
+import negocio.BOs.UsuarioBO;
 import negocio.BOs.iClienteBO;
 import negocio.BOs.iCuponBO;
 import negocio.BOs.iPedidoBO;
@@ -20,11 +21,13 @@ import persistencia.DAOs.ClienteDAO;
 import persistencia.DAOs.CuponDAO;
 import persistencia.DAOs.PedidoDAO;
 import persistencia.DAOs.ProductoDAO;
+import persistencia.DAOs.UsuarioDAO;
 import persistencia.DAOs.iClienteDAO;
 import persistencia.DAOs.iCuponDAO;
 import persistencia.DAOs.iPedidoDAO;
 import persistencia.DAOs.iProductoDAO;
 import persistencia.DAOs.iUsuarioDAO;
+import presentacion.AppContext;
 import presentacion.Menu;
 
 /**
@@ -33,34 +36,40 @@ import presentacion.Menu;
  */
 public class Proyecto01_262722_262742 {
 
-    public static void main(String[] args){
-        
-        //conexion
-        iConexionBD conexion = new ConexionBD();
-        
-        //usuario
-        iUsuarioDAO usuarioDAO = new UsuarioDAO(conexion);
-        iUsuarioBO usuarioBO = new UsuarioBO(usuarioDAO);
-        
-        //producto
-        iProductoDAO productoDAO = new ProductoDAO(conexion);
-        iProductoBO productoBO = new ProductoBO(productoDAO);
-        
-        //cupon
-        iCuponDAO cuponDAO = new CuponDAO(conexion);
-        iCuponBO cuponBO = new CuponBO(cuponDAO);
-        
-        //pedido
-        iPedidoDAO pedidoDAO = new PedidoDAO(conexion);
-        iPedidoBO pedidoBO = new PedidoBO(pedidoDAO);
-        
-        //cliente
-        iClienteDAO clienteDAO = new ClienteDAO(conexion);
-        iClienteBO clienteBO = new ClienteBO(clienteDAO);
-        
-        //ejecutar menu
-        Menu menu = new Menu(productoBO, cuponBO, pedidoBO, clienteBO);
-        menu.setVisible(true);
-        
+    public static void main(String[] args) {
+
+        SwingUtilities.invokeLater(() -> {
+
+            // ===== Conexion =====
+            iConexionBD conexion = new ConexionBD();
+
+            // ===== DAOs =====
+            iUsuarioDAO usuarioDAO = new UsuarioDAO(conexion);
+            iProductoDAO productoDAO = new ProductoDAO(conexion);
+            iCuponDAO cuponDAO = new CuponDAO(conexion);
+            iPedidoDAO pedidoDAO = new PedidoDAO(conexion);
+            iClienteDAO clienteDAO = new ClienteDAO(conexion);
+
+            // ===== BOs =====
+            iUsuarioBO usuarioBO = new UsuarioBO(usuarioDAO);
+            iProductoBO productoBO = new ProductoBO(productoDAO);
+            iCuponBO cuponBO = new CuponBO(cuponDAO);
+            iPedidoBO pedidoBO = new PedidoBO(pedidoDAO);
+            iClienteBO clienteBO = new ClienteBO(clienteDAO);
+
+            // ===== AppContext =====
+            AppContext ctx = new AppContext(
+                    usuarioBO,
+                    productoBO,
+                    cuponBO,
+                    pedidoBO,
+                    clienteBO
+            );
+
+            // ===== Ejecutar Menu =====
+            new Menu(ctx).setVisible(true);
+
+        });
+
     }
 }

@@ -17,6 +17,7 @@ import negocio.BOs.iClienteBO;
 import negocio.BOs.iCuponBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
+import negocio.BOs.iUsuarioBO;
 import negocio.Excepciones.NegocioException;
 
 public class PantallaInicioSesionCliente extends JFrame {
@@ -25,18 +26,11 @@ public class PantallaInicioSesionCliente extends JFrame {
     private JPasswordField txtContrasena;
     private char echoDefault;
 
-    private final iProductoBO productoBO;
-    private final iCuponBO cuponBO;
-    private final iPedidoBO pedidoBO;
-    private final iClienteBO clienteBO;
+    private final AppContext ctx;
 
-    public PantallaInicioSesionCliente(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO, iClienteBO clienteBO) {
-        
-        this.productoBO = productoBO;
-        this.cuponBO = cuponBO;
-        this.pedidoBO = pedidoBO;
-        this.clienteBO = clienteBO;
-        
+    public PantallaInicioSesionCliente(AppContext ctx) {
+        this.ctx = ctx;
+
         setTitle("Panadería - Iniciar Sesión");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(820, 620);
@@ -166,30 +160,30 @@ public class PantallaInicioSesionCliente extends JFrame {
 
         // ---- Acciones ----
         btnBack.addActionListener(e -> {
-            new Menu(productoBO, cuponBO, pedidoBO, clienteBO).setVisible(true);
+            new Menu(ctx).setVisible(true);
             this.dispose();
         });
 
         btnIniciar.addActionListener(e -> {
-            try{
-                
-                char[] passArray = txtContrasena.getPassword();
-                String password = new String(passArray);
+            try {
+                String usuario = txtUsuario.getText().trim();
+                String password = new String(txtContrasena.getPassword());
 
-                Cliente cliente = clienteBO.consultarCliente(
-                        txtUsuario.getText().trim(),
-                        password
-                );
-                
-                new PantallaCatalogo(productoBO, cuponBO, pedidoBO, cliente).setVisible(true);
+                Cliente cliente = ctx.getUsuarioBO().iniciarSesionCliente(usuario, password);
+
+                // guardar sesión
+                ctx.setClienteActual(cliente);
+
+                new PantallaCatalogo(ctx).setVisible(true);
                 dispose();
-            }catch(NegocioException ex){
-                JOptionPane.showMessageDialog(this, ex.getMessage());
+
+            } catch (NegocioException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
         btnCrear.addActionListener(e -> {
-            new PantallaCrearCuenta(productoBO, cuponBO, pedidoBO, clienteBO).setVisible(true);
+            new PantallaCrearCuenta(ctx).setVisible(true);
             this.dispose();
         });
     }

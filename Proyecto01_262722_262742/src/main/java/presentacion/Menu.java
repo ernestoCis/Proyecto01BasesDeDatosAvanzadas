@@ -21,17 +21,10 @@ import negocio.BOs.iUsuarioBO;
 
 public class Menu extends JFrame {
 
-    private final iProductoBO productoBO;
-    private final iCuponBO cuponBO;
-    private final iPedidoBO pedidoBO;
-    private final iClienteBO clienteBO;
+    private final AppContext ctx;
 
-    public Menu(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO, iClienteBO clienteBO) {
-        
-        this.productoBO = productoBO;
-        this.cuponBO = cuponBO;
-        this.pedidoBO = pedidoBO;
-        this.clienteBO = clienteBO;
+    public Menu(AppContext ctx) {
+        this.ctx = ctx;
 
         setTitle("Panadería");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -164,25 +157,24 @@ public class Menu extends JFrame {
 
         // ---- Acciones de botones ----
         btnFlecha.addActionListener(e -> {
-            new PantallaInicioSesionEmpleado(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
+            new PantallaInicioSesionEmpleado(ctx).setVisible(true);
             this.dispose();
         });
+
         btnProgramado.addActionListener(e -> {
             try {
-
-                PantallaInicioSesionCliente pantallaInicioSesionCliente = new PantallaInicioSesionCliente(productoBO, cuponBO, pedidoBO, clienteBO);
-                pantallaInicioSesionCliente.setVisible(true);
-                
+                new PantallaInicioSesionCliente(ctx).setVisible(true);
                 this.dispose();
-
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this,
-                        "Error al abrir catálogo: " + ex.getMessage(),
+                        "Error al abrir inicio de sesión: " + ex.getMessage(),
                         "Error",
                         JOptionPane.ERROR_MESSAGE);
             }
         });
+
         btnExpress.addActionListener(e -> JOptionPane.showMessageDialog(this, "Ir a Pedido Express"));
+
         lblLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         userIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
@@ -190,7 +182,7 @@ public class Menu extends JFrame {
         MouseAdapter clickLogin = new MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                new PantallaInicioSesionCliente(productoBO, cuponBO, pedidoBO, clienteBO).setVisible(true);
+                new PantallaInicioSesionCliente(ctx).setVisible(true);
                 Menu.this.dispose();
             }
         };

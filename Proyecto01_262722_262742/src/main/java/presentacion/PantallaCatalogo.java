@@ -15,20 +15,14 @@ import negocio.Excepciones.NegocioException;
 
 public class PantallaCatalogo extends JFrame {
 
-    private final iProductoBO productoBO;
-    private final iCuponBO cuponBO;
-    private final iPedidoBO pedidoBO;
-    private final Cliente cliente;
+    private final AppContext ctx;
     private final java.util.List<ItemCarrito> carrito = new java.util.ArrayList<>();
 
     private JPanel grid;
     private JLabel badgeCarrito;
 
-    public PantallaCatalogo(iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO, Cliente cliente) {
-        this.productoBO = productoBO;
-        this.cuponBO = cuponBO;
-        this.pedidoBO = pedidoBO;
-        this.cliente = cliente;
+    public PantallaCatalogo(AppContext ctx) {
+        this.ctx = ctx;
 
         setTitle("Panadería - Catálogo");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,11 +58,9 @@ public class PantallaCatalogo extends JFrame {
 
         // Acción: regresar
         btnFlecha.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Falta pantalla con sesion ya iniciada");
-//            new Menu(productoBO, cuponBO, pedidoBO).setVisible(true);
+            new Menu(ctx).setVisible(true);
             dispose();
         });
-
         JPanel panelIzquierdo = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         panelIzquierdo.setOpaque(false);
         panelIzquierdo.add(btnFlecha);
@@ -94,8 +86,9 @@ public class PantallaCatalogo extends JFrame {
         panelCarrito.add(lblCarrito);
 
         lblCarrito.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override public void mouseClicked(java.awt.event.MouseEvent e) {
-                PantallaCarrito pantallaCarrito = new PantallaCarrito(PantallaCatalogo.this, carrito, productoBO, cuponBO, pedidoBO, cliente);
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                PantallaCarrito pantallaCarrito = new PantallaCarrito(PantallaCatalogo.this, carrito, ctx, ctx.getClienteActual());
                 pantallaCarrito.setVisible(true);
                 setVisible(false);
             }
@@ -158,7 +151,7 @@ public class PantallaCatalogo extends JFrame {
 
     private void cargarProductosDesdeBD() {
         try {
-            List<Producto> productos = productoBO.listarProductos();
+            List<Producto> productos = ctx.getProductoBO().listarProductos();
 
             grid.removeAll();
 

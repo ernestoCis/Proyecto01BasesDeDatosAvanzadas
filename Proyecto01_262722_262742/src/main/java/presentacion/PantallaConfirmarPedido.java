@@ -33,25 +33,20 @@ public class PantallaConfirmarPedido extends JFrame {
     private JLabel lblSubtotal;
     private JLabel lblDescuento;
     private JLabel lblTotal;
-    
-    private final iProductoBO productoBO;
-    private final iPedidoBO pedidoBO;
-    private final iCuponBO cuponBO;
+
+    private final AppContext ctx;
     private final Cliente cliente;
 
     private float descuentoActual = 0;
     private float subtotal = 0;
     private MetodoPago metodoPago = MetodoPago.Efectivo; //efectivo como default
 
-    public PantallaConfirmarPedido(JFrame pantallaAnterior, List<ItemCarrito> carrito, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO, Cliente cliente) {
+    public PantallaConfirmarPedido(JFrame pantallaAnterior, List<ItemCarrito> carrito, AppContext ctx, Cliente cliente) {
         this.pantallaAnterior = pantallaAnterior;
         this.carrito = carrito;
-        
-        this.productoBO = productoBO;
-        this.pedidoBO = pedidoBO;
-        this.cuponBO = cuponBO;
+
+        this.ctx = ctx;
         this.cliente = cliente;
-        
 
         setTitle("Panadería - Confirmar pedido");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -84,7 +79,9 @@ public class PantallaConfirmarPedido extends JFrame {
         btnFlecha.setFont(new Font("Segoe UI", Font.PLAIN, 40));
         btnFlecha.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnFlecha.addActionListener(e -> {
-            if (pantallaAnterior != null) pantallaAnterior.setVisible(true);
+            if (pantallaAnterior != null) {
+                pantallaAnterior.setVisible(true);
+            }
             dispose();
         });
 
@@ -130,7 +127,7 @@ public class PantallaConfirmarPedido extends JFrame {
                 return col == 4;
             }
         };
-        
+
         tabla = new JTable(modelo);
         tabla.setRowHeight(34);
         tabla.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -159,7 +156,7 @@ public class PantallaConfirmarPedido extends JFrame {
         tabla.getColumnModel().getColumn(2).setPreferredWidth(70);  // Cantidad
         tabla.getColumnModel().getColumn(3).setPreferredWidth(90);  // Subtotal
         tabla.getColumnModel().getColumn(4).setPreferredWidth(320); // Notas
-        
+
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBorder(new LineBorder(new Color(60, 60, 60), 1));
         scroll.getViewport().setBackground(Color.WHITE);
@@ -262,7 +259,7 @@ public class PantallaConfirmarPedido extends JFrame {
         panelMetodoPago.add(lblMetodo);
         panelMetodoPago.add(Box.createHorizontalStrut(10));
         panelMetodoPago.add(comboMetodoPago);
-        
+
         centro.add(scroll);
         centro.add(panelCupon);
         centro.add(panelMetodoPago);
@@ -281,8 +278,8 @@ public class PantallaConfirmarPedido extends JFrame {
         btnRealizar.setBackground(new Color(245, 245, 245));
 
         btnRealizar.addActionListener(e -> {
-            
-            try{
+
+            try {
                 //crear el pedido para mandarlo a la ultima pantalla
                 PedidoProgramado pedidoProgramado = new PedidoProgramado();
                 pedidoProgramado.setEstado(EstadoPedido.Pendiente);
@@ -290,26 +287,25 @@ public class PantallaConfirmarPedido extends JFrame {
                 // fecha de entrega vacia por ahora (se cambia hasta que el estado pasa a Entregado)
                 pedidoProgramado.setMetodoPago(metodoPago);
                 pedidoProgramado.setTotal(subtotal - descuentoActual);
-                pedidoProgramado.setNumeroPedido(pedidoBO.generarNumeroDePedido());
+                pedidoProgramado.setNumeroPedido(ctx.getPedidoBO().generarNumeroDePedido());
                 pedidoProgramado.setCliente(cliente);
-                
-                if(!txtCupon.getText().trim().isEmpty()){
-                    pedidoProgramado.setCupon(cuponBO.consultarCupon(txtCupon.getText()));
+
+                if (!txtCupon.getText().trim().isEmpty()) {
+                    pedidoProgramado.setCupon(ctx.getCuponBO().consultarCupon(txtCupon.getText()));
                 }
 
-                if(pedidoBO.agregarPedidoProgramado(pedidoProgramado) != null){
-                    PantallaPedidoProgramadoRealizado pantallaPedidoRealizado = new PantallaPedidoProgramadoRealizado(usuarioBO, pedidoProgramado, productoBO, cuponBO, pedidoBO);
+                if (ctx.getPedidoBO().agregarPedidoProgramado(pedidoProgramado) != null) {
+                    PantallaPedidoProgramadoRealizado pantallaPedidoRealizado = new PantallaPedidoProgramadoRealizado(ctx, pedidoProgramado);
                     pantallaPedidoRealizado.setVisible(true);
                     dispose();
-                }else{
+                } else {
                     JOptionPane.showMessageDialog(this, "Error al agregar el pedido.");
                 }
-                
-                
-            }catch(NegocioException ex){
+
+            } catch (NegocioException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage());
             }
-            
+
         });
 
         JPanel panelBtn = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 10));
@@ -362,7 +358,7 @@ public class PantallaConfirmarPedido extends JFrame {
             total += it.getProducto().getPrecio() * it.getCantidad();
         }
         subtotal = total;
-        
+
         return subtotal;
     }
 
@@ -387,16 +383,19 @@ public class PantallaConfirmarPedido extends JFrame {
             recalcularResumen();
             return;
         }
-        
+
         try {
-            if(cuponBO.validarCupon(codigo, subtotal).esValido()){
+            var r = ctx.getCuponBO().validarCupon(codigo, subtotal);
+
+            if (r.esValido()) {
                 lblCuponValido.setVisible(true);
-                descuentoActual = cuponBO.validarCupon(codigo, subtotal).getDescuento();
-            }else{
+                descuentoActual = r.getDescuento();
+            } else {
                 lblCuponInvalido.setVisible(true);
             }
+
         } catch (NegocioException ex) {
-            System.getLogger(PantallaConfirmarPedido.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
 
         recalcularResumen();

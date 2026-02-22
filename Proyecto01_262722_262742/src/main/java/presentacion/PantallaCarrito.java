@@ -18,21 +18,17 @@ public class PantallaCarrito extends JFrame {
     private JLabel lblTotal;
     private PantallaCatalogo pantallaCatalogo;
     private final java.util.List<ItemCarrito> carrito;
-    
-    private final iProductoBO productoBO;
-    private final iCuponBO cuponBO;
-    private final iPedidoBO pedidoBO;
+
+    private final AppContext ctx;
     private final Cliente cliente;
 
-    public PantallaCarrito(PantallaCatalogo pantallaCatalogo, java.util.List<ItemCarrito> carrito, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO, Cliente cliente) {
+    public PantallaCarrito(PantallaCatalogo pantallaCatalogo, java.util.List<ItemCarrito> carrito, AppContext ctx, Cliente cliente) {
         this.pantallaCatalogo = pantallaCatalogo;
         this.carrito = carrito;
-        
-        this.productoBO = productoBO;
-        this.cuponBO = cuponBO;
-        this.pedidoBO = pedidoBO;
+
+        this.ctx = ctx;
         this.cliente = cliente;
-        
+
         setTitle("Panadería - Carrito");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(920, 600);
@@ -104,12 +100,11 @@ public class PantallaCarrito extends JFrame {
         String[] cols = {"Producto", "Precio pz.", "Cantidad", "Subtotal", ""};
 
         modelo = new DefaultTableModel(cols, 0) {
-            @Override public boolean isCellEditable(int row, int col) {
+            @Override
+            public boolean isCellEditable(int row, int col) {
                 return col == 4;
             }
         };
-
-        
 
         tabla = new JTable(modelo);
         tabla.setRowHeight(32);
@@ -123,7 +118,6 @@ public class PantallaCarrito extends JFrame {
         tabla.getColumnModel().getColumn(1).setCellRenderer(center);
         tabla.getColumnModel().getColumn(2).setCellRenderer(center);
         tabla.getColumnModel().getColumn(3).setCellRenderer(center);
-
 
         // Columna botón Eliminar
         tabla.getColumnModel().getColumn(4).setCellRenderer(new ButtonRenderer());
@@ -194,9 +188,9 @@ public class PantallaCarrito extends JFrame {
                 return;
             }
 
-            PantallaConfirmarPedido confirmar = new PantallaConfirmarPedido(this, carrito, productoBO, cuponBO, pedidoBO, cliente);
+            PantallaConfirmarPedido confirmar = new PantallaConfirmarPedido(this, carrito, ctx, cliente);
             confirmar.setVisible(true);
-            this.setVisible(false); 
+            this.setVisible(false);
         });
 
         JPanel panelBtn = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 10));
@@ -221,7 +215,7 @@ public class PantallaCarrito extends JFrame {
 
         south.add(stackSouth, BorderLayout.CENTER);
         card.add(south, BorderLayout.SOUTH);
-        
+
         cargarTabla();
         actualizarTotal();
     }
@@ -236,6 +230,7 @@ public class PantallaCarrito extends JFrame {
 
     // ----- estilos para el boton eliminar -----
     private class ButtonRenderer extends JButton implements TableCellRenderer {
+
         public ButtonRenderer() {
             setOpaque(true);
             setText("Eliminar");
@@ -247,13 +242,14 @@ public class PantallaCarrito extends JFrame {
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
-                                                       boolean isSelected, boolean hasFocus,
-                                                       int row, int column) {
+                boolean isSelected, boolean hasFocus,
+                int row, int column) {
             return this;
         }
     }
 
     private class ButtonEditor extends DefaultCellEditor {
+
         private final JButton button;
         private int row;
 
@@ -285,7 +281,7 @@ public class PantallaCarrito extends JFrame {
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value,
-                                                     boolean isSelected, int row, int column) {
+                boolean isSelected, int row, int column) {
             this.row = row;
             return button;
         }
@@ -295,7 +291,7 @@ public class PantallaCarrito extends JFrame {
             return "Eliminar";
         }
     }
-    
+
     private void cargarTabla() {
         modelo.setRowCount(0);
 

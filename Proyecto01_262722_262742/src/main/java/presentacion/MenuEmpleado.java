@@ -12,26 +12,12 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.*;
-import negocio.BOs.iCuponBO;
-import negocio.BOs.iPedidoBO;
-import negocio.BOs.iProductoBO;
-import negocio.BOs.iUsuarioBO;
-
 public class MenuEmpleado extends JFrame {
 
-    private iProductoBO productoBO;
-    private iCuponBO cuponBO;
-    private iPedidoBO pedidoBO;
-    private iUsuarioBO usuarioBO;
+    private final AppContext ctx;
 
-    public MenuEmpleado(iUsuarioBO usuarioBO, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
-        this.usuarioBO = usuarioBO;
-        this.productoBO = productoBO;
-        this.cuponBO = cuponBO;
-        this.pedidoBO = pedidoBO;
+    public MenuEmpleado(AppContext ctx) {
+        this.ctx = ctx;
 
         setTitle("Panadería - Menú Empleado");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -99,20 +85,21 @@ public class MenuEmpleado extends JFrame {
 
         panelPrincipal.add(panelInferior, BorderLayout.SOUTH);
 
-        // ===== Navegación (por ahora solo abrir pantallas) =====
+        // ===== Navegación =====
         btnGestionarPedidos.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Ir a Gestionar pedidos (pendiente pantalla)");
-            // Cuando exista:
-            // new PantallaGestionarPedidos().setVisible(true);
+            // new PantallaGestionarPedidos(ctx).setVisible(true);
             // this.dispose();
         });
 
         btnGestionarProductos.addActionListener(e -> {
-            new PantallaGestionarProductos(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
+            new PantallaGestionarProductos(ctx).setVisible(true);
             this.dispose();
         });
+
         btnCerrarSesion.addActionListener(e -> {
-            new Menu(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
+            ctx.cerrarSesion();
+            new Menu(ctx).setVisible(true);
             this.dispose();
         });
     }

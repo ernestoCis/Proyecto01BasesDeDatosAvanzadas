@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.time.format.DateTimeFormatter;
+import negocio.BOs.iClienteBO;
 import negocio.BOs.iCuponBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
@@ -17,19 +18,19 @@ public class PantallaPedidoProgramadoRealizado extends JFrame {
     private JLabel lblTotal;
     private JLabel lblFecha;
     private JLabel lblMetodoPago;
-    
-    private final iProductoBO productoBO;
-    private final iCuponBO cuponBO;
-    private final iPedidoBO pedidoBO;
-    private final iUsuarioBO usuarioBO;
 
-    public PantallaPedidoProgramadoRealizado(iUsuarioBO usuarioBO, PedidoProgramado pedidoProgramado, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
+    private final AppContext ctx;
 
-        this.productoBO = productoBO;
-        this.cuponBO = cuponBO;
-        this.pedidoBO = pedidoBO;
-        this.usuarioBO = usuarioBO;
-        
+    /**
+     * Pantalla que muestra el resumen del pedido programado realizado.
+     *
+     * @param ctx contexto de aplicación (contiene BOs compartidos)
+     * @param pedidoProgramado pedido que se acaba de registrar
+     */
+    public PantallaPedidoProgramadoRealizado(AppContext ctx, PedidoProgramado pedidoProgramado) {
+
+        this.ctx = ctx;
+
         setTitle("Panadería - Pedido realizado");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(920, 600);
@@ -72,11 +73,13 @@ public class PantallaPedidoProgramadoRealizado extends JFrame {
         // Cajas
         lblNumPedido = crearCajaTexto("Num. de pedido: " + pedidoProgramado.getNumeroPedido());
         lblEstado = crearCajaTexto("Estado: " + pedidoProgramado.getEstado());
-        lblTotal = crearCajaTexto("Total: $" +String.format("%.2f", pedidoProgramado.getTotal()));
+        lblTotal = crearCajaTexto("Total: $" + String.format("%.2f", pedidoProgramado.getTotal()));
         lblMetodoPago = crearCajaTexto("Método de pago: " + pedidoProgramado.getMetodoPago());
 
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        lblFecha = crearCajaTexto("Fecha: " + (pedidoProgramado.getFechaCreacion() == null ? "" : pedidoProgramado.getFechaCreacion().format(fmt)));
+        lblFecha = crearCajaTexto("Fecha: " + (pedidoProgramado.getFechaCreacion() == null
+                ? ""
+                : pedidoProgramado.getFechaCreacion().format(fmt)));
 
         center.add(wrapCaja(lblNumPedido));
         center.add(Box.createVerticalStrut(12));
@@ -100,9 +103,13 @@ public class PantallaPedidoProgramadoRealizado extends JFrame {
         btnListo.setBackground(new Color(245, 245, 245));
         btnListo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        /**
+         * Regresa al inicio de sesión del cliente (flujo simple por ahora). Si
+         * después quieres regresar al Menú con sesión iniciada, aquí lo
+         * cambiamos.
+         */
         btnListo.addActionListener(e -> {
-            PantallaInicioSesionCliente pantallaInicioSesionCliente = new PantallaInicioSesionCliente(productoBO, cuponBO, pedidoBO);
-            pantallaInicioSesionCliente.setVisible(true);
+            new PantallaInicioSesionCliente(ctx).setVisible(true);
             dispose();
         });
 

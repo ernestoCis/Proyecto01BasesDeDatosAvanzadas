@@ -8,30 +8,24 @@ package presentacion;
  *
  * @author Isaac
  */
+import dominio.Empleado;
+import dominio.RolUsuario;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import negocio.BOs.iCuponBO;
-import negocio.BOs.iPedidoBO;
-import negocio.BOs.iProductoBO;
-
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.*;
-import java.awt.event.MouseEvent;
+import negocio.Excepciones.NegocioException;
 
 public class PantallaCrearCuentaEmpleado extends JFrame {
 
-    private final JFrame pantallaLoginEmpleado;
+    private final AppContext ctx;
 
     private JTextField txtUsuario;
     private JPasswordField txtContrasena;
     private char echoDefault;
 
-    public PantallaCrearCuentaEmpleado(JFrame pantallaLoginEmpleado) {
-
-        this.pantallaLoginEmpleado = pantallaLoginEmpleado;
+    public PantallaCrearCuentaEmpleado(AppContext ctx) {
+        this.ctx = ctx;
 
         setTitle("Panadería - Crear cuenta Empleado");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -122,8 +116,12 @@ public class PantallaCrearCuentaEmpleado extends JFrame {
 
         ojo.addMouseListener(new java.awt.event.MouseAdapter() {
             private boolean visible = false;
-            @Override public void mouseClicked(MouseEvent e) {
-                if (isPasswordPlaceholderActivo()) return;
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (isPasswordPlaceholderActivo()) {
+                    return;
+                }
                 visible = !visible;
                 txtContrasena.setEchoChar(visible ? (char) 0 : echoDefault);
             }
@@ -161,12 +159,53 @@ public class PantallaCrearCuentaEmpleado extends JFrame {
 
         // ---- Acciones ----
         btnBack.addActionListener(e -> {
-            pantallaLoginEmpleado.setVisible(true);
+            new PantallaInicioSesionEmpleado(ctx).setVisible(true);
             this.dispose();
         });
 
         btnCrear.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Crear empleado (pendiente de lógica/BD)");
+            try {
+                String usuario = txtUsuario.getText() == null ? "" : txtUsuario.getText().trim();
+                String pass = new String(txtContrasena.getPassword());
+
+                if (usuario.equalsIgnoreCase("Usuario")) {
+                    usuario = "";
+                }
+                if (pass.equals("Contraseña")) {
+                    pass = "";
+                }
+
+                if (usuario.isEmpty()) {
+                    throw new NegocioException("El usuario es obligatorio.");
+                }
+                if (pass.isEmpty()) {
+                    throw new NegocioException("La contraseña es obligatoria.");
+                }
+
+                // Crear objeto empleado
+                Empleado emp = new Empleado();
+                emp.setUsuario(usuario);
+                emp.setContrasenia(pass);
+                emp.setRol(RolUsuario.EMPLEADO);
+
+                // ===========================
+                // PENDIENTE:
+                // Implementar en UsuarioBO:
+                // ctx.getUsuarioBO().registrarEmpleado(emp);
+                // ===========================
+                JOptionPane.showMessageDialog(this,
+                        "Empleado creado (lógica pendiente de persistencia).");
+
+                // Regresar al login empleado
+                new PantallaInicioSesionEmpleado(ctx).setVisible(true);
+                this.dispose();
+
+            } catch (NegocioException ex) {
+                JOptionPane.showMessageDialog(this,
+                        ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
         });
     }
 
@@ -203,13 +242,16 @@ public class PantallaCrearCuentaEmpleado extends JFrame {
         campo.setText(texto);
 
         campo.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override public void focusGained(java.awt.event.FocusEvent e) {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
                 if (campo.getText().equals(texto)) {
                     campo.setText("");
                     campo.setForeground(negro);
                 }
             }
-            @Override public void focusLost(java.awt.event.FocusEvent e) {
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
                 if (campo.getText().trim().isEmpty()) {
                     campo.setForeground(gris);
                     campo.setText(texto);
@@ -227,14 +269,17 @@ public class PantallaCrearCuentaEmpleado extends JFrame {
         campo.setText(texto);
 
         campo.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override public void focusGained(java.awt.event.FocusEvent e) {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
                 if (new String(campo.getPassword()).equals(texto)) {
                     campo.setText("");
                     campo.setForeground(negro);
                     campo.setEchoChar(echoDefault);
                 }
             }
-            @Override public void focusLost(java.awt.event.FocusEvent e) {
+
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
                 if (new String(campo.getPassword()).trim().isEmpty()) {
                     campo.setForeground(gris);
                     campo.setEchoChar((char) 0);

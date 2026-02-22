@@ -8,10 +8,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import negocio.BOs.iCuponBO;
-import negocio.BOs.iPedidoBO;
-import negocio.BOs.iProductoBO;
-import negocio.BOs.iUsuarioBO;
 
 /**
  *
@@ -19,7 +15,10 @@ import negocio.BOs.iUsuarioBO;
  */
 public class PantallaGestionarProductos extends JFrame {
 
-    public PantallaGestionarProductos(iUsuarioBO usuarioBO, iProductoBO productoBO, iCuponBO cuponBO, iPedidoBO pedidoBO) {
+    private final AppContext ctx;
+
+    public PantallaGestionarProductos(AppContext ctx) {
+        this.ctx = ctx;
 
         setTitle("Panadería - Gestionar productos");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -78,7 +77,7 @@ public class PantallaGestionarProductos extends JFrame {
         panelCentro.add(subtitulo);
         panelCentro.add(Box.createVerticalStrut(18));
 
-        // Tabla
+        // Tabla (por ahora mock)
         String[] columnas = {"ID", "Nombre", "Tipo", "Precio", "Estado", "Acción"};
 
         Object[][] datos = {
@@ -125,12 +124,12 @@ public class PantallaGestionarProductos extends JFrame {
 
         // ---- Acciones ----
         btnBack.addActionListener(e -> {
-            new MenuEmpleado(usuarioBO, productoBO, cuponBO, pedidoBO).setVisible(true);
+            new MenuEmpleado(ctx).setVisible(true);
             this.dispose();
         });
 
-        btnAgregar.addActionListener(e
-                -> JOptionPane.showMessageDialog(this, "Abrir pantalla Agregar producto (pendiente)")
+        btnAgregar.addActionListener(e ->
+                JOptionPane.showMessageDialog(this, "Abrir pantalla Agregar producto (pendiente)")
         );
     }
 
