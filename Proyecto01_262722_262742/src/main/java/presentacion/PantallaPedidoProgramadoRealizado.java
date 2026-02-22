@@ -109,7 +109,7 @@ public class PantallaPedidoProgramadoRealizado extends JFrame {
          * cambiamos.
          */
         btnListo.addActionListener(e -> {
-            new PantallaInicioSesionCliente(ctx).setVisible(true);
+            new Menu(ctx).setVisible(true);
             dispose();
         });
 
