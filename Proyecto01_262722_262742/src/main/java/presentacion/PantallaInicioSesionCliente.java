@@ -174,7 +174,7 @@ public class PantallaInicioSesionCliente extends JFrame {
                 // guardar sesión
                 ctx.setClienteActual(cliente);
 
-                new PantallaCatalogo(ctx).setVisible(true);
+                new PantallaSesionIniciadaCliente(ctx).setVisible(true);
                 dispose();
 
             } catch (NegocioException ex) {
