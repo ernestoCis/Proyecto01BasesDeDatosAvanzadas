@@ -6,12 +6,14 @@ package com.mycompany.proyecto01_262722_262742;
 import javax.swing.SwingUtilities;
 import negocio.BOs.ClienteBO;
 import negocio.BOs.CuponBO;
+import negocio.BOs.DetallePedidoBO;
 import negocio.BOs.EmpleadoBO;
 import negocio.BOs.PedidoBO;
 import negocio.BOs.ProductoBO;
 import negocio.BOs.UsuarioBO;
 import negocio.BOs.iClienteBO;
 import negocio.BOs.iCuponBO;
+import negocio.BOs.iDetallePedidoBO;
 import negocio.BOs.iEmpleadoBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
@@ -64,6 +66,7 @@ public class Proyecto01_262722_262742 {
             iPedidoBO pedidoBO = new PedidoBO(pedidoDAO, detallePedidoDAO);
             iClienteBO clienteBO = new ClienteBO(clienteDAO);
             iEmpleadoBO empleadoBO = new EmpleadoBO(empleadoDAO);
+            iDetallePedidoBO detallePedidoBO = new DetallePedidoBO(detallePedidoDAO);
 
             // ===== AppContext =====
             AppContext ctx = new AppContext(
@@ -72,7 +75,8 @@ public class Proyecto01_262722_262742 {
                     cuponBO,
                     pedidoBO,
                     clienteBO,
-                    empleadoBO 
+                    empleadoBO,
+                    detallePedidoBO // ✅ NUEVO
             );
 
             // ===== Ejecutar Menu =====

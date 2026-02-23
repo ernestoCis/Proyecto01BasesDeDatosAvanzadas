@@ -13,12 +13,20 @@ import persistencia.Excepciones.PersistenciaException;
  * @author
  */
 public interface iDetallePedidoDAO {
-    
+
     /**
-     * metodo que registra los detalles de cada pedido
+     * Metodo que registra los detalles de cada pedido
      * @param idPedido pedido del cual pertenecen los detalles
      * @param detalles lista de todos los detalles del pedido
      * @throws PersistenciaException excepcion por si sql falla
      */
     public void insertarDetalles(int idPedido, List<DetallePedido> detalles) throws PersistenciaException;
+
+    /**
+     * Metodo que consulta los detalles (productos) de un pedido
+     * @param idPedido id del pedido
+     * @return lista de detalles del pedido
+     * @throws PersistenciaException excepcion por si sql falla
+     */
+    public List<DetallePedido> listarDetallesPorPedido(int idPedido) throws PersistenciaException;
 }

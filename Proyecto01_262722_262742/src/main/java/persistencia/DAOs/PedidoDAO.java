@@ -18,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -82,9 +83,9 @@ public class PedidoDAO implements iPedidoDAO {
 
                 ps.setString(1, String.valueOf(pedido.getEstado()));
                 ps.setDate(2, java.sql.Date.valueOf(pedido.getFechaCreacion().toLocalDate()));
-                if(pedido.getFechaEntrega() != null){
+                if (pedido.getFechaEntrega() != null) {
                     ps.setDate(3, java.sql.Date.valueOf(pedido.getFechaEntrega().toLocalDate()));
-                }else{
+                } else {
                     ps.setDate(3, null);
                 }
                 ps.setString(4, String.valueOf(pedido.getMetodoPago()));
@@ -124,12 +125,12 @@ public class PedidoDAO implements iPedidoDAO {
                 } else {
                     ps2.setNull(2, java.sql.Types.INTEGER);
                 }
-                
-                if(ps2.executeUpdate() == 0){
+
+                if (ps2.executeUpdate() == 0) {
                     throw new PersistenciaException("No se pudo insertar el pedido programado (tabla hija).");
                 }
             }
-            
+
             //insertar detalles pedidos
             if (detalles == null || detalles.isEmpty()) {
                 throw new PersistenciaException("No se puede insertar un pedido sin detalles.");
@@ -206,95 +207,102 @@ public class PedidoDAO implements iPedidoDAO {
     public Pedido consultarPedidoPorId(int idPedido) throws PersistenciaException {
 
         String comandoSQL = """
-                        SELECT Pedidos.id, Pedidos.estado, Pedidos.fecha_creacion, Pedidos.fecha_entrega, Pedidos.metodo_pago, Pedidos.numero_pedido, Pedidos.id_cliente,
-                        Clientes.nombres, Clientes.apellido_paterno, Clientes.apellido_materno, Clientes.fecha_nacimiento,
-                        PedidosExpress.pin, PedidosExpress.folio,
-                        PedidosProgramados.id_cupon
-                        FROM Pedidos
-                        INNER JOIN Clientes ON Pedidos.id_cliente = Clientes.id_usuario
-                        LEFT JOIN PedidosExpress ON PedidosExpress.id_pedido = Pedidos.id
-                        LEFT JOIN PedidosProgramados ON PedidosProgramados.id_pedido = Pedidos.id
-                        WHERE Pedidos.id = ?
-                        """;
+        SELECT 
+            p.id, p.estado, p.fecha_creacion, p.fecha_entrega, p.metodo_pago, p.numero_pedido, p.id_cliente,
+            c.nombres, c.apellido_paterno, c.apellido_materno, c.fecha_nacimiento,
+            pe.pin, pe.folio,
+            pp.id_cupon
+        FROM Pedidos p
+        LEFT JOIN Clientes c ON p.id_cliente = c.id_usuario
+        LEFT JOIN PedidosExpress pe ON pe.id_pedido = p.id
+        LEFT JOIN PedidosProgramados pp ON pp.id_pedido = p.id
+        WHERE p.id = ?
+        """;
 
         String totalSQL = """
-                          SELECT SUM(DetallesPedidos.total) AS total_pedido
-                          FROM DetallesPedidos
-                          WHERE DetallesPedidos.id_pedido = ?
-                          """;
+        SELECT SUM(dp.total) AS total_pedido
+        FROM DetallesPedidos dp
+        WHERE dp.id_pedido = ?
+        """;
 
         try (Connection conn = this.conexionBD.crearConexion()) {
 
             Pedido pedido;
 
-            // Se prepara la consulta principal
             try (PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
                 ps.setInt(1, idPedido);
 
-                // Se ejecuta la consulta
                 try (ResultSet rs = ps.executeQuery()) {
 
-                    // Se valida que exista el pedido
                     if (!rs.next()) {
                         LOG.log(Level.WARNING, "No se encontro el pedido con id {0}", idPedido);
                         throw new PersistenciaException("No existe el pedido con el ID proporcionado.");
                     }
 
-                    Cliente cliente = new Cliente();
-                    cliente.setId(rs.getInt("id_cliente"));
-                    cliente.setNombres(rs.getString("nombres"));
-                    cliente.setApellidoPaterno(rs.getString("apellido_paterno"));
-                    cliente.setApellidoMaterno(rs.getString("apellido_materno"));
-                    cliente.setFechaNacimiento(rs.getDate("fecha_nacimiento").toLocalDate());
+                    // ===== Cliente (puede ser null) =====
+                    Cliente cliente = null;
+                    int idCliente = rs.getInt("id_cliente");
+                    if (!rs.wasNull()) {
+                        cliente = new Cliente();
+                        cliente.setId(idCliente);
+                        cliente.setNombres(rs.getString("nombres"));
+                        cliente.setApellidoPaterno(rs.getString("apellido_paterno"));
+                        cliente.setApellidoMaterno(rs.getString("apellido_materno"));
 
-                    // Datos comunes del pedido
-                    int id = rs.getInt("id");
-                    EstadoPedido estado = EstadoPedido.valueOf(rs.getString("estado").toUpperCase());
-                    LocalDateTime fechaCreacion = rs.getDate("fecha_creacion").toLocalDate().atStartOfDay();
-                    LocalDateTime fechaEntrega = rs.getDate("fecha_entrega").toLocalDate().atStartOfDay();
-                    MetodoPago metodoPago = MetodoPago.valueOf(rs.getString("metodo_pago").toUpperCase());
-                    int numeroPedido = rs.getInt("numero_pedido");
-
-                    // Obtener pin en caso de ser pedido express
-                    int pinValor = rs.getInt("pin");
-                    Integer pin;
-                    if (rs.wasNull()) {
-                        pin = null;
-                    } else {
-                        pin = pinValor;
-                    }
-
-                    // Obtener folio (puede ser null si no es express)
-                    String folio = rs.getString("folio");
-
-                    // Obtener id del cupón en caso de ser pedido programado
-                    int idCuponValor = rs.getInt("id_cupon");
-                    Integer idCupon;
-                    if (rs.wasNull()) {
-                        idCupon = null;
-                    } else {
-                        idCupon = idCuponValor;
-                    }
-
-                    // Calcular el total del pedido
-                    float total;
-                    try (PreparedStatement psTotal = conn.prepareStatement(totalSQL)) {
-                        psTotal.setInt(1, idPedido);
-
-                        try (ResultSet rsTotal = psTotal.executeQuery()) {
-                            rsTotal.next();
-                            total = rsTotal.getFloat("total_pedido");
+                        java.sql.Date fn = rs.getDate("fecha_nacimiento");
+                        if (fn != null) {
+                            cliente.setFechaNacimiento(fn.toLocalDate());
                         }
                     }
 
-                    // Crear cupon si existe
+                    // ===== Datos comunes del pedido =====
+                    int id = rs.getInt("id");
+
+                    EstadoPedido estado = EstadoPedido.valueOf(rs.getString("estado").replace(" ", "_")
+                    );
+
+                    LocalDateTime fechaCreacion = rs.getDate("fecha_creacion").toLocalDate().atStartOfDay();
+
+                    java.sql.Date fechaEntregaSQL = rs.getDate("fecha_entrega");
+                    LocalDateTime fechaEntrega = null;
+                    if (fechaEntregaSQL != null) {
+                        fechaEntrega = fechaEntregaSQL.toLocalDate().atStartOfDay();
+                    }
+
+                    MetodoPago metodoPago = MetodoPago.valueOf(rs.getString("metodo_pago"));
+                    int numeroPedido = rs.getInt("numero_pedido");
+
+                    // ===== pin/folio (express) =====
+                    int pinValor = rs.getInt("pin");
+                    Integer pin = rs.wasNull() ? null : pinValor;
+                    String folio = rs.getString("folio");
+
+                    // ===== cupon (programado) =====
+                    int idCuponValor = rs.getInt("id_cupon");
+                    Integer idCupon = rs.wasNull() ? null : idCuponValor;
+
+                    // ===== total =====
+                    float total = 0;
+                    try (PreparedStatement psTotal = conn.prepareStatement(totalSQL)) {
+                        psTotal.setInt(1, idPedido);
+                        try (ResultSet rsTotal = psTotal.executeQuery()) {
+                            if (rsTotal.next()) {
+                                total = rsTotal.getFloat("total_pedido");
+                                if (rsTotal.wasNull()) {
+                                    total = 0;
+                                }
+                            }
+                        }
+                    }
+
+                    // Crear cupon si existe 
                     Cupon cupon = null;
                     if (idCupon != null) {
                         cupon = new Cupon();
                         cupon.setId(idCupon);
                     }
 
-                    // Determinar el tipo de pedido 
+                    // ===== Determinar tipo =====
                     if (pin != null) {
                         pedido = new PedidoExpress(
                                 id, estado, fechaCreacion, fechaEntrega,
@@ -315,13 +323,13 @@ public class PedidoDAO implements iPedidoDAO {
 
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, "Error de SQL al consultar el pedido", ex);
-            throw new PersistenciaException(ex.getMessage());
+            throw new PersistenciaException(ex.getMessage(), ex);
         }
-
     }
 
     /**
      * metodo que consulta en la BD si el numeroPedido ya esta registrado
+     *
      * @param numeroPedido numero de pedido a validar
      * @return true= si ya esta registrado, false = si no esta registrado
      * @throws PersistenciaException excepcion por si el sql falla
@@ -343,6 +351,119 @@ public class PedidoDAO implements iPedidoDAO {
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, "Error al verificar número de pedido", ex);
             throw new PersistenciaException("Error al verificar número de pedido", ex);
+        }
+    }
+
+    @Override
+    public List<Pedido> listarPedidos() throws PersistenciaException {
+
+        String comandoSQL = """
+                            SELECT 
+                                p.id, p.estado, p.fecha_creacion, p.fecha_entrega, p.metodo_pago, p.numero_pedido, p.id_cliente,
+                                c.nombres, c.apellido_paterno, c.apellido_materno, c.fecha_nacimiento,
+                                pe.pin, pe.folio,
+                                pp.id_cupon
+                            FROM Pedidos p
+                            LEFT JOIN Clientes c ON p.id_cliente = c.id_usuario
+                            LEFT JOIN PedidosExpress pe ON pe.id_pedido = p.id
+                            LEFT JOIN PedidosProgramados pp ON pp.id_pedido = p.id
+                            ORDER BY 
+                                CASE WHEN p.estado = 'Entregado' THEN 1 ELSE 0 END,
+                                p.fecha_creacion DESC
+                            """;
+
+        List<Pedido> pedidos = new ArrayList<>();
+
+        try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                // Cliente (puede ser null)
+                Cliente cliente = null;
+                int idCliente = rs.getInt("id_cliente");
+                if (!rs.wasNull()) {
+                    cliente = new Cliente();
+                    cliente.setId(idCliente);
+                    cliente.setNombres(rs.getString("nombres"));
+                    cliente.setApellidoPaterno(rs.getString("apellido_paterno"));
+                    cliente.setApellidoMaterno(rs.getString("apellido_materno"));
+
+                    java.sql.Date fn = rs.getDate("fecha_nacimiento");
+                    if (fn != null) {
+                        cliente.setFechaNacimiento(fn.toLocalDate());
+                    }
+                }
+
+                int id = rs.getInt("id");
+                EstadoPedido estado = EstadoPedido.valueOf(rs.getString("estado").replace(" ", "_"));
+
+                LocalDateTime fechaCreacion = rs.getDate("fecha_creacion").toLocalDate().atStartOfDay();
+
+                java.sql.Date fechaEntregaSQL = rs.getDate("fecha_entrega");
+                LocalDateTime fechaEntrega = null;
+                if (fechaEntregaSQL != null) {
+                    fechaEntrega = fechaEntregaSQL.toLocalDate().atStartOfDay();
+                }
+
+                MetodoPago metodoPago = MetodoPago.valueOf(rs.getString("metodo_pago"));
+                int numeroPedido = rs.getInt("numero_pedido");
+
+                int pinValor = rs.getInt("pin");
+                Integer pin = rs.wasNull() ? null : pinValor;
+                String folio = rs.getString("folio");
+
+                int idCuponValor = rs.getInt("id_cupon");
+                Integer idCupon = rs.wasNull() ? null : idCuponValor;
+
+                float total = 0;
+
+                Cupon cupon = null;
+                if (idCupon != null) {
+                    cupon = new Cupon();
+                    cupon.setId(idCupon);
+                }
+
+                Pedido pedido;
+                if (pin != null) {
+                    pedido = new PedidoExpress(id, estado, fechaCreacion, fechaEntrega, metodoPago, total, numeroPedido, cliente, pin, folio);
+                } else {
+                    pedido = new PedidoProgramado(id, estado, fechaCreacion, fechaEntrega, metodoPago, total, numeroPedido, cliente, cupon);
+                }
+
+                pedidos.add(pedido);
+            }
+
+            return pedidos;
+
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, "Error SQL al listar pedidos", ex);
+            throw new PersistenciaException("Error al listar pedidos", ex);
+        }
+    }
+
+    @Override
+    public void actualizarEstadoPedido(int idPedido, EstadoPedido nuevoEstado) throws PersistenciaException {
+
+        String comandoSQL = """
+                            UPDATE Pedidos
+                            SET estado = ?
+                            WHERE id = ?
+                            """;
+
+        try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
+
+            String estadoBD = nuevoEstado.name().replace("_", " ");
+
+            ps.setString(1, estadoBD);
+            ps.setInt(2, idPedido);
+
+            if (ps.executeUpdate() == 0) {
+                throw new PersistenciaException("No se pudo actualizar: el pedido no existe.");
+            }
+
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, "Error SQL al actualizar estado del pedido", ex);
+            throw new PersistenciaException("Error al actualizar estado del pedido", ex);
         }
     }
 
