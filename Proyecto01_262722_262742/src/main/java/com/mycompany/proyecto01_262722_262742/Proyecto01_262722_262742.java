@@ -76,7 +76,7 @@ public class Proyecto01_262722_262742 {
                     pedidoBO,
                     clienteBO,
                     empleadoBO,
-                    detallePedidoBO // ✅ NUEVO
+                    detallePedidoBO 
             );
 
             // ===== Ejecutar Menu =====

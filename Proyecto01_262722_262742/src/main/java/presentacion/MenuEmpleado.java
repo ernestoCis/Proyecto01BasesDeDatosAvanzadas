@@ -87,9 +87,8 @@ public class MenuEmpleado extends JFrame {
 
         // ===== Navegación =====
         btnGestionarPedidos.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Ir a Gestionar pedidos (pendiente pantalla)");
-            // new PantallaGestionarPedidos(ctx).setVisible(true);
-            // this.dispose();
+            new PantallaGestionarPedidos(ctx).setVisible(true);
+            this.dispose(); 
         });
 
         btnGestionarProductos.addActionListener(e -> {
