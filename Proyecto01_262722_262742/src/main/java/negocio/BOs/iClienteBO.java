@@ -6,6 +6,7 @@ package negocio.BOs;
 
 import dominio.Cliente;
 import dominio.Telefono;
+import java.util.List;
 import negocio.Excepciones.NegocioException;
 
 /**
@@ -36,4 +37,13 @@ public interface iClienteBO {
      * @throws NegocioException excepcion por reglas de negocio
      */
     public Cliente actualizarCliente(Cliente cliente) throws NegocioException;
+    
+    /**
+     * metodo que le agrega un telefono al cliente mediante el DAO
+     * @param cliente cliente al que se le agregara el telefono
+     * @param telefono telefono a agregar
+     * @return cliente con el telefono agregado
+     * @throws NegocioException excepcion por regla de negocio
+     */
+    public Cliente agregarTelefonos(Cliente cliente, List<Telefono> telefonos) throws NegocioException;
 }

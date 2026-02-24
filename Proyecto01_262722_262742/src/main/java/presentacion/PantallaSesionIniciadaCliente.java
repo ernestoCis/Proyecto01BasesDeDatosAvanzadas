@@ -17,7 +17,7 @@ public class PantallaSesionIniciadaCliente extends JFrame {
 
         setTitle("Panadería - Sesión iniciada");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(920, 650);
+        setSize(920, 750);
         setLocationRelativeTo(null);
 
         // Fondo general
@@ -32,7 +32,7 @@ public class PantallaSesionIniciadaCliente extends JFrame {
                 new LineBorder(new Color(30, 30, 30), 2, false),
                 new EmptyBorder(18, 22, 18, 22)
         ));
-        card.setPreferredSize(new Dimension(860, 560));
+        card.setPreferredSize(new Dimension(860, 660));
         root.add(card);
 
         // ----- parte de arriba -----
@@ -51,9 +51,10 @@ public class PantallaSesionIniciadaCliente extends JFrame {
         lblBienvenida.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         JButton btnUsuario = crearBotonIconoUsuario();
-        btnUsuario.addActionListener(e
-                -> JOptionPane.showMessageDialog(this, "Abrir perfil / cuenta (pendiente)")
-        );
+        btnUsuario.addActionListener(e -> {
+            new PantallaActualizarCliente(this, ctx).setVisible(true);
+            dispose();
+        });
 
         panelDerecho.add(lblBienvenida);
         panelDerecho.add(btnUsuario);

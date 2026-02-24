@@ -9,6 +9,7 @@ package presentacion;
  * @author Isaac
  */
 import dominio.Cliente;
+import dominio.Direccion;
 import dominio.RolUsuario;
 import dominio.Telefono;
 import javax.swing.*;
@@ -17,10 +18,6 @@ import java.awt.*;
 
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
-import negocio.BOs.iClienteBO;
-import negocio.BOs.iCuponBO;
-import negocio.BOs.iPedidoBO;
-import negocio.BOs.iProductoBO;
 import negocio.Excepciones.NegocioException;
 
 public class PantallaCrearCuenta extends JFrame {
@@ -366,16 +363,29 @@ public class PantallaCrearCuenta extends JFrame {
 
             LocalDate fecha = LocalDate.of(Integer.parseInt(txtAnio.getText()), Integer.parseInt(txtMes.getText()), Integer.parseInt(txtDia.getText()));
             cliente.setFechaNacimiento(fecha);
-
+            
+            String calle = txtCalle.getText();
+            String colonia = txtColonia.getText();
+            int cp = Integer.parseInt(txtCodigoPostal.getText());
+            int numero = Integer.parseInt(txtNumero.getText());
+            
+            Direccion direccion = new Direccion();
+            direccion.setCalle(calle);
+            direccion.setColonia(colonia);
+            direccion.setCp(cp);
+            direccion.setNumero(numero);
+            direccion.setCliente(cliente);
+            
+            cliente.setDireccion(direccion);
+            
             try {
                 
                 
                 ctx.getClienteBO().registrarCliente(cliente, telefono);
 
-                JOptionPane.showMessageDialog(this, "cuenta creada");
+                JOptionPane.showMessageDialog(this, "Cuenta creada");
                 
-                //llevar a inicio con sesion iniciada
-                
+                new PantallaSesionIniciadaCliente(ctx).setVisible(true);
                 
                 
             } catch (NegocioException ex) {

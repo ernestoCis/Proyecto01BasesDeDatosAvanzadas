@@ -5,6 +5,7 @@
 package persistencia.DAOs;
 
 import dominio.Cliente;
+import dominio.Direccion;
 import dominio.Telefono;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Date;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -40,40 +42,101 @@ public class ClienteDAO implements iClienteDAO{
 
     @Override
     public Cliente consultarCliente(String usuario) throws PersistenciaException {
-        String comandoSQL = """
-                    SELECT 
-                        u.id,
-                        u.usuario,
-                        u.contrasenia,
-                        c.nombres,
-                        c.apellido_paterno,
-                        c.apellido_materno,
-                        c.fecha_nacimiento
-                    FROM usuarios u
-                    INNER JOIN clientes c ON c.id_usuario = u.id
-                    WHERE u.usuario = ?
-                    """;
 
-        try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
+        String comandoSQLUsuario = """
+                SELECT 
+                    u.id,
+                    u.usuario,
+                    u.contrasenia,
+                    c.nombres,
+                    c.apellido_paterno,
+                    c.apellido_materno,
+                    c.fecha_nacimiento
+                FROM usuarios u
+                INNER JOIN clientes c ON c.id_usuario = u.id
+                WHERE u.usuario = ?
+                """;
+
+        String comandoSQLDireccion = """
+                SELECT id, calle, colonia, cp, numero
+                FROM Direcciones
+                WHERE id_cliente = ?
+                """;
+
+        String comandoSQLTelefonos = """
+                SELECT id, telefono, etiqueta
+                FROM Telefonos
+                WHERE id_cliente = ?
+                """;
+
+        try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQLUsuario)) {
 
             ps.setString(1, usuario);
 
             try (ResultSet rs = ps.executeQuery()) {
 
                 if (!rs.next()) {
-                    return null; // no existe cliente con ese usuario
+                    return null;
                 }
 
-                Cliente cliente = new Cliente(); 
+                Cliente cliente = new Cliente();
                 cliente.setId(rs.getInt("id"));
+                cliente.setUsuario(rs.getString("usuario"));          // <-- importante
                 cliente.setContrasenia(rs.getString("contrasenia"));
                 cliente.setNombres(rs.getString("nombres"));
                 cliente.setApellidoPaterno(rs.getString("apellido_paterno"));
-                if(rs.getString("apellido_materno") != null){
-                    cliente.setApellidoMaterno(rs.getString("apellido_materno"));
+
+                String apMat = rs.getString("apellido_materno");
+                if (apMat != null) {
+                    cliente.setApellidoMaterno(apMat);
                 }
-                cliente.setFechaNacimiento(rs.getDate("fecha_nacimiento").toLocalDate());
-                
+
+                if (rs.getDate("fecha_nacimiento") != null) {
+                    cliente.setFechaNacimiento(rs.getDate("fecha_nacimiento").toLocalDate());
+                }
+
+                // ----- direccion -----
+                try (PreparedStatement psDir = conn.prepareStatement(comandoSQLDireccion)) {
+                    psDir.setInt(1, cliente.getId());
+
+                    try (ResultSet rsDir = psDir.executeQuery()) {
+                        if (rsDir.next()) {
+                            Direccion dir = new Direccion();
+                            dir.setId(rsDir.getInt("id"));
+                            dir.setCalle(rsDir.getString("calle"));
+                            dir.setColonia(rsDir.getString("colonia"));
+                            dir.setCp(rsDir.getInt("cp"));
+                            dir.setNumero(rsDir.getInt("numero"));
+                            dir.setCliente(cliente);
+
+                            cliente.setDireccion(dir);
+                        } else {
+                            cliente.setDireccion(null); // si no tiene registro de dirección
+                        }
+                    }
+                }
+
+                // ----- telefonos -----
+                List<Telefono> telefonos = new ArrayList<>();
+
+                try (PreparedStatement psTel = conn.prepareStatement(comandoSQLTelefonos)) {
+                    psTel.setInt(1, cliente.getId());
+
+                    try (ResultSet rsTel = psTel.executeQuery()) {
+                        while (rsTel.next()) {
+                            Telefono t = new Telefono();
+                            t.setId(rsTel.getInt("id"));
+                            t.setTelefono(rsTel.getString("telefono"));
+                            t.setEtiqueta(rsTel.getString("etiqueta"));
+                            t.setCliente(cliente);
+
+                            telefonos.add(t);
+                        }
+                    }
+                }
+
+                cliente.setTelefonos(telefonos);
+
                 return cliente;
             }
 
@@ -316,4 +379,118 @@ public class ClienteDAO implements iClienteDAO{
         }
     }
     
+    @Override
+    public List<Telefono> insertarTelefonos(int idCliente, List<Telefono> telefonos) throws PersistenciaException {
+        String sqlDelete = """
+                           DELETE FROM Telefonos WHERE id_cliente = ? 
+                           """;
+
+        String sqlInsert = """
+                            INSERT INTO Telefonos(id_cliente, telefono, etiqueta)
+                            VALUES(?, ?, ?)
+                            """;
+
+        Connection conn = null;
+
+        try {
+            conn = conexionBD.crearConexion();
+            conn.setAutoCommit(false);
+
+            // 1) Borrar todos los teléfonos del cliente
+            try (PreparedStatement psDel = conn.prepareStatement(sqlDelete)) {
+                psDel.setInt(1, idCliente);
+                psDel.executeUpdate();
+            }
+
+            // 2) Insertar los nuevos teléfonos (si hay)
+            if (telefonos != null && !telefonos.isEmpty()) {
+
+                try (PreparedStatement psIns = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS)) {
+
+                    for (Telefono t : telefonos) {
+                        if (t == null) {
+                            continue;
+                        }
+
+                        String num = (t.getTelefono() == null) ? "" : t.getTelefono().trim();
+                        if (num.isEmpty()) {
+                            continue;
+                        }
+
+                        psIns.setInt(1, idCliente);
+                        psIns.setString(2, num);
+
+                        String etq = (t.getEtiqueta() == null) ? null : t.getEtiqueta().trim();
+                        if (etq == null || etq.isEmpty()) {
+                            psIns.setNull(3, Types.VARCHAR);
+                        } else {
+                            psIns.setString(3, etq);
+                        }
+
+                        psIns.addBatch();
+                    }
+
+                    psIns.executeBatch();
+
+                    // 3) Asignar IDs generados a los objetos (si el driver los devuelve)
+                    try (ResultSet rs = psIns.getGeneratedKeys()) {
+                        for (Telefono t : telefonos) {
+                            if (t == null) {
+                                continue;
+                            }
+
+                            String num = (t.getTelefono() == null) ? "" : t.getTelefono().trim();
+                            if (num.isEmpty()) {
+                                continue;
+                            }
+
+                            if (rs.next()) {
+                                t.setId(rs.getInt(1));
+                            }
+                        }
+                    }
+                }
+            }
+
+            conn.commit();
+
+            // Regresar lista limpia (sin nulls ni vacíos)
+            List<Telefono> limpia = new ArrayList<>();
+            if (telefonos != null) {
+                for (Telefono t : telefonos) {
+                    if (t == null) {
+                        continue;
+                    }
+                    String num = (t.getTelefono() == null) ? "" : t.getTelefono().trim();
+                    if (num.isEmpty()) {
+                        continue;
+                    }
+                    limpia.add(t);
+                }
+            }
+
+            return limpia;
+
+        } catch (SQLException e) {
+
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ignored) {
+                }
+            }
+
+            throw new PersistenciaException("Error al reemplazar teléfonos del cliente", e);
+
+        } finally {
+
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException ignored) {
+                }
+            }
+        }
+    }
 }

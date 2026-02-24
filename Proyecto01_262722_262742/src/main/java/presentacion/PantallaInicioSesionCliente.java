@@ -13,11 +13,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import negocio.BOs.iClienteBO;
-import negocio.BOs.iCuponBO;
-import negocio.BOs.iPedidoBO;
-import negocio.BOs.iProductoBO;
-import negocio.BOs.iUsuarioBO;
 import negocio.Excepciones.NegocioException;
 
 public class PantallaInicioSesionCliente extends JFrame {
@@ -169,7 +164,7 @@ public class PantallaInicioSesionCliente extends JFrame {
                 String usuario = txtUsuario.getText().trim();
                 String password = new String(txtContrasena.getPassword());
 
-                Cliente cliente = ctx.getUsuarioBO().iniciarSesionCliente(usuario, password);
+                Cliente cliente = ctx.getClienteBO().consultarCliente(usuario, password);
 
                 // guardar sesión
                 ctx.setClienteActual(cliente);

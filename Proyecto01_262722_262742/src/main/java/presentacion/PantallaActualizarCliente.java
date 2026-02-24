@@ -33,20 +33,20 @@ public class PantallaActualizarCliente extends JFrame {
 
     // Checks
     private JCheckBox chkUsuario, chkContrasenia, chkNombres, chkApellidoP, chkApellidoM,
-                      chkFecha, chkCalle, chkNumero, chkColonia, chkCP;
+            chkFecha, chkCalle, chkNumero, chkColonia, chkCP;
 
     // Mostrar contraseña
     private boolean passVisible = false;
     private char passEcho;
 
-    public PantallaActualizarCliente(JFrame pantallaAnterior, AppContext ctx, Cliente clienteActual) {
+    public PantallaActualizarCliente(JFrame pantallaAnterior, AppContext ctx) {
         this.pantallaAnterior = pantallaAnterior;
         this.ctx = ctx;
-        this.clienteActual = clienteActual;
+        this.clienteActual = ctx.getClienteActual();
 
         setTitle("Panadería - Mi cuenta");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(980, 700);
+        setSize(980, 900);
         setLocationRelativeTo(null);
 
         JPanel root = new JPanel(new GridBagLayout());
@@ -59,10 +59,10 @@ public class PantallaActualizarCliente extends JFrame {
                 new LineBorder(new Color(30, 30, 30), 2, false),
                 new EmptyBorder(18, 22, 18, 22)
         ));
-        card.setPreferredSize(new Dimension(900, 600));
+        card.setPreferredSize(new Dimension(900, 800));
         root.add(card);
 
-        // ========= TOP: flecha + títulos =========
+        // ========= TOP =========
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
 
@@ -73,13 +73,15 @@ public class PantallaActualizarCliente extends JFrame {
         btnFlecha.setFont(new Font("Segoe UI", Font.PLAIN, 40));
         btnFlecha.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnFlecha.addActionListener(e -> {
-            if (pantallaAnterior != null) pantallaAnterior.setVisible(true);
+            if (pantallaAnterior != null) {
+                pantallaAnterior.setVisible(true);
+            }
             dispose();
         });
 
-        JPanel leftTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        leftTop.setOpaque(false);
-        leftTop.add(btnFlecha);
+        JPanel panelIzquierdo = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        panelIzquierdo.setOpaque(false);
+        panelIzquierdo.add(btnFlecha);
 
         JPanel titles = new JPanel();
         titles.setOpaque(false);
@@ -98,47 +100,40 @@ public class PantallaActualizarCliente extends JFrame {
         titles.add(Box.createVerticalStrut(4));
         titles.add(lblSub);
 
-        top.add(leftTop, BorderLayout.WEST);
+        top.add(panelIzquierdo, BorderLayout.WEST);
         top.add(titles, BorderLayout.CENTER);
 
         card.add(top, BorderLayout.NORTH);
 
-        // ========= CENTER: formulario =========
+        // ========= CENTER =========
         JPanel center = new JPanel(new GridBagLayout());
         center.setOpaque(false);
         center.setBorder(new EmptyBorder(18, 70, 10, 70));
+
         GridBagConstraints g = new GridBagConstraints();
         g.insets = new Insets(8, 8, 8, 8);
-        g.fill = GridBagConstraints.HORIZONTAL;
-        g.weightx = 1;
+        g.gridy = 0;
 
-        // Secciones
         JLabel lblAcceso = new JLabel("Datos de acceso");
         lblAcceso.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         JLabel lblPersonales = new JLabel("Datos personales");
         lblPersonales.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        // --- fila sección acceso ---
-        g.gridx = 0; g.gridy = 0; g.gridwidth = 6;
-        center.add(lblAcceso, g);
+        // ----- Sección acceso -----
+        addSection(center, g, lblAcceso);
 
-        // Usuario (col izq)
         txtUsuario = crearTextField("Usuario");
         txtUsuario.setText(nz(clienteActual.getUsuario()));
-        chkUsuario = new JCheckBox();
-        prepararCheck(chkUsuario, txtUsuario);
+        chkUsuario = crearCheckPara(txtUsuario);
 
-        // Contraseña (col der) + ojo
         txtContrasenia = new JPasswordField();
         estiloCampo(txtContrasenia, "Contraseña");
         passEcho = txtContrasenia.getEchoChar();
-
-        // No precargues la contraseña real por seguridad (opcional):
         txtContrasenia.setText("");
+        txtContrasenia.setEnabled(false);
 
-        chkContrasenia = new JCheckBox();
-        prepararCheck(chkContrasenia, txtContrasenia);
+        chkContrasenia = crearCheckPara(txtContrasenia);
 
         JButton btnOjo = new JButton("👁");
         btnOjo.setFocusPainted(false);
@@ -148,46 +143,35 @@ public class PantallaActualizarCliente extends JFrame {
         btnOjo.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
         btnOjo.addActionListener(e -> togglePassword());
 
-        // fila usuario/contraseña
-        g.gridwidth = 2; g.gridy = 1;
+        JPanel passWrap = campoConLabel("Contraseña", wrapPassword(txtContrasenia, btnOjo));
 
-        g.gridx = 0; center.add(txtUsuario, g);
-        g.gridx = 2; center.add(chkUsuario, g);
+        addRow4(center, g,
+                campoConLabel("Usuario", txtUsuario), chkUsuario,
+                passWrap, chkContrasenia
+        );
 
-        g.gridx = 3; center.add(wrapPassword(txtContrasenia, btnOjo), g);
-        g.gridx = 5; center.add(chkContrasenia, g);
-
-        // --- sección personales ---
-        g.gridx = 0; g.gridy = 2; g.gridwidth = 6;
-        center.add(lblPersonales, g);
+        // ----- Sección personales -----
+        addSection(center, g, lblPersonales);
 
         txtNombres = crearTextField("Nombres");
         txtNombres.setText(nz(clienteActual.getNombres()));
-        chkNombres = new JCheckBox();
-        prepararCheck(chkNombres, txtNombres);
+        chkNombres = crearCheckPara(txtNombres);
 
         txtApellidoP = crearTextField("Apellido paterno");
         txtApellidoP.setText(nz(clienteActual.getApellidoPaterno()));
-        chkApellidoP = new JCheckBox();
-        prepararCheck(chkApellidoP, txtApellidoP);
+        chkApellidoP = crearCheckPara(txtApellidoP);
 
-        txtApellidoM = crearTextField("Apellido materno");
-        txtApellidoM.setText(nz(clienteActual.getApellidoMaterno()));
-        chkApellidoM = new JCheckBox();
-        prepararCheck(chkApellidoM, txtApellidoM);
+        addRow4(center, g,
+                campoConLabel("Nombres", txtNombres), chkNombres,
+                campoConLabel("Apellido paterno", txtApellidoP), chkApellidoP
+        );
 
-        // fila nombres / apellido paterno
-        g.gridwidth = 2; g.gridy = 3;
-        g.gridx = 0; center.add(txtNombres, g);
-        g.gridx = 2; center.add(chkNombres, g);
-        g.gridx = 3; center.add(txtApellidoP, g);
-        g.gridx = 5; center.add(chkApellidoP, g);
+        // Fecha + Apellido materno
+        LocalDate fn = clienteActual.getFechaNacimiento();
 
-        // fecha (día/mes/año) + apellido materno
         JPanel panelFecha = new JPanel(new GridLayout(1, 3, 10, 0));
         panelFecha.setOpaque(false);
 
-        LocalDate fn = clienteActual.getFechaNacimiento();
         txtDia = crearMini("Día", fn != null ? String.valueOf(fn.getDayOfMonth()) : "");
         txtMes = crearMini("Mes", fn != null ? String.valueOf(fn.getMonthValue()) : "");
         txtAnio = crearMini("Año", fn != null ? String.valueOf(fn.getYear()) : "");
@@ -196,24 +180,28 @@ public class PantallaActualizarCliente extends JFrame {
         panelFecha.add(txtMes);
         panelFecha.add(txtAnio);
 
-        // habilitar/inhabilitar los 3 con un solo checkbox
         chkFecha = new JCheckBox();
-        prepararCheck(chkFecha, txtDia);
-        // para mes y año también
+        chkFecha.setOpaque(false);
+        chkFecha.setPreferredSize(new Dimension(18, 18));
         chkFecha.addActionListener(e -> {
             boolean en = chkFecha.isSelected();
             txtDia.setEnabled(en);
             txtMes.setEnabled(en);
             txtAnio.setEnabled(en);
         });
+
+        txtDia.setEnabled(false);
         txtMes.setEnabled(false);
         txtAnio.setEnabled(false);
 
-        g.gridy = 4;
-        g.gridx = 0; center.add(panelFecha, g);
-        g.gridx = 2; center.add(chkFecha, g);
-        g.gridx = 3; center.add(txtApellidoM, g);
-        g.gridx = 5; center.add(chkApellidoM, g);
+        txtApellidoM = crearTextField("Apellido materno");
+        txtApellidoM.setText(nz(clienteActual.getApellidoMaterno()));
+        chkApellidoM = crearCheckPara(txtApellidoM);
+
+        addRow4(center, g,
+                campoConLabel("Fecha de nacimiento", panelFecha), chkFecha,
+                campoConLabel("Apellido materno", txtApellidoM), chkApellidoM
+        );
 
         // Dirección
         Direccion dir = clienteActual.getDireccion();
@@ -224,41 +212,33 @@ public class PantallaActualizarCliente extends JFrame {
 
         txtCalle = crearTextField("Calle");
         txtCalle.setText(calle);
-        chkCalle = new JCheckBox();
-        prepararCheck(chkCalle, txtCalle);
+        chkCalle = crearCheckPara(txtCalle);
 
         txtNumero = crearTextField("Número");
         txtNumero.setText(numero);
-        chkNumero = new JCheckBox();
-        prepararCheck(chkNumero, txtNumero);
+        chkNumero = crearCheckPara(txtNumero);
+
+        addRow4(center, g,
+                campoConLabel("Calle", txtCalle), chkCalle,
+                campoConLabel("Número", txtNumero), chkNumero
+        );
 
         txtColonia = crearTextField("Colonia");
         txtColonia.setText(colonia);
-        chkColonia = new JCheckBox();
-        prepararCheck(chkColonia, txtColonia);
+        chkColonia = crearCheckPara(txtColonia);
 
         txtCP = crearTextField("Código Postal");
         txtCP.setText(cp);
-        chkCP = new JCheckBox();
-        prepararCheck(chkCP, txtCP);
+        chkCP = crearCheckPara(txtCP);
 
-        // fila calle / número
-        g.gridy = 5;
-        g.gridx = 0; center.add(txtCalle, g);
-        g.gridx = 2; center.add(chkCalle, g);
-        g.gridx = 3; center.add(txtNumero, g);
-        g.gridx = 5; center.add(chkNumero, g);
-
-        // fila colonia / cp
-        g.gridy = 6;
-        g.gridx = 0; center.add(txtColonia, g);
-        g.gridx = 2; center.add(chkColonia, g);
-        g.gridx = 3; center.add(txtCP, g);
-        g.gridx = 5; center.add(chkCP, g);
+        addRow4(center, g,
+                campoConLabel("Colonia", txtColonia), chkColonia,
+                campoConLabel("Código Postal", txtCP), chkCP
+        );
 
         card.add(center, BorderLayout.CENTER);
 
-        // ========= SOUTH: botones =========
+        // ========= SOUTH =========
         JButton btnGuardar = crearBoton("Guardar cambios");
         JButton btnHistorial = crearBoton("Consultar historial");
         JButton btnTelefonos = crearBoton("Consultar teléfonos");
@@ -273,7 +253,10 @@ public class PantallaActualizarCliente extends JFrame {
 
         btnGuardar.addActionListener(e -> guardarCambios());
         btnHistorial.addActionListener(e -> JOptionPane.showMessageDialog(this, "Historial (pendiente)"));
-        btnTelefonos.addActionListener(e -> JOptionPane.showMessageDialog(this, "Teléfonos (pendiente)"));
+        btnTelefonos.addActionListener(e -> {
+            new PantallaAdministrarTelefonosCliente(this, ctx).setVisible(true);
+            dispose();
+        });
         btnDesactivar.addActionListener(e -> JOptionPane.showMessageDialog(this, "Desactivar cuenta (pendiente)"));
 
         JPanel filaBotones = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
@@ -308,26 +291,33 @@ public class PantallaActualizarCliente extends JFrame {
     }
 
     // =================== Guardar cambios ===================
-
     private void guardarCambios() {
         try {
-            // Copia segura del cliente actual
             Cliente actualizado = copiarCliente(clienteActual);
 
-            // Solo aplica campos si su checkbox está seleccionado
             if (chkUsuario.isSelected()) {
                 actualizado.setUsuario(txtUsuario.getText().trim());
             }
 
             if (chkContrasenia.isSelected()) {
                 String nueva = new String(txtContrasenia.getPassword()).trim();
-                if (nueva.isEmpty()) throw new NegocioException("La contraseña no puede estar vacía.");
-                actualizado.setContrasenia(nueva); // en BO lo hasheas
+                if (nueva.isEmpty()) {
+                    throw new NegocioException("La contraseña no puede estar vacía.");
+                }
+                actualizado.setContrasenia(nueva);
+            }else{
+                actualizado.setContrasenia(clienteActual.getContrasenia()); // conservar la contraseña
             }
 
-            if (chkNombres.isSelected()) actualizado.setNombres(txtNombres.getText().trim());
-            if (chkApellidoP.isSelected()) actualizado.setApellidoPaterno(txtApellidoP.getText().trim());
-            if (chkApellidoM.isSelected()) actualizado.setApellidoMaterno(txtApellidoM.getText().trim());
+            if (chkNombres.isSelected()) {
+                actualizado.setNombres(txtNombres.getText().trim());
+            }
+            if (chkApellidoP.isSelected()) {
+                actualizado.setApellidoPaterno(txtApellidoP.getText().trim());
+            }
+            if (chkApellidoM.isSelected()) {
+                actualizado.setApellidoMaterno(txtApellidoM.getText().trim());
+            }
 
             if (chkFecha.isSelected()) {
                 int d = parseInt(txtDia.getText(), "Día");
@@ -336,28 +326,32 @@ public class PantallaActualizarCliente extends JFrame {
                 actualizado.setFechaNacimiento(LocalDate.of(a, m, d));
             }
 
-            // Dirección (solo si alguno de estos checks está seleccionado)
             boolean tocaDireccion = chkCalle.isSelected() || chkNumero.isSelected() || chkColonia.isSelected() || chkCP.isSelected();
             if (tocaDireccion) {
                 Direccion dir = actualizado.getDireccion();
-                if (dir == null) dir = new Direccion();
+                if (dir == null) {
+                    dir = new Direccion();
+                }
 
-                if (chkCalle.isSelected()) dir.setCalle(txtCalle.getText().trim());
-                if (chkColonia.isSelected()) dir.setColonia(txtColonia.getText().trim());
-                if (chkNumero.isSelected()) dir.setNumero(parseInt(txtNumero.getText(), "Número"));
-                if (chkCP.isSelected()) dir.setCp(parseInt(txtCP.getText(), "Código Postal"));
+                if (chkCalle.isSelected()) {
+                    dir.setCalle(txtCalle.getText().trim());
+                }
+                if (chkColonia.isSelected()) {
+                    dir.setColonia(txtColonia.getText().trim());
+                }
+                if (chkNumero.isSelected()) {
+                    dir.setNumero(parseInt(txtNumero.getText(), "Número"));
+                }
+                if (chkCP.isSelected()) {
+                    dir.setCp(parseInt(txtCP.getText(), "Código Postal"));
+                }
 
                 dir.setCliente(actualizado);
                 actualizado.setDireccion(dir);
             }
 
-            // ====== LLAMADA A NEGOCIO ======
-            // Ajusta el nombre del método a tu BO real:
             ctx.getClienteBO().actualizarCliente(actualizado);
-
             JOptionPane.showMessageDialog(this, "Cambios guardados correctamente.");
-
-            // (Opcional) desmarcar checks y bloquear campos otra vez
             resetChecksYCampos();
 
         } catch (NegocioException ex) {
@@ -365,7 +359,70 @@ public class PantallaActualizarCliente extends JFrame {
         }
     }
 
-    // =================== Helpers UI ===================
+    // =================== Layout helpers ===================
+    private void addSection(JPanel parent, GridBagConstraints g, JComponent sectionLabel) {
+        g.gridx = 0;
+        g.gridwidth = 4;
+        g.weightx = 1;
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.anchor = GridBagConstraints.WEST;
+        parent.add(sectionLabel, g);
+        g.gridy++;
+        g.gridwidth = 1;
+    }
+
+    private void addRow4(JPanel parent, GridBagConstraints g, Component leftField, JCheckBox leftChk,
+            Component rightField, JCheckBox rightChk) {
+
+        g.gridx = 0;
+        g.weightx = 1;
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.anchor = GridBagConstraints.CENTER;
+        parent.add(leftField, g);
+
+        g.gridx = 1;
+        g.weightx = 0;
+        g.fill = GridBagConstraints.NONE;
+        g.anchor = GridBagConstraints.WEST;
+        parent.add(wrapChk((JCheckBox) leftChk), g);
+
+        g.gridx = 2;
+        g.weightx = 1;
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.anchor = GridBagConstraints.CENTER;
+        parent.add(rightField, g);
+
+        g.gridx = 3;
+        g.weightx = 0;
+        g.fill = GridBagConstraints.NONE;
+        g.anchor = GridBagConstraints.WEST;
+        parent.add(wrapChk((JCheckBox) rightChk), g);
+
+        
+        g.gridy++;
+    }
+
+    // =================== UI helpers ===================
+    private JPanel campoConLabel(String label, Component campo) {
+        JPanel p = new JPanel();
+        p.setOpaque(false);
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+
+        JLabel l = new JLabel(label);
+        l.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        l.setForeground(new Color(35, 35, 35));
+        l.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        // Alineación del campo
+        if (campo instanceof JComponent jc) {
+            jc.setAlignmentX(Component.LEFT_ALIGNMENT);
+        }
+
+        p.add(l);
+        p.add(Box.createVerticalStrut(4));
+        p.add(campo);
+        return p;
+    }
 
     private JTextField crearTextField(String placeholder) {
         JTextField t = new JTextField();
@@ -389,8 +446,6 @@ public class PantallaActualizarCliente extends JFrame {
                 new EmptyBorder(8, 10, 8, 10)
         ));
         c.setForeground(new Color(70, 70, 70));
-
-        // placeholder “visual”: tooltip
         c.setToolTipText(placeholder);
     }
 
@@ -405,14 +460,24 @@ public class PantallaActualizarCliente extends JFrame {
         return b;
     }
 
-    private void prepararCheck(JCheckBox chk, JComponent campo) {
+    private JCheckBox crearCheckPara(JComponent campo) {
+        JCheckBox chk = new JCheckBox();
         chk.setOpaque(false);
+        chk.setFocusPainted(false);
+        chk.setBorderPaintedFlat(true);     // se ve menos “cuadrote”
+        chk.setMargin(new Insets(0, 0, 0, 0));
+        chk.setPreferredSize(new Dimension(18, 18));
+        chk.setMinimumSize(new Dimension(18, 18));
+        chk.setMaximumSize(new Dimension(18, 18));
+
         chk.addActionListener(e -> campo.setEnabled(chk.isSelected()));
+        return chk;
     }
 
     private JPanel wrapPassword(JPasswordField pass, JButton ojo) {
         JPanel p = new JPanel(new BorderLayout());
         p.setOpaque(false);
+
         p.add(pass, BorderLayout.CENTER);
 
         JPanel east = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
@@ -420,7 +485,6 @@ public class PantallaActualizarCliente extends JFrame {
         east.add(ojo);
 
         p.add(east, BorderLayout.EAST);
-        pass.setEnabled(false);
         return p;
     }
 
@@ -431,9 +495,10 @@ public class PantallaActualizarCliente extends JFrame {
 
     private void resetChecksYCampos() {
         JCheckBox[] checks = {chkUsuario, chkContrasenia, chkNombres, chkApellidoP, chkApellidoM, chkFecha,
-                chkCalle, chkNumero, chkColonia, chkCP};
-
-        for (JCheckBox c : checks) c.setSelected(false);
+            chkCalle, chkNumero, chkColonia, chkCP};
+        for (JCheckBox c : checks) {
+            c.setSelected(false);
+        }
 
         txtUsuario.setEnabled(false);
         txtContrasenia.setEnabled(false);
@@ -473,8 +538,6 @@ public class PantallaActualizarCliente extends JFrame {
             d.setCliente(c);
             c.setDireccion(d);
         }
-
-        // teléfonos no se tocan aquí (van en otra pantalla)
         return c;
     }
 
@@ -488,5 +551,13 @@ public class PantallaActualizarCliente extends JFrame {
 
     private String nz(String s) {
         return s == null ? "" : s;
+    }
+    
+    private JPanel wrapChk(JCheckBox chk) {
+        JPanel p = new JPanel(new BorderLayout());
+        p.setOpaque(false);
+        p.setPreferredSize(new Dimension(26, 40));  // ancho para que no baile, alto similar al campo
+        p.add(chk, BorderLayout.NORTH);             // lo pega arriba
+        return p;
     }
 }

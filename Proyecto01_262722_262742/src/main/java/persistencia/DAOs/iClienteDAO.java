@@ -6,6 +6,7 @@ package persistencia.DAOs;
 
 import dominio.Cliente;
 import dominio.Telefono;
+import java.util.List;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
@@ -37,4 +38,13 @@ public interface iClienteDAO {
      * @throws PersistenciaException excepcion por si el sql falla
      */
     public Cliente actualizarCliente(Cliente cliente) throws PersistenciaException;
+    
+    /**
+     * metodo para insertar un telefono de un cliente a la tabla telefonos
+     * @param idCliente id del cliente que se le agregara un telefono
+     * @param telefono telefono a insertar
+     * @return telefono insertado
+     * @throws PersistenciaException excepcion por si falla el sql
+     */
+    public List<Telefono> insertarTelefonos(int idCliente, List<Telefono> telefono) throws PersistenciaException;
 }
