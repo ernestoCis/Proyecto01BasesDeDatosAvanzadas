@@ -35,7 +35,7 @@ public interface iPedidoDAO {
      * @return pedido express insertado con IDs generados
      * @throws PersistenciaException si ocurre un error de persistencia
      */
-    PedidoExpress insertarPedidoExpress(PedidoExpress pedido) throws PersistenciaException;
+    PedidoExpress insertarPedidoExpress(PedidoExpress pedido, List<DetallePedido> detalles) throws PersistenciaException;
 
     /**
      * Metodo para consultar un pedido por su ID.
