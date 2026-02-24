@@ -6,10 +6,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 import java.awt.*;
-import negocio.BOs.iCuponBO;
-import negocio.BOs.iPedidoBO;
-import negocio.BOs.iProductoBO;
-import negocio.BOs.iUsuarioBO;
+import java.util.List;
+
 
 public class PantallaCarrito extends JFrame {
 
@@ -17,12 +15,12 @@ public class PantallaCarrito extends JFrame {
     private DefaultTableModel modelo;
     private JLabel lblTotal;
     private PantallaCatalogo pantallaCatalogo;
-    private final java.util.List<ItemCarrito> carrito;
+    private final List<ItemCarrito> carrito;
 
     private final AppContext ctx;
     private final Cliente cliente;
 
-    public PantallaCarrito(PantallaCatalogo pantallaCatalogo, java.util.List<ItemCarrito> carrito, AppContext ctx, Cliente cliente) {
+    public PantallaCarrito(PantallaCatalogo pantallaCatalogo, List<ItemCarrito> carrito, AppContext ctx, Cliente cliente) {
         this.pantallaCatalogo = pantallaCatalogo;
         this.carrito = carrito;
 

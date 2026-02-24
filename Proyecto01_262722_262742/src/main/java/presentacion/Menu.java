@@ -13,11 +13,6 @@ import javax.swing.JFrame;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
-import negocio.BOs.iClienteBO;
-import negocio.BOs.iCuponBO;
-import negocio.BOs.iPedidoBO;
-import negocio.BOs.iProductoBO;
-import negocio.BOs.iUsuarioBO;
 
 public class Menu extends JFrame {
 
@@ -172,8 +167,11 @@ public class Menu extends JFrame {
                         JOptionPane.ERROR_MESSAGE);
             }
         });
-
-        btnExpress.addActionListener(e -> JOptionPane.showMessageDialog(this, "Ir a Pedido Express"));
+        
+        btnExpress.addActionListener(e -> {
+            new PantallaCatalogoExpress(ctx).setVisible(true);
+            dispose();
+        });
 
         lblLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         userIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
