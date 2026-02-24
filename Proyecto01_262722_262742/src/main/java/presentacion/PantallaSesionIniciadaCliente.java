@@ -149,7 +149,8 @@ public class PantallaSesionIniciadaCliente extends JFrame {
         });
 
         btnExpress.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Ir a Pedido Express (pendiente)");
+            new PantallaCatalogoExpress(ctx).setVisible(true);
+            dispose();
         });
 
         btnCerrarSesion.addActionListener(e -> {

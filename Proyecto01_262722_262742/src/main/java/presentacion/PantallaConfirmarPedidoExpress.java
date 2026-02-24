@@ -58,7 +58,7 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
         card.setPreferredSize(new Dimension(860, 520));
         root.add(card);
 
-        // ====== NORTH (flecha + header) ======
+        // ----- parte de arriba -----
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setOpaque(false);
 
@@ -111,7 +111,7 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
 
         card.add(north, BorderLayout.NORTH);
 
-        // ====== CENTER (tabla + caja grande) ======
+        // ----- parte central -----
         String[] cols = {"Producto", "Precio pz.", "Cantidad", "Subtotal"};
 
         modelo = new DefaultTableModel(cols, 0) {
@@ -160,13 +160,9 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
 
         card.add(centro, BorderLayout.CENTER);
 
-        // ====== SOUTH (total + combo + botón) ======
+        // ----- parte de abajo -----
         JPanel south = new JPanel(new BorderLayout());
         south.setOpaque(false);
-
-        // Total (derecha)
-        JPanel panelTotal = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        panelTotal.setOpaque(false);
 
         lblTotal = new JLabel();
         lblTotal.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -178,23 +174,32 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
         cajaTotal.add(lblTotal, BorderLayout.CENTER);
         lblTotal.setBorder(new EmptyBorder(0, 12, 0, 12));
 
-        panelTotal.add(cajaTotal);
-
-        // ====== ComboBox Método de Pago (agregado) ======
         JLabel lblMetodoPago = new JLabel("Método de pago:");
         lblMetodoPago.setFont(new Font("Segoe UI", Font.PLAIN, 13));
 
         cbMetodoPago = new JComboBox<>(MetodoPago.values());
         cbMetodoPago.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        cbMetodoPago.setPreferredSize(new Dimension(160, 30));
+        cbMetodoPago.setPreferredSize(new Dimension(120, 26));
+        cbMetodoPago.setFocusable(false);
 
-        JPanel panelPago = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        panelPago.setOpaque(false);
-        panelPago.setBorder(new EmptyBorder(0, 40, 0, 40));
-        panelPago.add(lblMetodoPago);
-        panelPago.add(cbMetodoPago);
+        JPanel contenidoMetodo = new JPanel(new BorderLayout(10, 0));
+        contenidoMetodo.setOpaque(false);
+        contenidoMetodo.setBorder(new EmptyBorder(0, 12, 0, 8));
+        contenidoMetodo.add(lblMetodoPago, BorderLayout.WEST);
+        contenidoMetodo.add(cbMetodoPago, BorderLayout.EAST);
 
-        // Botón realizar pedido (derecha)
+        JPanel cajaMetodoPago = new JPanel(new BorderLayout());
+        cajaMetodoPago.setBackground(new Color(245, 245, 245));
+        cajaMetodoPago.setBorder(new LineBorder(new Color(60, 60, 60), 1));
+        cajaMetodoPago.setPreferredSize(new Dimension(260, 32));
+        cajaMetodoPago.add(contenidoMetodo, BorderLayout.CENTER);
+
+        JPanel panelResumen = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
+        panelResumen.setOpaque(false);
+        panelResumen.setBorder(new EmptyBorder(0, 40, 0, 40));
+        panelResumen.add(cajaMetodoPago);
+        panelResumen.add(cajaTotal);
+
         JButton btnRealizar = new JButton("Realizar pedido");
         btnRealizar.setPreferredSize(new Dimension(180, 34));
         btnRealizar.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -219,11 +224,13 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
                 pedidoExpress.setFolio(ctx.getPedidoBO().generarFolio());
                 pedidoExpress.setPin(ctx.getPedidoBO().generarPIN());
                 
+                String pin = pedidoExpress.getPin();
+                
                 List<DetallePedido> detalles = crearDetallesDesdeCarrito();
                 
                 if (ctx.getPedidoBO().agregarPedidoExpress(pedidoExpress, detalles) != null) {
 
-                    new PantallaPedidoExpressRealizado(pedidoExpress).setVisible(true);
+                    new PantallaPedidoExpressRealizado(pedidoExpress, ctx, pin).setVisible(true);
                     dispose();
 
                 } else {
@@ -254,15 +261,13 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
         JPanel stackSouth = new JPanel();
         stackSouth.setOpaque(false);
         stackSouth.setLayout(new BoxLayout(stackSouth, BoxLayout.Y_AXIS));
-        stackSouth.add(panelTotal);
-        stackSouth.add(panelPago);  // <- agregado
+        stackSouth.add(panelResumen);  
         stackSouth.add(panelBtn);
         stackSouth.add(footerPanel);
 
         south.add(stackSouth, BorderLayout.CENTER);
         card.add(south, BorderLayout.SOUTH);
 
-        // Cargar tabla + total
         cargarTabla();
         actualizarTotal();
     }
