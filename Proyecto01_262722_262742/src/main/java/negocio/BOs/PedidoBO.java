@@ -7,11 +7,14 @@ package negocio.BOs;
 import dominio.DetallePedido;
 import dominio.EstadoPedido;
 import dominio.Pedido;
+import dominio.PedidoExpress;
 import dominio.PedidoProgramado;
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.logging.Logger;
 import negocio.Excepciones.NegocioException;
+import negocio.util.PasswordUtil;
 import persistencia.DAOs.iDetallePedidoDAO;
 import persistencia.DAOs.iPedidoDAO;
 import persistencia.Excepciones.PersistenciaException;
@@ -153,6 +156,44 @@ public class PedidoBO implements iPedidoBO {
         } catch (PersistenciaException ex) {
             LOG.warning("No se pudo generar el folio de pedido. " + ex);
             throw new NegocioException("Error generando número de folio", ex);
+        }
+    }
+
+    @Override
+    public String generarPIN() throws NegocioException {
+        SecureRandom random = new SecureRandom();
+        
+        // Generamos un número aleatorio entre 0 y 99,999,999
+        int numeroAleatorio = random.nextInt(100000000);
+
+        // Lo formateamos para que SIEMPRE tenga 8 dígitos (ej. si sale 45, será "00000045")
+        String pinPlano = String.format("%08d", numeroAleatorio);
+
+        return pinPlano;
+        
+    }
+
+    @Override
+    public PedidoExpress agregarPedidoExpress(PedidoExpress pedidoExpress, List<DetallePedido> detalles) throws NegocioException {
+        try {
+            if (pedidoExpress == null) {
+                throw new NegocioException("El pedido es obligatorio.");
+            }
+            if (detalles == null || detalles.isEmpty()) {
+                throw new NegocioException("El pedido no tiene productos.");
+            }
+            
+            //hashear pin
+            String hash = PasswordUtil.hash(pedidoExpress.getPin());
+            pedidoExpress.setPin(hash);
+
+            // 1) Insertar pedido (debe regresar con ID seteado)
+            PedidoExpress pedidoGuardado = pedidoDAO.insertarPedidoExpress(pedidoExpress, detalles);
+
+            return pedidoGuardado;
+        } catch (PersistenciaException ex) {
+            LOG.warning("No se pudo agregar el pedido express " + ex);
+            throw new NegocioException("No se pudo agregar el pedido express. ", ex);
         }
     }
 

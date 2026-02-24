@@ -7,6 +7,7 @@ package negocio.BOs;
 import dominio.DetallePedido;
 import dominio.EstadoPedido;
 import dominio.Pedido;
+import dominio.PedidoExpress;
 import dominio.PedidoProgramado;
 import java.time.LocalDate;
 import java.util.List;
@@ -76,5 +77,21 @@ public interface iPedidoBO {
      * @throws NegocioException excepcion por regla de negocio
      */
     public String generarFolio() throws NegocioException;
+    
+    /**
+     * metodo que genera un PIN de 8 digitos hasheado
+     * @return pin hasheado
+     * @throws NegocioException excepcion por reglas de negocio
+     */
+    public String generarPIN() throws NegocioException;
+    
+    /**
+     * metodo para insertar un pedido express y lo que lleva
+     * @param pedidoExpress pedido a insertar
+     * @param detalles detalles pedido del pedido express
+     * @return pedido express insertado
+     * @throws NegocioException excepcion por reglas de negocio
+     */
+    public PedidoExpress agregarPedidoExpress(PedidoExpress pedidoExpress, List<DetallePedido> detalles) throws NegocioException;
 }
 
