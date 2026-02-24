@@ -167,7 +167,7 @@ public class ProductoDAO implements iProductoDAO {
 
         String comandoSQL = """
                             SELECT id, nombre, tipo, precio, estado, descripcion
-                            FROM Productos
+                            FROM Productos WHERE estado = "Disponible"
                             """;
 
         List<Producto> productos = new ArrayList<>();
