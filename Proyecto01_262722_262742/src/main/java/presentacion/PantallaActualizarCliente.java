@@ -63,7 +63,7 @@ public class PantallaActualizarCliente extends JFrame {
         card.setPreferredSize(new Dimension(900, 800));
         root.add(card);
 
-        // ========= TOP =========
+        // ----- parte de arriba -----
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
 
@@ -106,7 +106,7 @@ public class PantallaActualizarCliente extends JFrame {
 
         card.add(top, BorderLayout.NORTH);
 
-        // ========= CENTER =========
+        // ----- parte central -----
         JPanel center = new JPanel(new GridBagLayout());
         center.setOpaque(false);
         center.setBorder(new EmptyBorder(18, 70, 10, 70));
@@ -151,7 +151,7 @@ public class PantallaActualizarCliente extends JFrame {
                 passWrap, chkContrasenia
         );
 
-        // ----- Sección personales -----
+        // ----- seccion personales -----
         addSection(center, g, lblPersonales);
 
         txtNombres = crearTextField("Nombres");
@@ -167,7 +167,6 @@ public class PantallaActualizarCliente extends JFrame {
                 campoConLabel("Apellido paterno", txtApellidoP), chkApellidoP
         );
 
-        // Fecha + Apellido materno
         LocalDate fn = clienteActual.getFechaNacimiento();
 
         JPanel panelFecha = new JPanel(new GridLayout(1, 3, 10, 0));
@@ -239,7 +238,7 @@ public class PantallaActualizarCliente extends JFrame {
 
         card.add(center, BorderLayout.CENTER);
 
-        // ========= SOUTH =========
+        // ----- abajo -----
         JButton btnGuardar = crearBoton("Guardar cambios");
         JButton btnHistorial = crearBoton("Consultar historial");
         JButton btnTelefonos = crearBoton("Consultar teléfonos");
@@ -253,7 +252,10 @@ public class PantallaActualizarCliente extends JFrame {
         btnDesactivar.setPreferredSize(new Dimension(200, 38));
 
         btnGuardar.addActionListener(e -> guardarCambios());
-        btnHistorial.addActionListener(e -> JOptionPane.showMessageDialog(this, "Historial (pendiente)"));
+        btnHistorial.addActionListener(e -> {
+            new PantallaHistorialPedidosCliente(this, ctx).setVisible(true);
+            dispose();
+        });
         btnTelefonos.addActionListener(e -> {
             new PantallaAdministrarTelefonosCliente(this, ctx).setVisible(true);
             dispose();
@@ -303,7 +305,6 @@ public class PantallaActualizarCliente extends JFrame {
         card.add(south, BorderLayout.SOUTH);
     }
 
-    // =================== Guardar cambios ===================
     private void guardarCambios() {
         try {
             Cliente actualizado = copiarCliente(clienteActual);
@@ -372,7 +373,7 @@ public class PantallaActualizarCliente extends JFrame {
         }
     }
 
-    // =================== Layout helpers ===================
+    // ----- apoyo para los layouts -----
     private void addSection(JPanel parent, GridBagConstraints g, JComponent sectionLabel) {
         g.gridx = 0;
         g.gridwidth = 4;
@@ -415,7 +416,7 @@ public class PantallaActualizarCliente extends JFrame {
         g.gridy++;
     }
 
-    // =================== UI helpers ===================
+    // ----- auxiliares de la interfaz -----
     private JPanel campoConLabel(String label, Component campo) {
         JPanel p = new JPanel();
         p.setOpaque(false);
@@ -426,7 +427,6 @@ public class PantallaActualizarCliente extends JFrame {
         l.setForeground(new Color(35, 35, 35));
         l.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Alineación del campo
         if (campo instanceof JComponent jc) {
             jc.setAlignmentX(Component.LEFT_ALIGNMENT);
         }
@@ -477,7 +477,7 @@ public class PantallaActualizarCliente extends JFrame {
         JCheckBox chk = new JCheckBox();
         chk.setOpaque(false);
         chk.setFocusPainted(false);
-        chk.setBorderPaintedFlat(true);     // se ve menos “cuadrote”
+        chk.setBorderPaintedFlat(true);
         chk.setMargin(new Insets(0, 0, 0, 0));
         chk.setPreferredSize(new Dimension(18, 18));
         chk.setMinimumSize(new Dimension(18, 18));
@@ -569,8 +569,8 @@ public class PantallaActualizarCliente extends JFrame {
     private JPanel wrapChk(JCheckBox chk) {
         JPanel p = new JPanel(new BorderLayout());
         p.setOpaque(false);
-        p.setPreferredSize(new Dimension(26, 40));  // ancho para que no baile, alto similar al campo
-        p.add(chk, BorderLayout.NORTH);             // lo pega arriba
+        p.setPreferredSize(new Dimension(26, 40));  
+        p.add(chk, BorderLayout.NORTH);             
         return p;
     }
 }

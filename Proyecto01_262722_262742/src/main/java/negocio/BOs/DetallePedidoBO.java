@@ -39,4 +39,19 @@ public class DetallePedidoBO implements iDetallePedidoBO {
             throw new NegocioException("No se pudieron listar los detalles del pedido. " + ex.getMessage(), ex);
         }
     }
+
+    @Override
+    public float obtenerSubtotalPedido(int idPedido) throws NegocioException {
+        if(idPedido <= 0){
+            throw new NegocioException("Id de pedido invalido");
+        }
+        
+        try{
+            float subtotal = detallePedidoDAO.obtenerSubTotalPorPedido(idPedido);
+            return subtotal;
+        }catch(PersistenciaException ex){
+            throw new NegocioException("Error al obtener el subtotal: " + ex.getMessage(), ex);
+        }
+        
+    }
 }

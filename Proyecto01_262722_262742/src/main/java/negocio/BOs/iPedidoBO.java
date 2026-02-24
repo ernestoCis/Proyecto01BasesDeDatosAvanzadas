@@ -8,6 +8,7 @@ import dominio.DetallePedido;
 import dominio.EstadoPedido;
 import dominio.Pedido;
 import dominio.PedidoProgramado;
+import java.time.LocalDate;
 import java.util.List;
 import negocio.Excepciones.NegocioException;
 
@@ -49,5 +50,9 @@ public interface iPedidoBO {
      * @throws NegocioException excepcion por reglas de negocio
      */
     public void actualizarEstadoPedido(int idPedido, EstadoPedido estado) throws NegocioException;
+    
+    public List<Pedido> listarPedidosPorCliente(int idCliente) throws NegocioException;
+    
+    public List<Pedido> listarPedidosPorClienteFiltro(int idCliente, String folio, LocalDate fechaInicio, LocalDate fechaFin) throws NegocioException;
 }
 

@@ -29,4 +29,12 @@ public interface iDetallePedidoDAO {
      * @throws PersistenciaException excepcion por si sql falla
      */
     public List<DetallePedido> listarDetallesPorPedido(int idPedido) throws PersistenciaException;
+    
+    /**
+     * metodo que calcula el subtotal de un pedido
+     * @param idPedido id del pedido que tiene detalles de pedidp
+     * @return subtotal calculado
+     * @throws PersistenciaException excepcion por si el sql falla
+     */
+    public float obtenerSubTotalPorPedido(int idPedido) throws PersistenciaException;
 }

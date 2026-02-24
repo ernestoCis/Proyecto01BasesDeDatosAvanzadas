@@ -144,4 +144,28 @@ public class DetallePedidoDAO implements iDetallePedidoDAO {
             throw new PersistenciaException("Error al listar detalles del pedido", ex);
         }
     }
+
+    @Override
+    public float obtenerSubTotalPorPedido(int idPedido) throws PersistenciaException {
+        String comandoSQL = """
+                    SELECT COALESCE(SUM(total), 0) AS subtotal
+                    FROM DetallesPedidos
+                    WHERE id_pedido = ?
+                    """;
+
+        try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
+
+            ps.setInt(1, idPedido);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getFloat("subtotal");
+                }
+                return 0f;
+            }
+
+        } catch (SQLException ex) {
+            throw new PersistenciaException("Error al obtener subtotal del pedido", ex);
+        }
+    }
 }

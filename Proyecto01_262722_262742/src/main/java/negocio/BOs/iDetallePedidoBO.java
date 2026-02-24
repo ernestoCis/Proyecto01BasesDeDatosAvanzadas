@@ -22,4 +22,12 @@ public interface iDetallePedidoBO {
      * @throws NegocioException excepcion por reglas de negocio
      */
     public List<DetallePedido> listarDetallesPorPedido(int idPedido) throws NegocioException;
+    
+    /**
+     * metodo que obtiene el subtotal de un pedido
+     * @param idPedido id del pedido a obtener su subtotal
+     * @return subtotal
+     * @throws NegocioException excepcion por reglas de negocio
+     */
+    public float obtenerSubtotalPedido(int idPedido) throws NegocioException;
 }

@@ -9,6 +9,7 @@ import dominio.EstadoPedido;
 import dominio.Pedido;
 import dominio.PedidoExpress;
 import dominio.PedidoProgramado;
+import java.time.LocalDate;
 import java.util.List;
 import persistencia.Excepciones.PersistenciaException;
 
@@ -54,8 +55,38 @@ public interface iPedidoDAO {
      */
     public boolean existeNumeroDePedido(int numeroPedido) throws PersistenciaException;
 
+    /**
+     * metodo para obtener todos los pedidos
+     * @return lista de pedidos
+     * @throws PersistenciaException excepcion por si falla el sql
+     */
     public List<Pedido> listarPedidos() throws PersistenciaException;
 
+    /**
+     * metodo que cambia el estado de un pedido
+     * @param idPedido id del pedido a cambiar su estado
+     * @param nuevoEstado nuevo estado para el pedido
+     * @throws PersistenciaException excepcion por si falla el sql
+     */
     public void actualizarEstadoPedido(int idPedido, EstadoPedido nuevoEstado) throws PersistenciaException;
+    
+    /**
+     * metodo que lista los pedidos de un cliente
+     * @param idCliente id del cliente ora buscar sus pedidos
+     * @return regresa la lista de pedidos de un cliente
+     * @throws PersistenciaException excepcion por si el sql falla
+     */
+    public List<Pedido> listarPedidosPorCliente(int idCliente) throws PersistenciaException;
+    
+    /**
+     * metodo que filtra los pedidos por cliente y filtros adicionales
+     * @param idCliente id del cliente del que buscaremos sus pedidos
+     * @param folio folio del pedido a buscar
+     * @param fechaInicio fecha de inicio para el rengo de fechas a buscar
+     * @param fechaFin fecha de fim para el rengo de fechas a buscar
+     * @return lista de pedidos filrados
+     * @throws PersistenciaException excepcion por si falla el sql
+     */
+    public List<Pedido> listarPedidosPorClienteFiltro(int idCliente, String folio, LocalDate fechaInicio, LocalDate fechaFin) throws PersistenciaException;
 
 }

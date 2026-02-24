@@ -8,6 +8,7 @@ import dominio.DetallePedido;
 import dominio.EstadoPedido;
 import dominio.Pedido;
 import dominio.PedidoProgramado;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.logging.Logger;
 import negocio.Excepciones.NegocioException;
@@ -97,6 +98,33 @@ public class PedidoBO implements iPedidoBO {
         } catch (PersistenciaException ex) {
             LOG.warning("No se pudo actualizar el estado del pedido. " + ex);
             throw new NegocioException("No se pudo actualizar el estado del pedido. " + ex.getMessage(), ex);
+        }
+    }
+
+    @Override
+    public List<Pedido> listarPedidosPorCliente(int idCliente) throws NegocioException {
+        try {
+            if (idCliente <= 0) {
+                throw new NegocioException("ID de cliente inválido");
+            }
+            return pedidoDAO.listarPedidosPorCliente(idCliente);
+
+        } catch (PersistenciaException ex) {
+            LOG.warning("No se pudieron listar pedidos del cliente: " + ex.getMessage());
+            throw new NegocioException("No se pudieron consultar los pedidos del cliente: " + ex.getMessage(), ex);
+        }
+    }
+
+    @Override
+    public List<Pedido> listarPedidosPorClienteFiltro(int idCliente, String folio, LocalDate fechaInicio, LocalDate fechaFin) throws NegocioException {
+        if (idCliente <= 0) {
+                throw new NegocioException("ID de cliente inválido");
+            }
+        
+        try{
+            return pedidoDAO.listarPedidosPorClienteFiltro(idCliente, folio, fechaInicio, fechaFin);
+        }catch(PersistenciaException ex){
+            throw new NegocioException("Error al filtrar: " + ex.getMessage());
         }
     }
 
