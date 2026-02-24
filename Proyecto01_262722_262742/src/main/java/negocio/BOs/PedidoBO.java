@@ -5,6 +5,8 @@
 package negocio.BOs;
 
 import dominio.DetallePedido;
+import dominio.EstadoPedido;
+import dominio.Pedido;
 import dominio.PedidoProgramado;
 import java.util.List;
 import java.util.logging.Logger;
@@ -17,14 +19,14 @@ import persistencia.Excepciones.PersistenciaException;
  *
  * @author jesus y isaac
  */
-public class PedidoBO implements iPedidoBO{
-    
+public class PedidoBO implements iPedidoBO {
+
     //DAO comun
     private iPedidoDAO pedidoDAO;
     private iDetallePedidoDAO detallePedidoDAO;
     private static final Logger LOG = Logger.getLogger(ProductoBO.class.getName());
-    
-    public PedidoBO(iPedidoDAO pedido, iDetallePedidoDAO detallePedidoDAO){
+
+    public PedidoBO(iPedidoDAO pedido, iDetallePedidoDAO detallePedidoDAO) {
         this.pedidoDAO = pedido; // asignamos valor al DAO
         this.detallePedidoDAO = detallePedidoDAO;
     }
@@ -62,10 +64,40 @@ public class PedidoBO implements iPedidoBO{
             PedidoProgramado pedidoGuardado = pedidoDAO.insertarPedidoProgramado(pedidoProgramado, detalles);
 
             return pedidoGuardado;
-        }catch(PersistenciaException ex){
+        } catch (PersistenciaException ex) {
             LOG.warning("No se pudo agregar el pedido programado " + ex);
             throw new NegocioException("No se pudo agregar el pedido programado. ", ex);
         }
     }
-    
+
+    @Override
+    public List<Pedido> listarPedidos() throws NegocioException {
+        try {
+            return pedidoDAO.listarPedidos();
+
+        } catch (PersistenciaException ex) {
+            LOG.warning("No se pudieron listar los pedidos. " + ex);
+            throw new NegocioException("No se pudieron listar los pedidos. " + ex.getMessage(), ex);
+        }
+    }
+
+    @Override
+    public void actualizarEstadoPedido(int idPedido, EstadoPedido estado) throws NegocioException {
+        try {
+            if (idPedido <= 0) {
+                throw new NegocioException("El id del pedido no es válido.");
+            }
+
+            if (estado == null) {
+                throw new NegocioException("El estado es obligatorio.");
+            }
+
+            pedidoDAO.actualizarEstadoPedido(idPedido, estado);
+
+        } catch (PersistenciaException ex) {
+            LOG.warning("No se pudo actualizar el estado del pedido. " + ex);
+            throw new NegocioException("No se pudo actualizar el estado del pedido. " + ex.getMessage(), ex);
+        }
+    }
+
 }

@@ -8,6 +8,7 @@ import dominio.Cliente;
 import dominio.Empleado;
 import negocio.BOs.iClienteBO;
 import negocio.BOs.iCuponBO;
+import negocio.BOs.iDetallePedidoBO;
 import negocio.BOs.iEmpleadoBO;
 import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
@@ -24,9 +25,9 @@ public class AppContext {
     private final iCuponBO cuponBO;
     private final iPedidoBO pedidoBO;
     private final iClienteBO clienteBO;
-    private final iEmpleadoBO empleadoBO; 
+    private final iEmpleadoBO empleadoBO;
+    private final iDetallePedidoBO detallePedidoBO; 
 
-    // Sesión (pueden ser null si no hay sesión iniciada)
     private Cliente clienteActual;
     private Empleado empleadoActual;
 
@@ -35,59 +36,34 @@ public class AppContext {
                       iCuponBO cuponBO,
                       iPedidoBO pedidoBO,
                       iClienteBO clienteBO,
-                      iEmpleadoBO empleadoBO) { 
+                      iEmpleadoBO empleadoBO,
+                      iDetallePedidoBO detallePedidoBO) {  
         this.usuarioBO = usuarioBO;
         this.productoBO = productoBO;
         this.cuponBO = cuponBO;
         this.pedidoBO = pedidoBO;
         this.clienteBO = clienteBO;
         this.empleadoBO = empleadoBO;
+        this.detallePedidoBO = detallePedidoBO;
     }
 
-    public iUsuarioBO getUsuarioBO() {
-        return usuarioBO;
+    public iUsuarioBO getUsuarioBO() { return usuarioBO; }
+    public iProductoBO getProductoBO() { return productoBO; }
+    public iCuponBO getCuponBO() { return cuponBO; }
+    public iPedidoBO getPedidoBO() { return pedidoBO; }
+    public iClienteBO getClienteBO() { return clienteBO; }
+    public iEmpleadoBO getEmpleadoBO() { return empleadoBO; }
+
+    public iDetallePedidoBO getDetallePedidoBO() {
+        return detallePedidoBO;
     }
 
-    public iProductoBO getProductoBO() {
-        return productoBO;
-    }
+    public Cliente getClienteActual() { return clienteActual; }
+    public void setClienteActual(Cliente clienteActual) { this.clienteActual = clienteActual; }
 
-    public iCuponBO getCuponBO() {
-        return cuponBO;
-    }
+    public Empleado getEmpleadoActual() { return empleadoActual; }
+    public void setEmpleadoActual(Empleado empleadoActual) { this.empleadoActual = empleadoActual; }
 
-    public iPedidoBO getPedidoBO() {
-        return pedidoBO;
-    }
-
-    public iClienteBO getClienteBO() {
-        return clienteBO;
-    }
-
-    // ✅ NUEVO
-    public iEmpleadoBO getEmpleadoBO() {
-        return empleadoBO;
-    }
-
-    public Cliente getClienteActual() {
-        return clienteActual;
-    }
-
-    public void setClienteActual(Cliente clienteActual) {
-        this.clienteActual = clienteActual;
-    }
-
-    public Empleado getEmpleadoActual() {
-        return empleadoActual;
-    }
-
-    public void setEmpleadoActual(Empleado empleadoActual) {
-        this.empleadoActual = empleadoActual;
-    }
-
-    /**
-     * Cierra sesión de cliente y empleado.
-     */
     public void cerrarSesion() {
         this.clienteActual = null;
         this.empleadoActual = null;

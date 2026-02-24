@@ -16,7 +16,6 @@ public class FabricaAplicacion {
 
     public static AppContext crearContexto() {
 
-        // Conexión
         iConexionBD conexion = new ConexionBD();
 
         // DAOs
@@ -35,7 +34,16 @@ public class FabricaAplicacion {
         iPedidoBO pedidoBO = new PedidoBO(pedidoDAO, detallePedidoDAO);
         iClienteBO clienteBO = new ClienteBO(clienteDAO);
         iEmpleadoBO empleadoBO = new EmpleadoBO(empleadoDAO);
+        iDetallePedidoBO detallePedidoBO = new DetallePedidoBO(detallePedidoDAO);
 
-        return new AppContext(usuarioBO, productoBO, cuponBO, pedidoBO, clienteBO, empleadoBO);
+        return new AppContext(
+                usuarioBO,
+                productoBO,
+                cuponBO,
+                pedidoBO,
+                clienteBO,
+                empleadoBO,
+                detallePedidoBO
+        );
     }
 }
