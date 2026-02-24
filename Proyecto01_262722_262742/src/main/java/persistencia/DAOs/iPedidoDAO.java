@@ -89,4 +89,12 @@ public interface iPedidoDAO {
      */
     public List<Pedido> listarPedidosPorClienteFiltro(int idCliente, String folio, LocalDate fechaInicio, LocalDate fechaFin) throws PersistenciaException;
 
+     /**
+     * metodo que valida que el atributo numero medido no este dentro de la BD
+     *
+     * @param numeroPedido numero a consultar
+     * @return true = si el numero ya existe, false = si el numero no existe
+     * @throws PersistenciaException excepcion por si el sql falla
+     */
+    public boolean existeFolio(String folio) throws PersistenciaException;
 }

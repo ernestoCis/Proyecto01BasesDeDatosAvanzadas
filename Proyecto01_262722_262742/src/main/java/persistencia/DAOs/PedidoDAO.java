@@ -692,4 +692,24 @@ public class PedidoDAO implements iPedidoDAO {
         }
     }
 
+    @Override
+    public boolean existeFolio(String folio) throws PersistenciaException {
+        String comandoSQL = """
+                            SELECT 1 FROM PedidosExpress WHERE folio = ? LIMIT 1
+                            """;
+
+        try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
+
+            ps.setString(1, folio);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+
+        } catch (SQLException ex) {
+            LOG.log(Level.SEVERE, "Error al verificar el folio", ex);
+            throw new PersistenciaException("Error al verificar eñ folio", ex);
+        }
+    }
+
 }
