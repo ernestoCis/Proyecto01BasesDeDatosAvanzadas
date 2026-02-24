@@ -51,8 +51,30 @@ public interface iPedidoBO {
      */
     public void actualizarEstadoPedido(int idPedido, EstadoPedido estado) throws NegocioException;
     
+    /**
+     * metodo para obtener todos los pedidos de un cliente
+     * @param idCliente id del cliente que se buscaran sus pedidos
+     * @return regresa la lista de pedidos
+     * @throws NegocioException excepcion por reglas de negocio
+     */
     public List<Pedido> listarPedidosPorCliente(int idCliente) throws NegocioException;
     
+    /**
+     * metodo que lista los pedidos del cliente mas un filtro
+     * @param idCliente id de del cliente del que se buscaran sus pedidos
+     * @param folio folio para filtrar
+     * @param fechaInicio fecha para el rango del filtro
+     * @param fechaFin fecha para el rango del filtro
+     * @return regresa la lista con los pedidos
+     * @throws NegocioException excepcion por reglas de negocio
+     */
     public List<Pedido> listarPedidosPorClienteFiltro(int idCliente, String folio, LocalDate fechaInicio, LocalDate fechaFin) throws NegocioException;
+    
+    /**
+     * metodo que genera in folio valido para los pedidos express
+     * @return regresa el folio valido
+     * @throws NegocioException excepcion por regla de negocio
+     */
+    public String generarFolio() throws NegocioException;
 }
 

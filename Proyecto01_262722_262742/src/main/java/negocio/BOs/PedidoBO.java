@@ -128,4 +128,32 @@ public class PedidoBO implements iPedidoBO {
         }
     }
 
+    @Override
+    public String generarFolio() throws NegocioException {
+        int contador = 1;
+        try {
+            String folio;
+            boolean existe;
+
+            do {
+                folio = String.format("PE%04d", contador);
+
+                existe = pedidoDAO.existeFolio(folio);
+
+                if (existe) {
+                    contador++;
+                }
+
+            } while (existe);
+
+            contador++;
+
+            return folio;
+
+        } catch (PersistenciaException ex) {
+            LOG.warning("No se pudo generar el folio de pedido. " + ex);
+            throw new NegocioException("Error generando número de folio", ex);
+        }
+    }
+
 }
