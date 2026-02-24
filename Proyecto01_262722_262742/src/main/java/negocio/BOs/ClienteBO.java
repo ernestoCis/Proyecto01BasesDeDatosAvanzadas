@@ -5,6 +5,7 @@
 package negocio.BOs;
 
 import dominio.Cliente;
+import dominio.EstadoCliente;
 import dominio.Telefono;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -67,10 +68,6 @@ public class ClienteBO implements iClienteBO{
     @Override
     public Cliente consultarCliente(String usuario, String contrasenia) throws NegocioException {
         try {
-            if (usuario == null || usuario.trim().isEmpty()) {
-                throw new NegocioException("El usuario es obligatorio.");
-            }
-            
             if (contrasenia == null || contrasenia.trim().isEmpty()) {
                 throw new NegocioException("La contraseña es obligatoria.");
             }

@@ -20,6 +20,7 @@ public class Cliente extends Usuario {
     private int edad;
     private Direccion direccion;
     private List<Telefono> telefonos;
+    private EstadoCliente estado;
 
     public Cliente() {
     }
@@ -89,4 +90,12 @@ public class Cliente extends Usuario {
         this.telefonos = telefonos;
     }
 
+    public EstadoCliente getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoCliente estado) {
+        this.estado = estado;
+    }
+    
 }

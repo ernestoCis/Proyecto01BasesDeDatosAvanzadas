@@ -2,6 +2,7 @@ package presentacion;
 
 import dominio.Cliente;
 import dominio.Direccion;
+import dominio.EstadoCliente;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
@@ -257,7 +258,19 @@ public class PantallaActualizarCliente extends JFrame {
             new PantallaAdministrarTelefonosCliente(this, ctx).setVisible(true);
             dispose();
         });
-        btnDesactivar.addActionListener(e -> JOptionPane.showMessageDialog(this, "Desactivar cuenta (pendiente)"));
+        btnDesactivar.addActionListener(e -> {
+            ctx.getClienteActual().setEstado(EstadoCliente.Inactivo);
+            try {
+                ctx.getClienteBO().actualizarCliente(clienteActual);
+                JOptionPane.showMessageDialog(this, "Cuenta desactivada");
+                new Menu(ctx).setVisible(true);
+                dispose();
+            } catch (NegocioException ex) {
+                ctx.getClienteActual().setEstado(EstadoCliente.Activo);
+                JOptionPane.showMessageDialog(this, "Error al desactivar la cuenta");
+                System.getLogger(PantallaActualizarCliente.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
+        });
 
         JPanel filaBotones = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
         filaBotones.setOpaque(false);

@@ -9,6 +9,7 @@ package presentacion;
  * @author
  */
 import dominio.Cliente;
+import dominio.EstadoCliente;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
@@ -165,13 +166,16 @@ public class PantallaInicioSesionCliente extends JFrame {
                 String password = new String(txtContrasena.getPassword());
 
                 Cliente cliente = ctx.getClienteBO().consultarCliente(usuario, password);
+                
+                if(cliente.getEstado() == EstadoCliente.Inactivo){
+                    JOptionPane.showMessageDialog(this, "Cliente inactivo");
+                }else{
+                    // guardar sesión
+                    ctx.setClienteActual(cliente);
 
-                // guardar sesión
-                ctx.setClienteActual(cliente);
-
-                new PantallaSesionIniciadaCliente(ctx).setVisible(true);
-                dispose();
-
+                    new PantallaSesionIniciadaCliente(ctx).setVisible(true);
+                    dispose();
+                }
             } catch (NegocioException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }

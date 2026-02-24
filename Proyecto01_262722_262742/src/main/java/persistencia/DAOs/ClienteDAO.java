@@ -6,6 +6,7 @@ package persistencia.DAOs;
 
 import dominio.Cliente;
 import dominio.Direccion;
+import dominio.EstadoCliente;
 import dominio.Telefono;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -51,7 +52,8 @@ public class ClienteDAO implements iClienteDAO{
                     c.nombres,
                     c.apellido_paterno,
                     c.apellido_materno,
-                    c.fecha_nacimiento
+                    c.fecha_nacimiento,
+                    c.estado
                 FROM usuarios u
                 INNER JOIN clientes c ON c.id_usuario = u.id
                 WHERE u.usuario = ?
@@ -81,10 +83,11 @@ public class ClienteDAO implements iClienteDAO{
 
                 Cliente cliente = new Cliente();
                 cliente.setId(rs.getInt("id"));
-                cliente.setUsuario(rs.getString("usuario"));          // <-- importante
+                cliente.setUsuario(rs.getString("usuario"));          
                 cliente.setContrasenia(rs.getString("contrasenia"));
                 cliente.setNombres(rs.getString("nombres"));
                 cliente.setApellidoPaterno(rs.getString("apellido_paterno"));
+                cliente.setEstado(EstadoCliente.valueOf(rs.getString("estado")));
 
                 String apMat = rs.getString("apellido_materno");
                 if (apMat != null) {
@@ -290,7 +293,7 @@ public class ClienteDAO implements iClienteDAO{
 
         String comandoSQLCliente = """
                             UPDATE clientes
-                            SET nombres = ?, apellido_paterno = ?, apellido_materno = ?, fecha_nacimiento = ?
+                            SET nombres = ?, apellido_paterno = ?, apellido_materno = ?, fecha_nacimiento = ?, estado = ?
                             WHERE id_usuario = ?
                             """;
 
@@ -331,7 +334,8 @@ public class ClienteDAO implements iClienteDAO{
                 }
 
                 ps.setDate(4, Date.valueOf(cliente.getFechaNacimiento()));
-                ps.setInt(5, cliente.getId());
+                ps.setString(5, String.valueOf(cliente.getEstado()));
+                ps.setInt(6, cliente.getId());
 
                 if (ps.executeUpdate() == 0) {
                     throw new PersistenciaException("No se pudo actualizar el cliente (id_usuario no existe).");
