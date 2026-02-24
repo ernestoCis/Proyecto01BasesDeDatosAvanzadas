@@ -20,6 +20,7 @@ public class Menu extends JFrame {
 
     public Menu(AppContext ctx) {
         this.ctx = ctx;
+        ctx.setClienteActual(null);
 
         setTitle("Panadería");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
