@@ -4,6 +4,7 @@
  */
 package presentacion;
 
+import dominio.Cliente;
 import dominio.ItemCarrito;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -21,10 +22,12 @@ public class PantallaCarritoExpress extends JFrame {
     private final List<ItemCarrito> carrito;
 
     private final AppContext ctx;
+    private final Cliente cliente;
 
     public PantallaCarritoExpress(PantallaCatalogoExpress pantallaCatalogo, List<ItemCarrito> carrito, AppContext ctx) {
         this.pantallaCatalogo = pantallaCatalogo;
         this.carrito = carrito;
+        this.cliente = ctx.getClienteActual();
 
         this.ctx = ctx;
 

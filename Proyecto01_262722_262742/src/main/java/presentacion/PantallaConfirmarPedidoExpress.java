@@ -4,6 +4,7 @@
  */
 package presentacion;
 
+import dominio.Cliente;
 import dominio.DetallePedido;
 import dominio.EstadoPedido;
 import dominio.ItemCarrito;
@@ -29,6 +30,7 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
 
     private final List<ItemCarrito> carrito;
     private final AppContext ctx;
+    private final Cliente cliente;
 
     private final JFrame pantallaAnterior;
     private float total;
@@ -37,6 +39,7 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
         this.pantallaAnterior = pantallaAnterior;
         this.carrito = carrito;
         this.ctx = ctx;
+        this.cliente = ctx.getClienteActual();
 
         setTitle("Panadería - Confirmar pedido Express");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -226,7 +229,12 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
                 
                 String pin = pedidoExpress.getPin();
                 
+                pedidoExpress.setCliente(ctx.getClienteActual());
+                
                 List<DetallePedido> detalles = crearDetallesDesdeCarrito();
+                
+                //agregarle el pedido al cliente
+                
                 
                 if (ctx.getPedidoBO().agregarPedidoExpress(pedidoExpress, detalles) != null) {
 
