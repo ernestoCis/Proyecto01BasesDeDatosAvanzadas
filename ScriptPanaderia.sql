@@ -39,7 +39,8 @@ CREATE TABLE Clientes(
     nombres VARCHAR(50) NOT NULL,
     apellido_paterno VARCHAR(50) NOT NULL,
     apellido_materno VARCHAR(50),
-    fecha_nacimiento DATE NOT NULL
+    fecha_nacimiento DATE NOT NULL,
+    estado ENUM("Activo", "Inactivo") NOT NULL DEFAULT "Activo"
 );
 
 -- Tabla Direcciones
@@ -71,9 +72,9 @@ CREATE TABLE Empleados(
 -- Tabla Pedidos
 CREATE TABLE Pedidos(
 	id INT PRIMARY KEY AUTO_INCREMENT,
-    estado ENUM("Pendiente", "En preparación", "Listo", "Entregado", "Cancelado", "No reclamado") NOT NULL,
+    estado ENUM("Pendiente", "Listo", "Entregado", "Cancelado", "No reclamado") NOT NULL,
     fecha_creacion DATE NOT NULL,
-    fecha_entrega DATE NOT NULL,
+    fecha_entrega DATE,
     metodo_pago ENUM("Efectivo", "Credito", "Debito") NOT NULL,
     numero_pedido INT UNIQUE NOT NULL,
     id_cliente INT,
@@ -108,3 +109,16 @@ CREATE TABLE DetallesPedidos(
     id_producto INT NOT NULL,
     FOREIGN KEY(id_producto) REFERENCES Productos(id)
 );
+
+DELIMITER $$
+
+CREATE TRIGGER trg_pedidos_set_fecha_entrega
+BEFORE UPDATE ON Pedidos
+FOR EACH ROW
+BEGIN
+    IF NEW.estado = 'Entregado' AND OLD.estado <> 'Entregado' THEN
+        SET NEW.fecha_entrega = CURRENT_DATE();
+    END IF;
+END$$
+
+DELIMITER ;
