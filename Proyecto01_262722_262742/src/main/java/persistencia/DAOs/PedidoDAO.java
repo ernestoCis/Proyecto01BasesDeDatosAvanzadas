@@ -226,9 +226,9 @@ public class PedidoDAO implements iPedidoDAO {
             try (PreparedStatement ps = conn.prepareStatement(comandoPedidoSQL, Statement.RETURN_GENERATED_KEYS)) {
 
                 ps.setString(1, String.valueOf(pedido.getEstado()));
-                ps.setDate(2, Date.valueOf(pedido.getFechaCreacion().toLocalDate()));
+                ps.setTimestamp(2, Timestamp.valueOf(pedido.getFechaCreacion()));
                 if (pedido.getFechaEntrega() != null) {
-                    ps.setDate(3, Date.valueOf(pedido.getFechaEntrega().toLocalDate()));
+                    ps.setTimestamp(3, Timestamp.valueOf(pedido.getFechaEntrega()));
                 } else {
                     ps.setDate(3, null);
                 }
