@@ -219,7 +219,7 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
             
             try{
                 PedidoExpress pedidoExpress = new PedidoExpress();
-                pedidoExpress.setEstado(EstadoPedido.Pendiente);
+                pedidoExpress.setEstado(EstadoPedido.Listo);
                 pedidoExpress.setFechaCreacion(LocalDateTime.now());
                 pedidoExpress.setMetodoPago((MetodoPago) cbMetodoPago.getSelectedItem());
                 pedidoExpress.setTotal(total);

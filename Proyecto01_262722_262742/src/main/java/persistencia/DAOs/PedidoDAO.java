@@ -257,7 +257,7 @@ public class PedidoDAO implements iPedidoDAO {
                 }
             }
 
-            // insertar en la tabla de programados
+            // insertar en la tabla de express
             try (PreparedStatement ps2 = conn.prepareStatement(comandoExpressSQL)) {
 
                 ps2.setInt(1, pedido.getId());
