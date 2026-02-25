@@ -29,7 +29,7 @@ CREATE TABLE Usuarios(
 	id INT PRIMARY KEY AUTO_INCREMENT,
     usuario VARCHAR(20) NOT NULL,
     contrasenia VARCHAR(100) NOT NULL,
-    rol ENUM("Cliente", "Empleado")
+    rol ENUM("Cliente", "Empleado") NOT NULL
 );
 
 -- Tabla Clientes
@@ -73,8 +73,8 @@ CREATE TABLE Empleados(
 CREATE TABLE Pedidos(
 	id INT PRIMARY KEY AUTO_INCREMENT,
     estado ENUM("Pendiente", "Listo", "Entregado", "Cancelado", "No reclamado") NOT NULL,
-    fecha_creacion DATE NOT NULL,
-    fecha_entrega DATE,
+    fecha_creacion DATETIME NOT NULL,
+    fecha_entrega DATETIME,
     metodo_pago ENUM("Efectivo", "Credito", "Debito") NOT NULL,
     numero_pedido INT UNIQUE NOT NULL,
     id_cliente INT,
@@ -84,7 +84,7 @@ CREATE TABLE Pedidos(
 -- Tabla PedidosExpress
 CREATE TABLE PedidosExpress(
 	id_pedido INT PRIMARY KEY,
-    pin INT NOT NULL,
+    pin VARCHAR(100) NOT NULL,
     folio VARCHAR(10) NOT NULL,
     FOREIGN KEY(id_pedido) REFERENCES Pedidos(id)
 );
@@ -108,6 +108,17 @@ CREATE TABLE DetallesPedidos(
 	FOREIGN KEY(id_pedido) REFERENCES Pedidos(id),
     id_producto INT NOT NULL,
     FOREIGN KEY(id_producto) REFERENCES Productos(id)
+);
+
+-- Tabla HistorialCambios
+CREATE TABLE HistorialCambios(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    id_pedido INT NOT NULL,
+    FOREIGN KEY(id_pedido) REFERENCES Pedidos(id),
+    id_usuario INT NOT NULL,
+    FOREIGN KEY(id_usuario) REFERENCES Usuarios(id),
+    estado ENUM("Pendiente", "Listo", "Entregado", "Cancelado", "No reclamado"),
+    fecha_cambio DATETIME NOT NULL DEFAULT NOW()
 );
 
 DELIMITER $$
