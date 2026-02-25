@@ -4,9 +4,9 @@
  */
 package presentacion;
 
-
 import dominio.ItemCarrito;
 import dominio.Producto;
+import imagenes.ImagenProductoUtil;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
@@ -204,27 +204,21 @@ public class PantallaCatalogoExpress extends JFrame {
         lblNombre.setAlignmentX(Component.CENTER_ALIGNMENT);
         lblNombre.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 
-        // Placeholder de imagen
-        JPanel img = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.setColor(new Color(245, 245, 245));
-                g.fillRoundRect(0, 0, getWidth(), getHeight(), 18, 18);
-                g.setColor(new Color(200, 200, 200));
-                g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 18, 18);
-                g.setColor(new Color(120, 120, 120));
-                g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-                FontMetrics fm = g.getFontMetrics();
-                String t = "Imagen";
-                g.drawString(t, (getWidth() - fm.stringWidth(t)) / 2, getHeight() / 2);
-            }
-        };
+        // Imagen del producto (desde carpeta del proyecto)
+        JLabel img = new JLabel("Sin imagen", SwingConstants.CENTER);
         img.setPreferredSize(new Dimension(180, 100));
         img.setMaximumSize(new Dimension(180, 100));
         img.setAlignmentX(Component.CENTER_ALIGNMENT);
-        img.setOpaque(false);
+        img.setOpaque(true);
+        img.setBackground(new Color(245, 245, 245));
+        img.setBorder(new LineBorder(new Color(200, 200, 200), 1, true));
 
+        // Cargar imagen por ID: imagenes/productos/{id}.png
+        ImageIcon icon = ImagenProductoUtil.cargarIconoProducto(p.getId(), 180, 100);
+        if (icon != null) {
+            img.setText("");
+            img.setIcon(icon);
+        }
         // Tipo y precio
         String tipo = (p.getTipo() != null) ? p.getTipo().toString() : "N/A";
         JLabel lblTipoPrecio = new JLabel("Tipo: " + tipo + "   Precio: $" + Math.round(p.getPrecio()));
