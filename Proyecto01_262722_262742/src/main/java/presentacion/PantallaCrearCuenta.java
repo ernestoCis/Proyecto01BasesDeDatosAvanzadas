@@ -6,7 +6,7 @@ package presentacion;
 
 /**
  *
- * @author Isaac
+ * @author
  */
 import dominio.Cliente;
 import dominio.Direccion;

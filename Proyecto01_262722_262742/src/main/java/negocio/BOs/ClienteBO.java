@@ -5,7 +5,6 @@
 package negocio.BOs;
 
 import dominio.Cliente;
-import dominio.EstadoCliente;
 import dominio.Telefono;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,16 +34,55 @@ public class ClienteBO implements iClienteBO{
     public Cliente registrarCliente(Cliente cliente, Telefono telefono) throws NegocioException {
         try {
             if (cliente == null) {
-                throw new NegocioException("El cliente es obligatorio.");
+                throw new NegocioException("El cliente es obligatorio");
             }
 
-            // Validaciones mínimas
             if (cliente.getNombres() == null || cliente.getNombres().trim().isEmpty()) {
-                throw new NegocioException("El nombre es obligatorio.");
+                throw new NegocioException("El nombre es obligatorio");
             }
 
             if (cliente.getUsuario() == null || cliente.getUsuario().trim().isEmpty()) {
-                throw new NegocioException("El usuario es obligatorio.");
+                throw new NegocioException("El usuario es obligatorio");
+            }
+            
+            if(cliente.getContrasenia() == null || cliente.getContrasenia().trim().isEmpty()){
+                throw new NegocioException("Formato de contraseña invalido");
+            }
+            
+            String regexTelefono = "^\\+?[0-9]{10,15}$";
+            if(telefono.getTelefono() == null && !telefono.getTelefono().matches(regexTelefono)){
+                throw new NegocioException("Formato de telefono invalido");
+            }
+            
+            String regexNombres = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{2,50}$";
+            if(cliente.getNombres().matches(regexNombres)){
+                throw new NegocioException("Formato de nombre invalido");
+            }
+            
+            String regexApellido = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{2,50}$";
+            if(cliente.getApellidoPaterno().matches(regexApellido)){
+                throw new NegocioException("Formato de apellido paterno invalido");
+            }
+            
+            if(cliente.getApellidoMaterno() != null || !cliente.getApellidoMaterno().trim().isEmpty()){
+                if (cliente.getApellidoMaterno().matches(regexApellido)) {
+                    throw new NegocioException("Formato de apellido materno invalido");
+                }
+            }
+            
+            if(cliente.getFechaNacimiento() == null){
+                throw new NegocioException("La fecha de nacimiento no puede estar vacia");
+            }
+            
+            LocalDate hoy = LocalDate.now();
+            
+            if (cliente.getFechaNacimiento().isAfter(hoy) || cliente.getFechaNacimiento().isEqual(hoy)) {
+                throw new NegocioException("Fecha de nacimiento invalida");
+            }
+            
+            LocalDate limiteAntiguedad = hoy.minusYears(120);
+            if (cliente.getFechaNacimiento().isBefore(limiteAntiguedad)) {
+                throw new NegocioException("Fecha de nacimiento invalida");
             }
 
             // Evitar duplicados por correo
@@ -68,18 +106,22 @@ public class ClienteBO implements iClienteBO{
     @Override
     public Cliente consultarCliente(String usuario, String contrasenia) throws NegocioException {
         try {
+            if(usuario == null || usuario.trim().isEmpty()){
+                throw new NegocioException("El usuario es obligatorio");
+            }
+            
             if (contrasenia == null || contrasenia.trim().isEmpty()) {
-                throw new NegocioException("La contraseña es obligatoria.");
+                throw new NegocioException("La contraseña es obligatoria");
             }
 
             Cliente cliente = clienteDAO.consultarCliente(usuario.trim());
             
             if(cliente == null){
-                throw new NegocioException("Usuario o contraseña incorrectos.");
+                throw new NegocioException("Usuario o contraseña incorrectos");
             }
 
             if(!PasswordUtil.verificar(contrasenia, cliente.getContrasenia())){
-                throw new NegocioException("Usuario o contraseña incorrectos.");
+                throw new NegocioException("Usuario o contraseña incorrectos");
             }
             
             return cliente;
@@ -92,6 +134,53 @@ public class ClienteBO implements iClienteBO{
 
     @Override
     public Cliente actualizarCliente(Cliente cliente) throws NegocioException {
+        
+        if (cliente == null) {
+                throw new NegocioException("El cliente es obligatorio");
+            }
+
+            if (cliente.getNombres() == null || cliente.getNombres().trim().isEmpty()) {
+                throw new NegocioException("El nombre es obligatorio");
+            }
+
+            if (cliente.getUsuario() == null || cliente.getUsuario().trim().isEmpty()) {
+                throw new NegocioException("El usuario es obligatorio");
+            }
+            
+            if(cliente.getContrasenia() == null || cliente.getContrasenia().trim().isEmpty()){
+                throw new NegocioException("Formato de contraseña invalido");
+            }
+            
+            String regexNombres = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{2,50}$";
+            if(cliente.getNombres().matches(regexNombres)){
+                throw new NegocioException("Formato de nombre invalido");
+            }
+            
+            String regexApellido = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{2,50}$";
+            if(cliente.getApellidoPaterno().matches(regexApellido)){
+                throw new NegocioException("Formato de apellido paterno invalido");
+            }
+            
+            if(cliente.getApellidoMaterno() != null || !cliente.getApellidoMaterno().trim().isEmpty()){
+                if (cliente.getApellidoMaterno().matches(regexApellido)) {
+                    throw new NegocioException("Formato de apellido materno invalido");
+                }
+            }
+            
+            if(cliente.getFechaNacimiento() == null){
+                throw new NegocioException("La fecha de nacimiento no puede estar vacia");
+            }
+            
+            LocalDate hoy = LocalDate.now();
+            
+            if (cliente.getFechaNacimiento().isAfter(hoy) || cliente.getFechaNacimiento().isEqual(hoy)) {
+                throw new NegocioException("Fecha de nacimiento invalida");
+            }
+            
+            LocalDate limiteAntiguedad = hoy.minusYears(120);
+            if (cliente.getFechaNacimiento().isBefore(limiteAntiguedad)) {
+                throw new NegocioException("Fecha de nacimiento invalida");
+            }
         
         try{
             Cliente actualBD = clienteDAO.consultarCliente(cliente.getUsuario());
@@ -132,26 +221,7 @@ public class ClienteBO implements iClienteBO{
                     cliente.setContrasenia(PasswordUtil.hash(c));
                 }
             }
-
-//        if (!isBlank(cliente.getContrasenia())) {
-//            try {
-//                String hash = PasswordUtil.hash(cliente.getContrasenia().trim());
-//                cliente.setContrasenia(hash);
-//            } catch (Exception ex) {
-//                throw new NegocioException("No se pudo procesar la contraseña.", ex);
-//            }
-//        } else {
-//            try {
-//                Cliente actual = clienteDAO.consultarCliente(cliente.getUsuario());
-//                if (actual != null && !isBlank(actual.getContrasenia())) {
-//                    cliente.setContrasenia(actual.getContrasenia()); // conservar hash actual
-//                } else {
-//                    throw new NegocioException("No se encontró la contraseña actual del usuario.");
-//                }
-//            } catch (PersistenciaException ex) {
-//                throw new NegocioException("No se pudo conservar la contraseña actual.", ex);
-//            }
-//        }
+            
             try {
                 return clienteDAO.actualizarCliente(cliente);
             } catch (PersistenciaException ex) {
@@ -188,14 +258,14 @@ public class ClienteBO implements iClienteBO{
                 if (t == null) {
                     continue;
                 }
-
+                
                 String num = t.getTelefono() == null ? "" : t.getTelefono().trim();
                 if (num.isEmpty()) {
                     continue;
                 }
 
                 // Validación básica (ajústala a tu gusto)
-                if (!num.matches("[0-9+\\-\\s]{7,15}")) {
+                if (!num.matches("^\\+?[0-9]{10,15}$")) {
                     throw new NegocioException("Teléfono inválido: " + num);
                 }
 
