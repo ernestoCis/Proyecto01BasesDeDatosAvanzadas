@@ -64,9 +64,16 @@ public class ClienteBO implements iClienteBO{
                 throw new NegocioException("Formato de apellido paterno invalido");
             }
             
-            if(cliente.getApellidoMaterno() != null || !cliente.getApellidoMaterno().trim().isEmpty()){
-                if (!cliente.getApellidoMaterno().matches(regexApellido)) {
-                    throw new NegocioException("Formato de apellido materno invalido");
+            String apellidoMaterno = cliente.getApellidoMaterno();
+
+            if (apellidoMaterno != null) {
+                apellidoMaterno = apellidoMaterno.trim();
+                if (!apellidoMaterno.isEmpty()) {
+                    if (!apellidoMaterno.matches(regexApellido)) {
+                        throw new NegocioException("Formato de apellido materno invalido");
+                    }
+                } else {
+                    cliente.setApellidoMaterno(null);
                 }
             }
             

@@ -214,7 +214,7 @@ public class ClienteDAO implements iClienteDAO{
                 ps.setString(2, cliente.getNombres());
                 ps.setString(3, cliente.getApellidoPaterno().trim());
                 if(cliente.getApellidoMaterno() == null || cliente.getApellidoMaterno().trim().isEmpty()){
-                    ps.setNull(4, java.sql.Types.VARCHAR);
+                    ps.setNull(4, Types.VARCHAR);
                 }else{
                     ps.setString(4, cliente.getApellidoMaterno().trim());
                 }
