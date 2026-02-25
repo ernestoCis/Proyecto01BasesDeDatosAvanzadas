@@ -76,6 +76,7 @@ CREATE TABLE Pedidos(
     fecha_creacion DATETIME NOT NULL,
     fecha_entrega DATETIME,
     metodo_pago ENUM("Efectivo", "Credito", "Debito") NOT NULL,
+    total FLOAT NOT NULL,
     numero_pedido INT UNIQUE NOT NULL,
     id_cliente INT,
     FOREIGN KEY(id_cliente) REFERENCES Clientes(id_usuario) 
@@ -133,3 +134,8 @@ BEGIN
 END$$
 
 DELIMITER ;
+select * from clientes;
+select * from usuarios;
+select * from pedidos;
+use panaderia;
+delete from pedidos;
