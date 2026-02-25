@@ -11,7 +11,10 @@ package presentacion;
 import dominio.EstadoProducto;
 import dominio.Producto;
 import dominio.TipoProducto;
+import imagenes.ImagenProductoUtil;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import javax.swing.*;
 import javax.swing.border.*;
 import negocio.Excepciones.NegocioException;
@@ -20,6 +23,7 @@ public class PantallaAgregarProducto extends JFrame {
 
     private final AppContext ctx;
     private final PantallaGestionarProductos pantallaPadre;
+    private File imagenSeleccionada;
 
     private JTextField txtNombre;
     private JTextField txtPrecio;
@@ -116,19 +120,27 @@ public class PantallaAgregarProducto extends JFrame {
         cbEstado.setSelectedItem(EstadoProducto.Disponible);
 
         // Fila 1: Nombre | Tipo
-        g.gridx = 0; g.gridy = 0; g.weightx = 1;
+        g.gridx = 0;
+        g.gridy = 0;
+        g.weightx = 1;
         form.add(txtNombre, g);
-        g.gridx = 1; g.gridy = 0; g.weightx = 1;
+        g.gridx = 1;
+        g.gridy = 0;
+        g.weightx = 1;
         form.add(cbTipo, g);
 
         // Fila 2: Precio | Estado
-        g.gridx = 0; g.gridy = 1;
+        g.gridx = 0;
+        g.gridy = 1;
         form.add(txtPrecio, g);
-        g.gridx = 1; g.gridy = 1;
+        g.gridx = 1;
+        g.gridy = 1;
         form.add(cbEstado, g);
 
         // Fila 3: Descripcion (2 columnas)
-        g.gridx = 0; g.gridy = 2; g.gridwidth = 2;
+        g.gridx = 0;
+        g.gridy = 2;
+        g.gridwidth = 2;
         form.add(txtDescripcion, g);
 
         panelCentro.add(form);
@@ -139,9 +151,11 @@ public class PantallaAgregarProducto extends JFrame {
         panelBtns.setOpaque(false);
 
         JButton btnCancelar = crearBotonMediano("Cancelar");
+        JButton btnImagen = crearBotonMediano("Seleccionar imagen");
         JButton btnGuardar = crearBotonMediano("Guardar");
 
         panelBtns.add(btnCancelar);
+        panelBtns.add(btnImagen);
         panelBtns.add(btnGuardar);
 
         panelCentro.add(panelBtns);
@@ -164,8 +178,18 @@ public class PantallaAgregarProducto extends JFrame {
         btnGuardar.addActionListener(e -> {
             try {
                 Producto p = construirProductoDesdeFormulario();
-                ctx.getProductoBO().insertarProducto(p);
+                Producto guardado = ctx.getProductoBO().insertarProducto(p);
 
+                if (imagenSeleccionada != null) {
+                    try {
+                        ImagenProductoUtil.guardarImagenProducto(guardado.getId(), imagenSeleccionada);
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(this,
+                                "El producto se guardó, pero no se pudo guardar la imagen.",
+                                "Aviso",
+                                JOptionPane.WARNING_MESSAGE);
+                    }
+                }
                 JOptionPane.showMessageDialog(this, "Producto guardado correctamente.");
 
                 // refrescar padre
@@ -178,6 +202,28 @@ public class PantallaAgregarProducto extends JFrame {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
+        btnImagen.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Selecciona una imagen PNG");
+
+            int r = chooser.showOpenDialog(this);
+            if (r == JFileChooser.APPROVE_OPTION) {
+                File f = chooser.getSelectedFile();
+
+                if (!f.getName().toLowerCase().endsWith(".png")) {
+                    JOptionPane.showMessageDialog(this,
+                            "Solo se permiten imágenes .png",
+                            "Aviso",
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                imagenSeleccionada = f;
+                JOptionPane.showMessageDialog(this, "Imagen seleccionada: " + f.getName());
+            }
+        });
+
     }
 
     private void volver() {
@@ -190,9 +236,15 @@ public class PantallaAgregarProducto extends JFrame {
         String precioTxt = normalizarPlaceholder(txtPrecio, "Precio");
         String desc = normalizarPlaceholder(txtDescripcion, "Descripcion");
 
-        if (nombre.isEmpty()) throw new NegocioException("El nombre es obligatorio.");
-        if (precioTxt.isEmpty()) throw new NegocioException("El precio es obligatorio.");
-        if (desc.isEmpty()) throw new NegocioException("La descripción es obligatoria.");
+        if (nombre.isEmpty()) {
+            throw new NegocioException("El nombre es obligatorio.");
+        }
+        if (precioTxt.isEmpty()) {
+            throw new NegocioException("El precio es obligatorio.");
+        }
+        if (desc.isEmpty()) {
+            throw new NegocioException("La descripción es obligatoria.");
+        }
 
         float precio;
         try {
@@ -200,7 +252,9 @@ public class PantallaAgregarProducto extends JFrame {
         } catch (NumberFormatException e) {
             throw new NegocioException("El precio debe ser numérico.");
         }
-        if (precio <= 0) throw new NegocioException("El precio debe ser mayor a 0.");
+        if (precio <= 0) {
+            throw new NegocioException("El precio debe ser mayor a 0.");
+        }
 
         TipoProducto tipo = (TipoProducto) cbTipo.getSelectedItem();
         EstadoProducto estado = (EstadoProducto) cbEstado.getSelectedItem();
@@ -217,7 +271,9 @@ public class PantallaAgregarProducto extends JFrame {
 
     private String normalizarPlaceholder(JTextField campo, String ph) {
         String t = campo.getText() == null ? "" : campo.getText().trim();
-        if (t.equalsIgnoreCase(ph)) return "";
+        if (t.equalsIgnoreCase(ph)) {
+            return "";
+        }
         return t;
     }
 
