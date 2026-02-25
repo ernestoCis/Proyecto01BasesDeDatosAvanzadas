@@ -201,7 +201,7 @@ public class PantallaCatalogo extends JFrame {
         img.setBorder(new LineBorder(new Color(200, 200, 200), 1, true));
 
         // Cargar imagen por ID: imagenes/productos/{id}.png
-        ImageIcon icon = ImagenProductoUtil.cargarIconoProducto(p.getId());
+        ImageIcon icon = ImagenProductoUtil.cargarIconoProducto(p.getId(), 180, 100);
         if (icon != null) {
             img.setText("");
             img.setIcon(icon);

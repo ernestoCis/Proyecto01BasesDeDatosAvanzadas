@@ -6,8 +6,10 @@ package imagenes;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.*;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -47,13 +49,30 @@ public class ImagenProductoUtil {
     /**
      * Carga la imagen por id.
      */
-    public static ImageIcon cargarIconoProducto(int idProducto) {
-        File f = Paths.get(DIR_PRODUCTOS, idProducto + ".png").toFile();
+    public static ImageIcon cargarIconoProducto(int idProducto, int w, int h) {
+        try {
+            File f = new File(DIR_PRODUCTOS + "/" + idProducto + ".png");
+            if (!f.exists()) return null;
 
-        if (f.exists()) {
-            return new ImageIcon(f.getPath());
+            BufferedImage original = ImageIO.read(f);
+            if (original == null) return null;
+
+            int ow = original.getWidth();
+            int oh = original.getHeight();
+
+            // Escalado manteniendo proporción (FIT)
+            double sx = (double) w / ow;
+            double sy = (double) h / oh;
+            double s = Math.min(sx, sy);
+
+            int nw = (int) Math.round(ow * s);
+            int nh = (int) Math.round(oh * s);
+
+            Image scaled = original.getScaledInstance(nw, nh, Image.SCALE_SMOOTH);
+            return new ImageIcon(scaled);
+
+        } catch (Exception e) {
+            return null;
         }
-
-        return null;
     }
 }
