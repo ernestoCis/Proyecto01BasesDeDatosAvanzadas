@@ -84,6 +84,21 @@ public class ClienteBO implements iClienteBO{
             if (cliente.getFechaNacimiento().isBefore(limiteAntiguedad)) {
                 throw new NegocioException("Fecha de nacimiento invalida");
             }
+            
+            String regexCalleColonia = "^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\\s.,-]{2,100}$";
+            if(!cliente.getDireccion().getCalle().matches(regexCalleColonia)){
+                throw new NegocioException("Formato de calle invalido");
+            }
+            
+            String regexNumero = "^[0-9]+$";
+            if(!String.valueOf(cliente.getDireccion().getNumero()).matches(regexNumero)){
+                throw new NegocioException("Formato del numero de casa invalido");
+            }
+            
+            String regexCP = "^[0-9]{5}$";
+            if(!String.valueOf(cliente.getDireccion().getCp()).matches(regexCP)){
+                throw new NegocioException("Formato del codigo postal invalido");
+            }
 
             // Evitar duplicados por correo
             Cliente existente = clienteDAO.consultarCliente(cliente.getUsuario().trim());
@@ -152,17 +167,17 @@ public class ClienteBO implements iClienteBO{
             }
             
             String regexNombres = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{2,50}$";
-            if(cliente.getNombres().matches(regexNombres)){
+            if(!cliente.getNombres().matches(regexNombres)){
                 throw new NegocioException("Formato de nombre invalido");
             }
             
             String regexApellido = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{2,50}$";
-            if(cliente.getApellidoPaterno().matches(regexApellido)){
+            if(!cliente.getApellidoPaterno().matches(regexApellido)){
                 throw new NegocioException("Formato de apellido paterno invalido");
             }
             
             if(cliente.getApellidoMaterno() != null || !cliente.getApellidoMaterno().trim().isEmpty()){
-                if (cliente.getApellidoMaterno().matches(regexApellido)) {
+                if (!cliente.getApellidoMaterno().matches(regexApellido)) {
                     throw new NegocioException("Formato de apellido materno invalido");
                 }
             }
