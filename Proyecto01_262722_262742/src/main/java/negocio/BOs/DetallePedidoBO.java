@@ -6,7 +6,7 @@ package negocio.BOs;
 
 /**
  *
- * @author Isaac
+ * @author
  */
 import dominio.DetallePedido;
 import java.util.List;
