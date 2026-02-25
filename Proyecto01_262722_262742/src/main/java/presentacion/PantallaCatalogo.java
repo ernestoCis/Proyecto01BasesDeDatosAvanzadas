@@ -49,7 +49,7 @@ public class PantallaCatalogo extends JFrame {
         topBar.setOpaque(false);
 
         // parte izquierda
-        JButton btnFlecha = new JButton("⬅️");
+        JButton btnFlecha = new JButton("←️");
         btnFlecha.setFocusPainted(false);
         btnFlecha.setBorderPainted(false);
         btnFlecha.setContentAreaFilled(false);

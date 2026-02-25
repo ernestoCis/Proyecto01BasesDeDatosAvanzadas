@@ -53,7 +53,7 @@ public class PantallaHistorialPedidosCliente extends JFrame {
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
 
-        JButton btnBack = new JButton("↩");
+        JButton btnBack = new JButton("←");
         btnBack.setFont(new Font("Segoe UI", Font.PLAIN, 40));
         btnBack.setBorderPainted(false);
         btnBack.setContentAreaFilled(false);

@@ -56,7 +56,7 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
 
-        JButton btnFlecha = new JButton("↩");
+        JButton btnFlecha = new JButton("←");
         btnFlecha.setFocusPainted(false);
         btnFlecha.setBorderPainted(false);
         btnFlecha.setContentAreaFilled(false);

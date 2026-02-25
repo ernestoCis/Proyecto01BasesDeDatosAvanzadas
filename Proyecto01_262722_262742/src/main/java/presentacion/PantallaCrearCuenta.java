@@ -77,7 +77,7 @@ public class PantallaCrearCuenta extends JFrame {
         JPanel panelSuperior = new JPanel(new BorderLayout());
         panelSuperior.setOpaque(false);
 
-        JButton btnBack = new JButton("←"); // antes "↩" (a veces sale cuadrito)
+        JButton btnBack = new JButton("←");
         btnBack.setFocusPainted(false);
         btnBack.setBorderPainted(false);
         btnBack.setContentAreaFilled(false);

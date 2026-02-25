@@ -17,7 +17,7 @@ import negocio.Excepciones.NegocioException;
 
 /**
  *
- * @author Isaac
+ * @author
  */
 public class PantallaGestionarProductos extends JFrame {
 

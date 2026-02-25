@@ -69,7 +69,7 @@ public class PantallaConfirmarPedido extends JFrame {
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setOpaque(false);
 
-        JButton btnFlecha = new JButton("↩");
+        JButton btnFlecha = new JButton("←");
         btnFlecha.setFocusPainted(false);
         btnFlecha.setBorderPainted(false);
         btnFlecha.setContentAreaFilled(false);

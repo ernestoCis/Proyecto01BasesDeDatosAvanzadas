@@ -57,7 +57,7 @@ public class PantallaInicioSesionEmpleado extends JFrame {
         lblCliente.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         lblCliente.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JButton btnBack = new JButton("↩");
+        JButton btnBack = new JButton("←");
         btnBack.setFocusPainted(false);
         btnBack.setBorderPainted(false);
         btnBack.setContentAreaFilled(false);

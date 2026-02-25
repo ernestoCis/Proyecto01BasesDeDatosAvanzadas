@@ -59,7 +59,7 @@ public class PantallaInicioSesionCliente extends JFrame {
         panelIzquierdo.setOpaque(false);
         panelIzquierdo.setLayout(new BoxLayout(panelIzquierdo, BoxLayout.Y_AXIS));
 
-        JButton btnBack = new JButton("↩");
+        JButton btnBack = new JButton("←");
         btnBack.setFocusPainted(false);
         btnBack.setBorderPainted(false);
         btnBack.setContentAreaFilled(false);
