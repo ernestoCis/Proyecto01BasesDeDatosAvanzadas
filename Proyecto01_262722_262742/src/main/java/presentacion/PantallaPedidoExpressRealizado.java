@@ -25,7 +25,7 @@ public class PantallaPedidoExpressRealizado extends JFrame {
 
         setTitle("Panadería - Pedido Express realizado");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(920, 800);
+        setSize(920, 600);
         setLocationRelativeTo(null);
 
         // Fondo beige
@@ -40,24 +40,15 @@ public class PantallaPedidoExpressRealizado extends JFrame {
                 new LineBorder(new Color(30, 30, 30), 2, false),
                 new EmptyBorder(18, 22, 18, 22)
         ));
-        card.setPreferredSize(new Dimension(860, 720));
+        card.setPreferredSize(new Dimension(860, 520));
         root.add(card);
 
         // ----- parte de arriba -----
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setOpaque(false);
 
-        JButton btnFlecha = new JButton("↩");
-        btnFlecha.setFocusPainted(false);
-        btnFlecha.setBorderPainted(false);
-        btnFlecha.setContentAreaFilled(false);
-        btnFlecha.setFont(new Font("Segoe UI", Font.PLAIN, 40));
-        btnFlecha.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnFlecha.addActionListener(e -> dispose());
-
         JPanel panelIzq = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         panelIzq.setOpaque(false);
-        panelIzq.add(btnFlecha);
 
         topBar.add(panelIzq, BorderLayout.WEST);
         JPanel header = new JPanel();
@@ -121,10 +112,10 @@ public class PantallaPedidoExpressRealizado extends JFrame {
         Object mpObj = getProp(pedido, "getMetodoPago", "getMetodoDePago", "getMetodo");
         String metodoPago = (mpObj == null) ? "N/A" : String.valueOf(mpObj);
 
-        center.add(crearCaja("Folio: " + (folio == null ? "N/A" : folio)));
-        center.add(Box.createVerticalStrut(10));
-        center.add(crearCaja("PIN: " + (pin == null ? "N/A" : pin)));
-        center.add(Box.createVerticalStrut(10));
+//        center.add(crearCaja("Folio: " + (folio == null ? "N/A" : folio)));
+//        center.add(Box.createVerticalStrut(10));
+//        center.add(crearCaja("PIN: " + (pin == null ? "N/A" : pin)));
+//        center.add(Box.createVerticalStrut(10));
         center.add(crearCaja("Total: " + total));
         center.add(Box.createVerticalStrut(10));
         center.add(crearCaja("Fecha: " + fecha));
