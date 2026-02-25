@@ -55,17 +55,17 @@ public class ClienteBO implements iClienteBO{
             }
             
             String regexNombres = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{2,50}$";
-            if(cliente.getNombres().matches(regexNombres)){
+            if(!cliente.getNombres().matches(regexNombres)){
                 throw new NegocioException("Formato de nombre invalido");
             }
             
             String regexApellido = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]{2,50}$";
-            if(cliente.getApellidoPaterno().matches(regexApellido)){
+            if(!cliente.getApellidoPaterno().matches(regexApellido)){
                 throw new NegocioException("Formato de apellido paterno invalido");
             }
             
             if(cliente.getApellidoMaterno() != null || !cliente.getApellidoMaterno().trim().isEmpty()){
-                if (cliente.getApellidoMaterno().matches(regexApellido)) {
+                if (!cliente.getApellidoMaterno().matches(regexApellido)) {
                     throw new NegocioException("Formato de apellido materno invalido");
                 }
             }
