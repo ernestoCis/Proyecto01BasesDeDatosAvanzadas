@@ -39,16 +39,7 @@ public class PedidoBO implements iPedidoBO {
     @Override
     public int generarNumeroDePedido() throws NegocioException {
         try {
-            int numero;
-            boolean existe;
-
-            do {
-                numero = (int) (System.currentTimeMillis() % 1000000);
-                existe = pedidoDAO.existeNumeroDePedido(numero);
-            } while (existe);
-
-            return numero;
-
+            return pedidoDAO.obtenerSiguienteNumeroDePedido();
         } catch (PersistenciaException ex) {
             LOG.warning("No se pudo generar el numero de pedido. " + ex);
             throw new NegocioException("Error generando número de pedido", ex);
@@ -225,7 +216,7 @@ public class PedidoBO implements iPedidoBO {
                     throw new NegocioException("No puede agregar menos de un producto");
                 }
                 if(d.getProducto() == null){
-                    throw new NegocioException("No puede haver un detalle sin producto");
+                    throw new NegocioException("No puede haber un detalle sin producto");
                 }
             }
             
@@ -239,7 +230,7 @@ public class PedidoBO implements iPedidoBO {
             return pedidoGuardado;
         } catch (PersistenciaException ex) {
             LOG.warning("No se pudo agregar el pedido express " + ex);
-            throw new NegocioException("No se pudo agregar el pedido express. ", ex);
+            throw new NegocioException("No se pudo agregar el pedido express. " + ex.getMessage(), ex);
         }
     }
 
