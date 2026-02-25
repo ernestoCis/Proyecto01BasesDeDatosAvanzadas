@@ -14,7 +14,7 @@ import persistencia.Excepciones.PersistenciaException;
 
 /**
  *
- * @author Isaac
+ * @author
  */
 public class EmpleadoBO implements iEmpleadoBO {
 
