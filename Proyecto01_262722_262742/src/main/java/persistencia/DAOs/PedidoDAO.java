@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JOptionPane;
 import persistencia.Conexion.iConexionBD;
 import persistencia.Excepciones.PersistenciaException;
 
@@ -841,6 +840,23 @@ public class PedidoDAO implements iPedidoDAO {
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, "Error al verificar el folio", ex);
             throw new PersistenciaException("Error al verificar eñ folio", ex);
+        }
+    }
+
+    @Override
+    public int obtenerSiguienteNumeroDePedido() throws PersistenciaException {
+        String comadnoSQL = "SELECT IFNULL(MAX(numero_pedido), 0) + 1 AS siguiente FROM pedidos";
+
+        try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comadnoSQL); ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt("siguiente");
+            } else {
+                throw new PersistenciaException("No se pudo generar el numero de pedido");
+            }
+
+        } catch (SQLException e) {
+            throw new PersistenciaException("Error al obtener siguiente numero de pedido", e);
         }
     }
 
