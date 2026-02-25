@@ -351,8 +351,12 @@ public class PantallaCrearCuenta extends JFrame {
             cliente.setNombres(txtNombres.getText());
             cliente.setApellidoPaterno(txtApellidoP.getText());
 
-            if (!txtApellidoM.getText().trim().isEmpty()) {
-                cliente.setApellidoMaterno(txtApellidoM.getText());
+            String apellidoM = txtApellidoM.getText().trim();
+
+            if (!apellidoM.isEmpty() && !apellidoM.equals("Apellido materno")) {
+                cliente.setApellidoMaterno(apellidoM);
+            } else {
+                cliente.setApellidoMaterno(null);
             }
 
             Telefono telefono = new Telefono();
@@ -381,11 +385,13 @@ public class PantallaCrearCuenta extends JFrame {
             try {
                 
                 
-                ctx.getClienteBO().registrarCliente(cliente, telefono);
+                Cliente clienteActual = ctx.getClienteBO().registrarCliente(cliente, telefono);
+                ctx.setClienteActual(clienteActual);
 
                 JOptionPane.showMessageDialog(this, "Cuenta creada");
                 
                 new PantallaSesionIniciadaCliente(ctx).setVisible(true);
+                dispose();
                 
                 
             } catch (NegocioException ex) {

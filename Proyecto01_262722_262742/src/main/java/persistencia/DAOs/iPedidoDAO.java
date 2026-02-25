@@ -97,4 +97,11 @@ public interface iPedidoDAO {
      * @throws PersistenciaException excepcion por si el sql falla
      */
     public boolean existeFolio(String folio) throws PersistenciaException;
+    
+    /**
+     * metodo que mos dice cual sera el siguiente numero de pedido disponible
+     * @return regresa el sihuiente numero disponible
+     * @throws PersistenciaException execpecion por si el sql falla
+     */
+    public int obtenerSiguienteNumeroDePedido() throws PersistenciaException;
 }
