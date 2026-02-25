@@ -8,13 +8,12 @@ import dominio.Producto;
 import java.util.List;
 import java.util.logging.Logger;
 import negocio.Excepciones.NegocioException;
-import persistencia.DAOs.ProductoDAO;
 import persistencia.DAOs.iProductoDAO;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
  *
- * @author jesus
+ * @author
  */
 public class ProductoBO implements iProductoBO {
 
