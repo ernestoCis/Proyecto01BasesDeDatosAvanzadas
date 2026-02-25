@@ -16,7 +16,7 @@ import persistencia.Excepciones.PersistenciaException;
 
 /**
  *
- * @author jesus
+ * @author
  */
 public class CuponDAO implements iCuponDAO{
     
@@ -79,5 +79,23 @@ public class CuponDAO implements iCuponDAO{
             throw new PersistenciaException(ex.getMessage());
         }
         
+    }
+
+    @Override
+    public void incrementarUsoCupon(int idCupon) throws PersistenciaException {
+        String comandoSQL = "UPDATE cupones SET num_usos = num_usos + 1 WHERE id = ?";
+
+        try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
+
+            ps.setInt(1, idCupon);
+
+            int filas = ps.executeUpdate();
+            if (filas == 0) {
+                throw new PersistenciaException("No se pudo incrementar el uso del cupón (no se encontró).");
+            }
+
+        } catch (SQLException ex) {
+            throw new PersistenciaException("Error al incrementar uso del cupón", ex);
+        }
     }
 }

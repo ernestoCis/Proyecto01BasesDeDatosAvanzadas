@@ -19,4 +19,11 @@ public interface iCuponDAO {
      * @throws PersistenciaException excepcion por si falla el SQL
      */
     public Cupon consultarCupon(String nombreCupon) throws PersistenciaException;
+    
+    /**
+     * metodo que aumenta 1 por cada uso de un cupon
+     * @param idCupon id del cupon a incrementar su numero de usos
+     * @throws PersistenciaException excepcion por si el sql falla
+     */
+    public void incrementarUsoCupon(int idCupon) throws PersistenciaException;
 }
