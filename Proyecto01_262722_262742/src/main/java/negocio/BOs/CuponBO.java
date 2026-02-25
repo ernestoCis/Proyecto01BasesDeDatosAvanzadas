@@ -7,14 +7,13 @@ package negocio.BOs;
 import dominio.Cupon;
 import java.util.logging.Logger;
 import negocio.Excepciones.NegocioException;
-import persistencia.DAOs.CuponDAO;
 import persistencia.DAOs.iCuponDAO;
 import persistencia.Excepciones.PersistenciaException;
 import presentacion.DTOs.ResultadoCuponDTO;
 
 /**
  *
- * @author jesus y isaac
+ * @author
  */
 public class CuponBO implements iCuponBO{
     
@@ -48,6 +47,15 @@ public class CuponBO implements iCuponBO{
 
     @Override
     public ResultadoCuponDTO validarCupon(String nombreCupon, float subtotal) throws NegocioException {
+        
+        if(nombreCupon == null || nombreCupon.trim().isEmpty()){
+            throw new NegocioException("El nombre del cupon es obligatorio");
+        }
+        
+        if(subtotal <= 0.0f){
+            throw new NegocioException("El subtotal no puede estar vacio o ser menor o igual a 0");
+        }
+        
         Cupon cupon = null;
         
         try {

@@ -294,7 +294,7 @@ public class PantallaConfirmarPedido extends JFrame {
                 pedidoProgramado.setNumeroPedido(ctx.getPedidoBO().generarNumeroDePedido());
                 pedidoProgramado.setCliente(cliente);
 
-                if (!txtCupon.getText().trim().isEmpty()) {
+                if (!txtCupon.getText().trim().isEmpty() || txtCupon != null) {
                     pedidoProgramado.setCupon(ctx.getCuponBO().consultarCupon(txtCupon.getText()));
                 }
                 
