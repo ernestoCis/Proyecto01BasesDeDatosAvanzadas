@@ -14,6 +14,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import javax.swing.text.JTextComponent;
 import negocio.Excepciones.NegocioException;
 
 public class PantallaInicioSesionCliente extends JFrame {
@@ -102,6 +103,11 @@ public class PantallaInicioSesionCliente extends JFrame {
 
         JPanel passRow = new JPanel(new BorderLayout());
         passRow.setOpaque(false);
+        
+        passRow.setMinimumSize(new Dimension(280, 42));
+        passRow.setPreferredSize(new Dimension(280, 42));
+        passRow.setMaximumSize(new Dimension(280, 42));
+        passRow.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         txtContrasena = new JPasswordField();
         configurarCampo(txtContrasena, "Contraseña");
@@ -187,7 +193,8 @@ public class PantallaInicioSesionCliente extends JFrame {
         });
     }
 
-    private void configurarCampo(JTextField t, String placeholderVisual) {
+    private void configurarCampo(JTextComponent  t, String placeholderVisual) {
+        t.setMinimumSize(new Dimension(280, 42));
         t.setPreferredSize(new Dimension(280, 42));
         t.setMaximumSize(new Dimension(280, 42));
         t.setFont(new Font("Segoe UI", Font.PLAIN, 15));

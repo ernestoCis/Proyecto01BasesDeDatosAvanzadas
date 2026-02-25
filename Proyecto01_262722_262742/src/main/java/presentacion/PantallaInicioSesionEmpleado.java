@@ -101,6 +101,11 @@ public class PantallaInicioSesionEmpleado extends JFrame {
 
         JPanel passRow = new JPanel(new BorderLayout());
         passRow.setOpaque(false);
+        
+        passRow.setMinimumSize(new Dimension(280, 42));
+        passRow.setPreferredSize(new Dimension(280, 42));
+        passRow.setMaximumSize(new Dimension(280, 42));
+        passRow.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         txtContrasena = new JPasswordField();
         configurarCampo(txtContrasena, "Contraseña");
