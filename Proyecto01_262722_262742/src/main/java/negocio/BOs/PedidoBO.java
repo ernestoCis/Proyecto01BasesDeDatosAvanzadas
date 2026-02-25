@@ -82,6 +82,13 @@ public class PedidoBO implements iPedidoBO {
                     throw new NegocioException("No puede haver un detalle sin producto");
                 }
             }
+            
+            
+            int pedidosActivos = pedidoDAO.contarPedidosActivosPorCliente(pedidoProgramado.getCliente().getId());
+
+            if (pedidosActivos >= 3) {
+                throw new NegocioException("Limite alcanzado: Ya tienes 3 pedidos activos.");
+            }
 
             // Insertar pedido (debe regresar con ID seteado)
             PedidoProgramado pedidoGuardado = pedidoDAO.insertarPedidoProgramado(pedidoProgramado, detalles);
@@ -249,8 +256,16 @@ public class PedidoBO implements iPedidoBO {
             //hashear pin
             String hash = PasswordUtil.hash(pedidoExpress.getPin());
             pedidoExpress.setPin(hash);
+            
+            if(pedidoExpress.getCliente() != null){
+                int pedidosActivos = pedidoDAO.contarPedidosActivosPorCliente(pedidoExpress.getCliente().getId());
 
-            // 1) Insertar pedido (debe regresar con ID seteado)
+                if (pedidosActivos >= 3) {
+                    throw new NegocioException("Limite alcanzado: Ya tienes 3 pedidos activos.");
+                }
+            }
+
+            // Insertar pedido (debe regresar con ID seteado)
             PedidoExpress pedidoGuardado = pedidoDAO.insertarPedidoExpress(pedidoExpress, detalles);
 
             return pedidoGuardado;
