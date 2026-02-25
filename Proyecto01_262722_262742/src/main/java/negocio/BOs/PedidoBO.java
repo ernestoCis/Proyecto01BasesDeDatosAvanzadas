@@ -11,6 +11,7 @@ import dominio.PedidoExpress;
 import dominio.PedidoProgramado;
 import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Logger;
 import negocio.Excepciones.NegocioException;
@@ -60,8 +61,31 @@ public class PedidoBO implements iPedidoBO {
             if (pedidoProgramado == null) {
                 throw new NegocioException("El pedido es obligatorio.");
             }
+            
+            if(pedidoProgramado.getCliente() == null){
+                throw new NegocioException("No se puede realizar un pedido programado sin cliente");
+            }
+            
+            if(pedidoProgramado.getNumeroPedido() < 0){
+                throw new NegocioException("Numero de pedido invalido");
+            }
+            
+            LocalDateTime hoy = LocalDateTime.now();
+            if(pedidoProgramado.getFechaCreacion().isAfter(hoy)){
+                throw new NegocioException("Fecha de creacion invalida");
+            }
+            
             if (detalles == null || detalles.isEmpty()) {
                 throw new NegocioException("El pedido no tiene productos.");
+            }
+            
+            for(DetallePedido d : detalles){
+                if(d.getCantidad() <= 0){
+                    throw new NegocioException("No puede agregar menos de un producto");
+                }
+                if(d.getProducto() == null){
+                    throw new NegocioException("No puede haver un detalle sin producto");
+                }
             }
 
             // 1) Insertar pedido (debe regresar con ID seteado)
@@ -179,8 +203,30 @@ public class PedidoBO implements iPedidoBO {
             if (pedidoExpress == null) {
                 throw new NegocioException("El pedido es obligatorio.");
             }
+            
+            if(pedidoExpress.getFolio() == null || pedidoExpress.getFolio().trim().isEmpty()){
+                throw new NegocioException("No se puede agregar un pedido express sin un numero de folio");
+            }
+            
+            if(pedidoExpress.getPin() == null || pedidoExpress.getPin().trim().isEmpty()){
+                throw new NegocioException("No se puede agregar un pedido express sin un pin");
+            }
+            
+            if(pedidoExpress.getNumeroPedido() < 0){
+                throw new NegocioException("Numero de pedido invalido");
+            }
+            
             if (detalles == null || detalles.isEmpty()) {
                 throw new NegocioException("El pedido no tiene productos.");
+            }
+            
+            for(DetallePedido d : detalles){
+                if(d.getCantidad() <= 0){
+                    throw new NegocioException("No puede agregar menos de un producto");
+                }
+                if(d.getProducto() == null){
+                    throw new NegocioException("No puede haver un detalle sin producto");
+                }
             }
             
             //hashear pin
