@@ -15,7 +15,7 @@ import persistencia.Excepciones.PersistenciaException;
 
 /**
  *
- * @author Isaac
+ * @author
  */
 public interface iPedidoDAO {
 
@@ -104,4 +104,12 @@ public interface iPedidoDAO {
      * @throws PersistenciaException execpecion por si el sql falla
      */
     public int obtenerSiguienteNumeroDePedido() throws PersistenciaException;
+    
+    /**
+     * metodo que cuenta los pedidos activos por cliente
+     * @param idCliente cliente el cual se contaran sus pedidos activos
+     * @return numero de pedidos activos
+     * @throws PersistenciaException excepcion por si el sql falla
+     */
+    public int contarPedidosActivosPorCliente(int idCliente) throws PersistenciaException;
 }

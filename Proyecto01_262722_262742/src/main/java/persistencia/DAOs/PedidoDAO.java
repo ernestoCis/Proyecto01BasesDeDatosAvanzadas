@@ -860,4 +860,30 @@ public class PedidoDAO implements iPedidoDAO {
         }
     }
 
+    @Override
+    public int contarPedidosActivosPorCliente(int idCliente) throws PersistenciaException {
+        String comandoSQL = """
+                            SELECT COUNT(*) AS total
+                            FROM pedidos
+                            WHERE id_cliente = ?
+                            AND estado NOT IN ('Entregado', 'Cancelado')
+                            """;
+
+        try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
+
+            ps.setInt(1, idCliente);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("total");
+                }
+            }
+
+            return 0;
+
+        } catch (SQLException e) {
+            throw new PersistenciaException("Error al contar pedidos activos del cliente", e);
+        }
+    }
+
 }
