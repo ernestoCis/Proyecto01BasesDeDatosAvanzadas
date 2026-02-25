@@ -293,10 +293,13 @@ public class PantallaConfirmarPedido extends JFrame {
                 pedidoProgramado.setTotal(subtotal - descuentoActual);
                 pedidoProgramado.setNumeroPedido(ctx.getPedidoBO().generarNumeroDePedido());
                 pedidoProgramado.setCliente(cliente);
+                
 
-                if (!txtCupon.getText().trim().isEmpty() || txtCupon != null) {
+
+                if (txtCupon.getText() != null && !txtCupon.getText().trim().isEmpty()) {
                     pedidoProgramado.setCupon(ctx.getCuponBO().consultarCupon(txtCupon.getText()));
                 }
+                
                 
                 //lista con los detalles del pedido
                 if (tabla.isEditing()) {
