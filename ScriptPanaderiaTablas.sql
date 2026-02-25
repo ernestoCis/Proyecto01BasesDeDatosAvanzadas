@@ -49,6 +49,7 @@ CREATE TABLE Usuarios(
     contrasenia VARCHAR(100) NOT NULL,
     rol ENUM("Cliente", "Empleado")
 );
+select * from usuarios;
 
 -- Tabla Clientes
 CREATE TABLE Clientes(
@@ -57,7 +58,8 @@ CREATE TABLE Clientes(
     nombres VARCHAR(50) NOT NULL,
     apellido_paterno VARCHAR(50) NOT NULL,
     apellido_materno VARCHAR(50),
-    fecha_nacimiento DATE NOT NULL
+    fecha_nacimiento DATE NOT NULL,
+    estado ENUM("Activo", "Inactivo") NOT NULL DEFAULT "Activo"
 );
 
 -- Tabla Direcciones
@@ -79,7 +81,9 @@ CREATE TABLE Telefonos(
     telefono VARCHAR(15) NOT NULL,
     etiqueta VARCHAR(20)
 );
-
+select * from usuarios;
+ use panaderia;
+ insert into direcciones(id_cliente, calle, colonia, cp, numero) values(3, "calle123", "colonia123", 1111, 1234);
 -- Tabla Empleados
 CREATE TABLE Empleados(
 	id_usuario INT NOT NULL,
@@ -93,6 +97,7 @@ CREATE TABLE Pedidos(
     fecha_creacion DATE NOT NULL,
     fecha_entrega DATE,
     metodo_pago ENUM("Efectivo", "Credito", "Debito") NOT NULL,
+    total float NOT NULL,
     numero_pedido INT UNIQUE NOT NULL,
     id_cliente INT,
     FOREIGN KEY(id_cliente) REFERENCES Clientes(id_usuario) 
@@ -120,7 +125,7 @@ CREATE TABLE DetallesPedidos(
     nota VARCHAR(100),
     cantidad INT NOT NULL,
     precio FLOAT NOT NULL,
-    total FLOAT NOT NULL,
+    subtotal FLOAT NOT NULL,
     id_pedido INT NOT NULL,
 	FOREIGN KEY(id_pedido) REFERENCES Pedidos(id),
     id_producto INT NOT NULL,
@@ -137,5 +142,35 @@ CREATE TABLE HistorialCambios(
     estado ENUM("Pendiente", "Listo", "Entregado", "Cancelado", "No reclamado"),
     fecha_cambio DATEtIME NOT NULL DEFAULT NOW()
 );
+update clientes set estado = "Activo" where id_usuario = 8;
+use panaderia;
+select * from usuarios;
+select * from clientes;
+select * from direcciones;
+select * from telefonos;
+select * from pedidos;
+select * from detallesPedidos;
+delete from usuarios;
+delete from telefonos;
+delete from direcciones;
+delete from clientes;
 
-
+SELECT
+                        p.id,
+                        p.estado,
+                        p.fecha_creacion,
+                        p.fecha_entrega,
+                        p.metodo_pago,
+                        p.total,
+                        p.numero_pedido,
+                        p.id_cliente,
+                        pp.id_cupon,
+                        c.nombre AS cupon_nombre,
+                        pe.pin,
+                        pe.folio
+                    FROM Pedidos p
+                    LEFT JOIN PedidosProgramados pp ON pp.id_pedido = p.id
+                    LEFT JOIN Cupones c ON c.id = pp.id_cupon
+                    LEFT JOIN PedidosExpress pe ON pe.id_pedido = p.id
+                    WHERE p.id_cliente = 8
+                    ORDER BY p.fecha_creacion DESC;

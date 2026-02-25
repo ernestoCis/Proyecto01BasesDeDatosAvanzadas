@@ -83,7 +83,7 @@ public class CuponDAO implements iCuponDAO{
 
     @Override
     public void incrementarUsoCupon(int idCupon) throws PersistenciaException {
-        String comandoSQL = "UPDATE cupones SET num_usos = num_usos + 1 WHERE id = ?";
+        String comandoSQL = "UPDATE cupones SET numero_usos = numero_usos + 1 WHERE id = ?";
 
         try (Connection conn = conexionBD.crearConexion(); PreparedStatement ps = conn.prepareStatement(comandoSQL)) {
 

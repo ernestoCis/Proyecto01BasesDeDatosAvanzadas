@@ -19,8 +19,8 @@ CREATE TABLE Cupones(
     descuento INT NOT NULL,
     fecha_vencimiento DATE,
     fecha_inicio DATE NOT NULL,
-    nombre VARCHAR(30) NOT NULL,
-    numero_usos INT NOT NULL,
+    nombre VARCHAR(30) UNIQUE NOT NULL,
+    numero_usos INT NOT NULL DEFAULT 0,
     tope_usos INT NOT NULL
 );
 
@@ -134,8 +134,3 @@ BEGIN
 END$$
 
 DELIMITER ;
-select * from clientes;
-select * from usuarios;
-select * from pedidos;
-use panaderia;
-delete from pedidos;

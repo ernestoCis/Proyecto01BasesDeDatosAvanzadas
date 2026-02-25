@@ -59,7 +59,7 @@ public class Menu extends JFrame {
         lblEmpleado.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         lblEmpleado.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JButton btnFlecha = new JButton("↩");
+        JButton btnFlecha = new JButton("←");
         btnFlecha.setFocusPainted(false);
         btnFlecha.setBorderPainted(false);
         btnFlecha.setContentAreaFilled(false);

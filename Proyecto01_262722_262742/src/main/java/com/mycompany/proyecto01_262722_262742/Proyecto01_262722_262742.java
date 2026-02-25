@@ -63,7 +63,7 @@ public class Proyecto01_262722_262742 {
             iUsuarioBO usuarioBO = new UsuarioBO(usuarioDAO);
             iProductoBO productoBO = new ProductoBO(productoDAO);
             iCuponBO cuponBO = new CuponBO(cuponDAO);
-            iPedidoBO pedidoBO = new PedidoBO(pedidoDAO, detallePedidoDAO);
+            iPedidoBO pedidoBO = new PedidoBO(pedidoDAO, detallePedidoDAO, cuponDAO);
             iClienteBO clienteBO = new ClienteBO(clienteDAO);
             iEmpleadoBO empleadoBO = new EmpleadoBO(empleadoDAO);
             iDetallePedidoBO detallePedidoBO = new DetallePedidoBO(detallePedidoDAO);

@@ -4,6 +4,7 @@
  */
 package negocio.BOs;
 
+import dominio.Cupon;
 import dominio.DetallePedido;
 import dominio.EstadoPedido;
 import dominio.Pedido;
@@ -16,24 +17,27 @@ import java.util.List;
 import java.util.logging.Logger;
 import negocio.Excepciones.NegocioException;
 import negocio.util.PasswordUtil;
+import persistencia.DAOs.iCuponDAO;
 import persistencia.DAOs.iDetallePedidoDAO;
 import persistencia.DAOs.iPedidoDAO;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
  *
- * @author jesus y isaac
+ * @author
  */
 public class PedidoBO implements iPedidoBO {
 
     //DAO comun
     private iPedidoDAO pedidoDAO;
     private iDetallePedidoDAO detallePedidoDAO;
+    private iCuponDAO cuponDAO;
     private static final Logger LOG = Logger.getLogger(ProductoBO.class.getName());
 
-    public PedidoBO(iPedidoDAO pedido, iDetallePedidoDAO detallePedidoDAO) {
+    public PedidoBO(iPedidoDAO pedido, iDetallePedidoDAO detallePedidoDAO, iCuponDAO cuponDAO) {
         this.pedidoDAO = pedido; // asignamos valor al DAO
         this.detallePedidoDAO = detallePedidoDAO;
+        this.cuponDAO = cuponDAO;
     }
 
     @Override
@@ -79,9 +83,31 @@ public class PedidoBO implements iPedidoBO {
                 }
             }
 
-            // 1) Insertar pedido (debe regresar con ID seteado)
+            // Insertar pedido (debe regresar con ID seteado)
             PedidoProgramado pedidoGuardado = pedidoDAO.insertarPedidoProgramado(pedidoProgramado, detalles);
+            
+            
+            //aumentar un uso del cupon si es que se usó
+            if(pedidoProgramado.getCupon() != null){
+                try {
+                    Cupon cupon = cuponDAO.consultarCupon(pedidoProgramado.getCupon().getNombre());
+                    
+                    cuponDAO.incrementarUsoCupon(cupon.getId());
+                                
+                    if (cupon.getFechaVencimiento().isBefore(LocalDate.now()) || cupon.getFechaVencimiento().equals(LocalDate.now())) {
+                        throw new NegocioException("La fecha de vencimiento del cupon expiró");
+                    }
 
+                    if (cupon.getNumUsos() >= cupon.getTopeUsos()) {
+                        throw new NegocioException("El cupon llegó a su limite de usos");
+                    }
+                    
+                    
+                } catch (PersistenciaException e) {
+                    throw new NegocioException("El pedido se guardó, pero no se pudo actualizar el uso del cupón: " + e.getMessage(), e);
+                }
+            }
+            
             return pedidoGuardado;
         } catch (PersistenciaException ex) {
             LOG.warning("No se pudo agregar el pedido programado " + ex);
