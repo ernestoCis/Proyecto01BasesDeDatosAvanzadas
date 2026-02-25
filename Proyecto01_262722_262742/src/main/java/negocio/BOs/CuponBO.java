@@ -5,6 +5,7 @@
 package negocio.BOs;
 
 import dominio.Cupon;
+import java.time.LocalDate;
 import java.util.logging.Logger;
 import negocio.Excepciones.NegocioException;
 import persistencia.DAOs.iCuponDAO;
@@ -60,6 +61,15 @@ public class CuponBO implements iCuponBO{
         
         try {
             cupon = cuponDAO.consultarCupon(nombreCupon);
+            
+            if(cupon.getFechaVencimiento().isBefore(LocalDate.now()) || cupon.getFechaVencimiento().equals(LocalDate.now())){
+                throw new NegocioException("La fecha de vencimiento del cupon expiró");
+            }
+            
+            if(cupon.getNumUsos() >= cupon.getTopeUsos()){
+                throw new NegocioException("El cupon llegó a su limite de usos");
+            }
+            
         } catch (PersistenciaException ex) {
             throw new NegocioException(ex.getMessage());
         }
