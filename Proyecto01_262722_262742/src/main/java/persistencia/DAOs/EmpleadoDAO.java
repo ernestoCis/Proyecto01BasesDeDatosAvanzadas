@@ -67,78 +67,28 @@ public class EmpleadoDAO implements iEmpleadoDAO {
     @Override
     public Empleado insertarEmpleado(Empleado empleado) throws PersistenciaException {
 
-        String sqlUsuario = """
-                            INSERT INTO usuarios(usuario, contrasenia, rol)
-                            VALUES(?, ?, ?)
-                            """;
+        String call = "{CALL sp_insertar_empleado(?, ?)}";
 
-        String sqlEmpleado = """
-                             INSERT INTO empleados(id_usuario)
-                             VALUES(?)
-                             """;
+        try (Connection conn = conexionBD.crearConexion(); CallableStatement cs = conn.prepareCall(call)) {
 
-        Connection conn = null;
+            cs.setString(1, empleado.getUsuario());
+            cs.setString(2, empleado.getContrasenia());
 
-        try {
-            conn = conexionBD.crearConexion();
-            conn.setAutoCommit(false); // iniciamos transacción
+            cs.execute();
 
-            // Se inserta en tabla Usuarios
-            try (PreparedStatement ps = conn.prepareStatement(sqlUsuario, Statement.RETURN_GENERATED_KEYS)) {
+            // Obtenemos el último ID generado
+            try (PreparedStatement ps = conn.prepareStatement("SELECT LAST_INSERT_ID()"); ResultSet rs = ps.executeQuery()) {
 
-                ps.setString(1, empleado.getUsuario());
-                ps.setString(2, empleado.getContrasenia());
-                ps.setString(3, RolUsuario.Empleado.name());
-
-                if (ps.executeUpdate() == 0) {
-                    throw new PersistenciaException("No se pudo insertar usuario (empleado).");
-                }
-
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        empleado.setId(rs.getInt(1));
-                    } else {
-                        throw new PersistenciaException("No se pudo obtener el ID generado.");
-                    }
+                if (rs.next()) {
+                    empleado.setId(rs.getInt(1));
                 }
             }
 
-            // Se inserta en tabla Empleados
-            try (PreparedStatement ps = conn.prepareStatement(sqlEmpleado)) {
-
-                ps.setInt(1, empleado.getId());
-
-                if (ps.executeUpdate() == 0) {
-                    throw new PersistenciaException("No se pudo insertar empleado.");
-                }
-            }
-
-            conn.commit(); // confirmamos transacción
             empleado.setRol(RolUsuario.Empleado);
-
             return empleado;
 
         } catch (SQLException ex) {
-
-            if (conn != null) {
-                try {
-                    conn.rollback(); // revertimos si falla algo
-                } catch (SQLException ignored) {
-                }
-            }
-
-            LOG.log(Level.WARNING, "Error al insertar empleado: " + ex.getMessage());
             throw new PersistenciaException("Error al insertar empleado", ex);
-
-        } finally {
-
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException ignored) {
-                }
-            }
         }
     }
 }
