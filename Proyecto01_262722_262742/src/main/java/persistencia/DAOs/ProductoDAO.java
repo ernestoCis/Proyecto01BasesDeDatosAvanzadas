@@ -20,8 +20,11 @@ import persistencia.Conexion.iConexionBD;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
+ * <b>Data Access Object (DAO) para la gestión de Productos.</b>
+ * <p>Esta clase maneja la persistencia de la entidad Producto en la base de datos,
+ * permitiendo realizar operaciones CRUD (Crear, Leer, Actualizar, Listar).</p>
  *
- * @author jesus
+ * @author 262722, 262742
  */
 public class ProductoDAO implements iProductoDAO {
 
@@ -32,7 +35,7 @@ public class ProductoDAO implements iProductoDAO {
     private final iConexionBD conexionBD;
 
     /**
-     * Logger para registrar información relevante durante operaciones de
+     * Logger para registrar información relevante y errores durante operaciones de
      * persistencia.
      */
     private static final Logger LOG = Logger.getLogger(ProductoDAO.class.getName());
@@ -40,25 +43,24 @@ public class ProductoDAO implements iProductoDAO {
     /**
      * Constructor que inicializa la dependencia de conexión.
      *
-     * @param conexionBD objeto que gestiona la creación de conexiones a la base
-     * de datos
+     * @param conexionBD Objeto que gestiona la creación de conexiones a la base de datos.
      */
     public ProductoDAO(iConexionBD conexionBD) {
         this.conexionBD = conexionBD;
     }
 
     /**
-     * metodo que consulta un producto en la BD
+     * Consulta un producto específico en la base de datos mediante su ID.
      *
-     * @param producto producto a consultar
-     * @return producto consultado
-     * @throws PersistenciaException excepcion por si el SQL falla
+     * @param producto Objeto {@link Producto} que contiene el ID a buscar.
+     * @return El {@link Producto} recuperado con todos sus datos poblados.
+     * @throws PersistenciaException Si el producto no existe o si ocurre un error de SQL.
      */
     @Override
     public Producto consultarProducto(Producto producto) throws PersistenciaException {
         String comandoSQL = """
-                                SELECT id, nombre, tipo, precio, estado, descripcion FROM Productos
-                                WHERE id = ?
+                            SELECT id, nombre, tipo, precio, estado, descripcion FROM Productos
+                            WHERE id = ?
                             """;
 
         try (Connection conn = this.conexionBD.crearConexion();) {
@@ -92,6 +94,13 @@ public class ProductoDAO implements iProductoDAO {
         }
     }
 
+    /**
+     * Inserta un nuevo producto en la base de datos.
+     *
+     * @param producto Objeto {@link Producto} a persistir.
+     * @return El mismo objeto producto, pero con su ID autogenerado asignado.
+     * @throws PersistenciaException Si la inserción falla o no se puede obtener el ID generado.
+     */
     @Override
     public Producto insertarProducto(Producto producto) throws PersistenciaException {
         String comandoSQL = """
@@ -132,6 +141,13 @@ public class ProductoDAO implements iProductoDAO {
 
     }
 
+    /**
+     * Actualiza la información de un producto existente en la base de datos.
+     *
+     * @param producto Objeto {@link Producto} con los datos actualizados y el ID original.
+     * @return El mismo objeto producto tras ser actualizado.
+     * @throws PersistenciaException Si el ID no existe en la BD o falla la actualización.
+     */
     @Override
     public Producto actualizarProducto(Producto producto) throws PersistenciaException {
 
@@ -162,6 +178,12 @@ public class ProductoDAO implements iProductoDAO {
         }
     }
 
+    /**
+     * Lista todos los productos que tienen el estado "Disponible".
+     *
+     * @return Una lista de objetos {@link Producto} disponibles en el sistema.
+     * @throws PersistenciaException Si ocurre un error al procesar la consulta.
+     */
     @Override
     public List<Producto> listarProductos() throws PersistenciaException {
 

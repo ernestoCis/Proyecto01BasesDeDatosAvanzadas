@@ -18,23 +18,42 @@ import persistencia.Conexion.iConexionBD;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
+ * <b>Data Access Object (DAO) para la gestión de Teléfonos.</b>
+ * <p>Esta clase maneja la persistencia de los números de teléfono asociados 
+ * a los clientes en la base de datos.</p>
  *
- * @author 
+ * @author 262722
+ * @author 262742
  */
-public class TelefonoDAO implements iTelefonoDAO{
+public class TelefonoDAO implements iTelefonoDAO {
     
+    /**
+     * Componente encargado de crear conexiones con la base de datos. Se inyecta
+     * por constructor para reducir acoplamiento y facilitar pruebas.
+     */
     private final iConexionBD conexionBD;
     
     /**
-     * Logger para registrar información relevante durante operaciones de
+     * Logger para registrar información relevante y errores durante operaciones de
      * persistencia.
      */
-    private static final Logger LOG = Logger.getLogger(ProductoDAO.class.getName());
+    private static final Logger LOG = Logger.getLogger(TelefonoDAO.class.getName());
     
-    public TelefonoDAO(iConexionBD conexionBD){
+    /**
+     * Constructor que inicializa la dependencia de conexión.
+     * * @param conexionBD Objeto que gestiona la creación de conexiones a la base de datos.
+     */
+    public TelefonoDAO(iConexionBD conexionBD) {
         this.conexionBD = conexionBD;
     }
 
+    /**
+     * Inserta un nuevo número de teléfono asociado a un cliente en la base de datos.
+     * * @param telefono Objeto {@link Telefono} que contiene la información a persistir.
+     * Debe tener un cliente asociado con un ID válido.
+     * @return El mismo objeto teléfono con su ID autogenerado asignado.
+     * @throws PersistenciaException Si ocurre un error al insertar en la base de datos.
+     */
     @Override
     public Telefono insertarTelefono(Telefono telefono) throws PersistenciaException {
         String comandoSQL = """
@@ -66,6 +85,12 @@ public class TelefonoDAO implements iTelefonoDAO{
         }
     }
 
+    /**
+     * Consulta y recupera todos los teléfonos asociados a un cliente específico.
+     * * @param idCliente Identificador del cliente.
+     * @return Una lista de objetos {@link Telefono} pertenecientes al cliente.
+     * @throws PersistenciaException Si ocurre un error de SQL durante la consulta.
+     */
     @Override
     public List<Telefono> consultarTelefonosPorCliente(int idCliente) throws PersistenciaException {
         String comandoSQL = """

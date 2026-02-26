@@ -9,32 +9,40 @@ import java.util.List;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
+ * <b>Interfaz para el Data Access Object (DAO) de Detalles de Pedido.</b>
+ * <p>Define el contrato para las operaciones de persistencia relacionadas con los 
+ * detalles (productos, cantidades y precios) que componen un pedido específico.</p>
  *
- * @author
+ * @author 262722
+ * @author 262742
  */
 public interface iDetallePedidoDAO {
 
     /**
-     * Metodo que registra los detalles de cada pedido
-     * @param idPedido pedido del cual pertenecen los detalles
-     * @param detalles lista de todos los detalles del pedido
-     * @throws PersistenciaException excepcion por si sql falla
+     * Inserta una lista de detalles asociados a un pedido específico en la base de datos.
+     * <p>Se encarga de registrar qué productos y en qué cantidad fueron ordenados
+     * dentro de una misma transacción o pedido.</p>
+     * * @param idPedido El ID único del pedido al que pertenecen los detalles.
+     * @param detalles Lista de objetos {@link DetallePedido} que contienen la información de los productos.
+     * @throws PersistenciaException Si ocurre un error de SQL durante la inserción masiva.
      */
     public void insertarDetalles(int idPedido, List<DetallePedido> detalles) throws PersistenciaException;
 
     /**
-     * Metodo que consulta los detalles (productos) de un pedido
-     * @param idPedido id del pedido
-     * @return lista de detalles del pedido
-     * @throws PersistenciaException excepcion por si sql falla
+     * Consulta y recupera todos los detalles (productos) asociados a un pedido específico.
+     * * @param idPedido El ID único del pedido a consultar.
+     * @return Una lista de objetos {@link DetallePedido} correspondientes al pedido.
+     * @throws PersistenciaException Si ocurre un error al ejecutar la consulta SQL.
      */
     public List<DetallePedido> listarDetallesPorPedido(int idPedido) throws PersistenciaException;
     
     /**
-     * metodo que calcula el subtotal de un pedido
-     * @param idPedido id del pedido que tiene detalles de pedidp
-     * @return subtotal calculado
-     * @throws PersistenciaException excepcion por si el sql falla
+     * Calcula y obtiene el subtotal de un pedido sumando los importes de sus detalles.
+     * <p>Normalmente, esto implica multiplicar la cantidad por el precio unitario de 
+     * cada detalle y sumar los resultados de todos los artículos en el pedido.</p>
+     * * @param idPedido El ID único del pedido del cual se calculará el subtotal.
+     * @return El subtotal calculado en formato de punto flotante.
+     * @throws PersistenciaException Si ocurre un error de SQL durante el cálculo o la consulta.
      */
     public float obtenerSubTotalPorPedido(int idPedido) throws PersistenciaException;
 }
