@@ -12,6 +12,7 @@ CREATE TABLE Productos(
     estado ENUM("Disponible", "No disponible"),
     descripcion VARCHAR(100) NOT NULL
 );
+INSERT INTO Productos(nombre, tipo, precio, estado, descripcion) values("Concha", "Dulce", 18, "Disponible", "Cocncha de vainilla");
 
 -- Tabla Cupones
 CREATE TABLE Cupones(
@@ -23,6 +24,7 @@ CREATE TABLE Cupones(
     numero_usos INT NOT NULL DEFAULT 0,
     tope_usos INT NOT NULL
 );
+INSERT INTO Cupones(descuento, fecha_vencimiento, fecha_inicio, nombre, tope_usos) VALUES(10, "2026-03-15", "2026-01-01", "PAN10", 10);
 
 -- Tabla usuarios
 CREATE TABLE Usuarios(
