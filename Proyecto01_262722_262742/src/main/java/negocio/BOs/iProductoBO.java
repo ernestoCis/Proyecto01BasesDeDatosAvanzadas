@@ -9,38 +9,46 @@ import java.util.List;
 import negocio.Excepciones.NegocioException;
 
 /**
+ * <b>Interfaz para el Objeto de Negocio (BO) de Productos.</b>
+ * <p>Define el contrato para la gestión del catálogo de productos en el sistema. 
+ * Garantiza que las operaciones de consulta, inserción y actualización apliquen 
+ * las reglas de negocio correspondientes antes de interactuar con la capa de datos.</p>
  *
  * @author jesus
+ * @author 262722
+ * @author 262742
  */
 public interface iProductoBO {
+    
     /**
-     * Metodo para consultar un producto a la BD
-     * @param producto producto a buscar
-     * @return regresa el producto consultado
-     * @throws NegocioException excepcion por regla de negocio
+     * Consulta la información de un producto específico en la base de datos.
+     * * @param producto Objeto Producto que contiene el criterio de búsqueda (ej. ID).
+     * @return El objeto <code>Producto</code> con toda su información recuperada.
+     * @throws NegocioException Si el producto no existe, los datos de búsqueda son inválidos o hay error de conexión.
      */
     public Producto consultarProducto(Producto producto) throws NegocioException;
     
     /**
-     * metodo para agregar un preoducto a la BD mediante DTO
-     * @param producto producto a ingresar
-     * @return producto insertado
-     * @throws NegocioException NegocioException excepcion por regla de negocio
+     * Valida y registra un nuevo producto en el catálogo del sistema.
+     * * @param producto Objeto de dominio con los datos del producto a ingresar.
+     * @return El producto insertado de manera exitosa, incluyendo su ID generado.
+     * @throws NegocioException Si el producto no cumple con las reglas de negocio (ej. campos vacíos) o falla la base de datos.
      */
     public Producto insertarProducto(Producto producto) throws NegocioException;
     
     /**
-     * metodo para actualizar a un produtco en la BD
-     * @param producto producto a actualizazar
-     * @return producto actualizado
-     * @throws NegocioException NegocioException excepcion por regla de negocio
+     * Valida y actualiza la información de un producto existente en el catálogo.
+     * * @param producto Objeto con los datos actualizados a guardar.
+     * @return El producto tras ser modificado exitosamente.
+     * @throws NegocioException Si los datos son inválidos, el ID no existe o ocurre un error de persistencia.
      */
     public Producto actualizarProducto(Producto producto) throws NegocioException;
     
+    
     /**
-     * metodo que lista todos los productos del DAO
-     * @return lista de productos
-     * @throws NegocioException excepcion por regla de negocio
+     * Recupera el catálogo completo de productos disponibles en el sistema.
+     * * @return Una lista que contiene todos los objetos <code>Producto</code> registrados.
+     * @throws NegocioException Si ocurre un error al procesar la solicitud en la capa de datos.
      */
     public List<Producto> listarProductos() throws NegocioException;
 }

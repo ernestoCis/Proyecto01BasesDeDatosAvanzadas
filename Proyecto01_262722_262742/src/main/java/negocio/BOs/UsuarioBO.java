@@ -12,28 +12,35 @@ import persistencia.DAOs.iUsuarioDAO;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
- *
- * @author
+ * <b>Objeto de Negocio (BO) para la gestión de Autenticación de Usuarios.</b>
+ * <p>Esta clase centraliza la lógica de inicio de sesión tanto para clientes como 
+ * para empleados. Utiliza algoritmos de hashing seguro (BCrypt) para verificar 
+ * las credenciales sin exponer las contraseñas en texto plano.</p>
+ * * @author 262722
+ * @author 262742
  */
 public class UsuarioBO implements iUsuarioBO {
 
     private iUsuarioDAO usuarioDAO;
     private static final Logger LOG = Logger.getLogger(UsuarioBO.class.getName());
 
+    /**
+     * Constructor que inyecta la dependencia del DAO de usuarios.
+     * @param usuarioDAO Implementación de la interfaz iUsuarioDAO.
+     */
     public UsuarioBO(iUsuarioDAO usuarioDAO) {
         this.usuarioDAO = usuarioDAO;
     }
 
     /**
-     * Metodo para iniciar sesión de un empleado. Valida que el usuario y la
-     * contraseña no estén vacíos, consulta el empleado en la base de datos y
-     * verifica la contraseña usando BCrypt.
+     * Método para iniciar sesión de un empleado. 
+     * <p>Valida que el usuario y la contraseña no estén vacíos, consulta el empleado en la base de datos y
+     * verifica la contraseña usando BCrypt.</p>
      *
      * @param usuario nombre de usuario ingresado
      * @param contrasenia contraseña ingresada en texto plano
      * @return Empleado autenticado si las credenciales son correctas
-     * @throws NegocioException si el usuario no existe, la contraseña es
-     * incorrecta o ocurre un error de persistencia
+     * @throws NegocioException si el usuario no existe, la contraseña es incorrecta o ocurre un error de persistencia
      */
     @Override
     public Empleado iniciarSesionEmpleado(String usuario, String contrasenia) throws NegocioException {
@@ -71,16 +78,14 @@ public class UsuarioBO implements iUsuarioBO {
     }
 
     /**
-     * Metodo para iniciar sesión de un cliente. Valida que el usuario y la
-     * contraseña no estén vacíos, consulta el cliente en la base de datos y
-     * verifica la contraseña con BCrypt (no se desencripta, se compara contra
-     * el hash).
+     * Método para iniciar sesión de un cliente. 
+     * <p>Valida que el usuario y la contraseña no estén vacíos, consulta el cliente en la base de datos y
+     * verifica la contraseña con BCrypt (no se desencripta, se compara contra el hash).</p>
      *
      * @param usuario nombre de usuario ingresado
      * @param contrasenia contraseña ingresada en texto plano
      * @return Cliente autenticado si las credenciales son correctas
-     * @throws NegocioException si el usuario no existe, la contraseña es
-     * incorrecta o ocurre un error de persistencia
+     * @throws NegocioException si el usuario no existe, la contraseña es incorrecta o ocurre un error de persistencia
      */
     @Override
     public Cliente iniciarSesionCliente(String usuario, String contrasenia) throws NegocioException {
@@ -103,7 +108,6 @@ public class UsuarioBO implements iUsuarioBO {
 
             String hashBD = cliente.getContrasenia();
 
-            // ✅ BCrypt: comparar password en texto plano vs hash guardado
             boolean ok = org.mindrot.jbcrypt.BCrypt.checkpw(contrasenia, hashBD);
 
             if (!ok) {

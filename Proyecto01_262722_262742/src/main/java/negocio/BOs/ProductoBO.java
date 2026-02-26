@@ -12,8 +12,12 @@ import persistencia.DAOs.iProductoDAO;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
- *
- * @author
+ * <b>Objeto de Negocio (BO) para la gestión del catálogo de Productos.</b>
+ * <p>Esta clase encapsula la lógica de negocio relacionada con los productos 
+ * que se ofrecen (panes, pasteles, etc.). Se asegura de que la información 
+ * ingresada sea íntegra antes de interactuar con la capa de persistencia.</p>
+ * * @author 262722
+ * @author 262742
  */
 public class ProductoBO implements iProductoBO {
 
@@ -21,10 +25,21 @@ public class ProductoBO implements iProductoBO {
     private iProductoDAO productoDAO;
     private static final Logger LOG = Logger.getLogger(ProductoBO.class.getName());
 
+    /**
+     * Constructor que inyecta la dependencia del DAO de productos.
+     * @param producto Implementación de la interfaz iProductoDAO.
+     */
     public ProductoBO(iProductoDAO producto) {
         this.productoDAO = producto;
     }
 
+    /**
+     * Método auxiliar privado para centralizar la validación de un producto.
+     * <p>Verifica que los campos obligatorios (nombre, tipo, estado, descripción) 
+     * no sean nulos o vacíos, y que el precio sea estrictamente mayor a cero.</p>
+     * * @param producto Objeto a validar.
+     * @throws NegocioException Si alguno de los campos no cumple con las reglas de negocio.
+     */
     private void validarProducto(Producto producto) throws NegocioException {
         if (producto == null) {
             throw new NegocioException("El producto es obligatorio.");
@@ -46,6 +61,12 @@ public class ProductoBO implements iProductoBO {
         }
     }
 
+    /**
+     * Consulta la información detallada de un producto específico.
+     * * @param producto Objeto Producto que contiene al menos el ID a buscar.
+     * @return El producto completo recuperado de la base de datos.
+     * @throws NegocioException Si el ID es inválido o el producto es nulo.
+     */
     @Override
     public Producto consultarProducto(Producto producto) throws NegocioException {
         try {
@@ -64,6 +85,13 @@ public class ProductoBO implements iProductoBO {
         }
     }
 
+    /**
+     * Registra un nuevo producto en el catálogo.
+     * <p>Antes de insertar, se invocan las reglas de negocio a través de {@link #validarProducto(Producto)}.</p>
+     * * @param producto El nuevo producto a registrar.
+     * @return El producto insertado, incluyendo su ID generado.
+     * @throws NegocioException Si los datos del producto son inválidos o ocurre un error al guardar.
+     */
     @Override
     public Producto insertarProducto(Producto producto) throws NegocioException {
         try {
@@ -76,6 +104,13 @@ public class ProductoBO implements iProductoBO {
         }
     }
 
+    /**
+     * Actualiza la información de un producto existente en el catálogo.
+     * <p>Valida la presencia de un ID válido y la integridad de los datos mediante {@link #validarProducto(Producto)}.</p>
+     * * @param producto Objeto con los datos actualizados.
+     * @return El producto tras ser actualizado en la base de datos.
+     * @throws NegocioException Si el ID es inválido, faltan datos o hay un error de persistencia.
+     */
     @Override
     public Producto actualizarProducto(Producto producto) throws NegocioException {
         try {
@@ -95,6 +130,11 @@ public class ProductoBO implements iProductoBO {
         }
     }
 
+    /**
+     * Recupera la lista completa de todos los productos en el sistema.
+     * * @return Una lista de objetos <code>Producto</code>.
+     * @throws NegocioException Si ocurre un problema al comunicarse con la base de datos.
+     */
     @Override
     public List<Producto> listarProductos() throws NegocioException {
         try {

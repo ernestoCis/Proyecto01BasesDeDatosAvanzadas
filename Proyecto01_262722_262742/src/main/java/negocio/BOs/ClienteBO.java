@@ -17,8 +17,13 @@ import persistencia.DAOs.iClienteDAO;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
- *
- * @author
+ * <b>Objeto de Negocio (BO) para la entidad Cliente.</b>
+ * <p>Esta clase centraliza las reglas de negocio, validaciones de formato y 
+ * lógica de seguridad antes de permitir que los datos lleguen a la capa de persistencia.
+ * Incluye validaciones de expresiones regulares (RegEx) para nombres, teléfonos 
+ * y direcciones, así como el cifrado de contraseñas mediante BCrypt.</p>
+ * * @author 262722
+ * @author 262742
  */
 public class ClienteBO implements iClienteBO{
     
@@ -26,11 +31,30 @@ public class ClienteBO implements iClienteBO{
     private iClienteDAO clienteDAO;
     private static final Logger LOG = Logger.getLogger(ProductoBO.class.getName());
     
+    /**
+     * Constructor que inyecta el DAO de cliente necesario para las operaciones.
+     * @param clienteDAO Interfaz del DAO de persistencia.
+     */
     public ClienteBO(iClienteDAO clienteDAO){
         this.clienteDAO = clienteDAO;
     }
     
 
+    /**
+     * Registra un nuevo cliente validando exhaustivamente sus datos.
+     * <p>Realiza las siguientes comprobaciones:</p>
+     * <ul>
+     * <li>Obligatoriedad de campos (usuario, contraseña, nombres).</li>
+     * <li>Formatos de RegEx para nombres y apellidos.</li>
+     * <li>Rango de edad coherente (no futuro y máximo 120 años).</li>
+     * <li>Verificación de usuario duplicado en el sistema.</li>
+     * <li>Hasheo de la contraseña antes de guardar.</li>
+     * </ul>
+     * @param cliente Objeto con los datos del nuevo cliente.
+     * @param telefono Teléfono inicial de contacto.
+     * @return El cliente registrado con su ID asignado.
+     * @throws NegocioException Si alguna validación de formato o regla de negocio falla.
+     */
     @Override
     public Cliente registrarCliente(Cliente cliente, Telefono telefono) throws NegocioException {
         try {
@@ -126,6 +150,15 @@ public class ClienteBO implements iClienteBO{
         }
     }
 
+    /**
+     * Autentica a un cliente en el sistema.
+     * <p>Busca al usuario por su identificador y verifica que la contraseña 
+     * proporcionada coincida con el hash almacenado en la base de datos.</p>
+     * @param usuario Nombre de usuario.
+     * @param contrasenia Contraseña en texto plano.
+     * @return El objeto Cliente si las credenciales son válidas.
+     * @throws NegocioException Si el usuario no existe o la contraseña es incorrecta.
+     */
     @Override
     public Cliente consultarCliente(String usuario, String contrasenia) throws NegocioException {
         try {
@@ -155,6 +188,15 @@ public class ClienteBO implements iClienteBO{
         }
     }
 
+    /**
+     * Actualiza la información de un cliente existente.
+     * <p>Valida los nuevos datos y gestiona el cambio de contraseña de forma inteligente: 
+     * si la contraseña no se modifica, conserva la anterior; si se recibe una nueva, 
+     * la hashea (evitando re-hashear si ya viene en formato BCrypt).</p>
+     * @param cliente Cliente con datos actualizados.
+     * @return El cliente actualizado.
+     * @throws NegocioException Si falla alguna validación de los datos modificados.
+     */
     @Override
     public Cliente actualizarCliente(Cliente cliente) throws NegocioException {
         
@@ -287,10 +329,22 @@ public class ClienteBO implements iClienteBO{
         
     }
     
+    /**
+     * Verifica si una cadena de texto es nula o solo contiene espacios en blanco.
+     */
     private boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
     }
     
+    /**
+     * Permite agregar múltiples teléfonos a un cliente, validando sus formatos.
+     * <p>Limpia la lista de nulos, valida que cumplan con el formato internacional 
+     * de 10 a 15 dígitos y evita la duplicidad de números en el objeto local.</p>
+     * @param cliente Cliente al que se le asocian los teléfonos.
+     * @param nuevos Lista de nuevos objetos Telefono.
+     * @return El cliente con la lista de teléfonos actualizada.
+     * @throws NegocioException Si algún número de teléfono no cumple el formato.
+     */
     @Override
     public Cliente agregarTelefonos(Cliente cliente, List<Telefono> nuevos) throws NegocioException {
         try {

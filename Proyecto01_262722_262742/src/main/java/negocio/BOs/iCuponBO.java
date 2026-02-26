@@ -10,23 +10,33 @@ import persistencia.DAOs.CuponDAO;
 import presentacion.DTOs.ResultadoCuponDTO;
 
 /**
- *
- * @author jesus
+ * <b>Interfaz para el Objeto de Negocio (BO) de Cupones.</b>
+ * <p>Define el contrato para la consulta y validación de reglas de negocio 
+ * aplicables a los cupones de descuento (vigencia, topes de uso y aplicación 
+ * sobre el subtotal de un pedido).</p>
+ * * @author jesus
+ * @author 262722
+ * @author 262742
  */
 public interface iCuponBO {
+    
     /**
-     * metodo que consulta un cupon mediante el DAO
-     * @param nombreCupon nombre del cupon a consultar
-     * @return cupon consultado
-     * @throws NegocioException excepcion por reglas de negocio o problemas con la capa de persistencia
+     * Consulta la información de un cupón específico en la base de datos a partir de su nombre/código.
+     * * @param nombreCupon Nombre o código identificador del cupón a consultar.
+     * @return El objeto <code>Cupon</code> con sus datos correspondientes.
+     * @throws NegocioException Si el cupón no existe o hay problemas de comunicación con la capa de persistencia.
      */
     public Cupon consultarCupon(String nombreCupon) throws NegocioException;
     
     /**
-     * metodo para validar un cupon con reglas de negocio
-     * @param nombreCupon nombre del cupon a validar
-     * @return regresa true si el cupon es valido, false si no es valido
-     * @throws NegocioException excepcion por reglas de negocio
+     * Evalúa un cupón aplicando las reglas de negocio pertinentes (ej. caducidad, límite de usos).
+     * <p>Calcula el impacto del cupón sobre el subtotal proporcionado y encapsula 
+     * el resultado en un objeto de transferencia de datos (DTO) para la capa de presentación.</p>
+     * * @param nombreCupon Nombre o código del cupón a validar.
+     * @param subtotal Monto base del pedido sobre el cual se aplicará el descuento.
+     * @return Un objeto <code>ResultadoCuponDTO</code> que contiene el estado de la validación, 
+     * el monto de descuento calculado y/o mensajes de error.
+     * @throws NegocioException Si ocurre un error durante el procesamiento de las reglas de negocio.
      */
     public ResultadoCuponDTO validarCupon(String nombreCupon, float subtotal) throws NegocioException;
 }
