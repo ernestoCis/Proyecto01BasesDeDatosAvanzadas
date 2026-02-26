@@ -265,6 +265,7 @@ public class PantallaActualizarCliente extends JFrame {
             try {
                 ctx.getClienteBO().actualizarCliente(clienteActual);
                 JOptionPane.showMessageDialog(this, "Cuenta desactivada");
+                ctx.setClienteActual(clienteActual);
                 new Menu(ctx).setVisible(true);
                 dispose();
             } catch (NegocioException ex) {

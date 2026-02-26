@@ -315,7 +315,12 @@ public class ClienteBO implements iClienteBO{
                 }
             }
             
-            cliente.setEstado(EstadoCliente.Activo);
+            if(cliente.getEstado() == EstadoCliente.Activo){
+                cliente.setEstado(EstadoCliente.Activo);
+            }else{
+                cliente.setEstado(EstadoCliente.Inactivo);
+            }
+            
             
             try {
                 return clienteDAO.actualizarCliente(cliente);
