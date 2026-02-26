@@ -4,10 +4,6 @@
  */
 package presentacion;
 
-/**
- *
- * @author Isaac
- */
 import dominio.Empleado;
 import dominio.RolUsuario;
 import javax.swing.*;
@@ -16,14 +12,89 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import negocio.Excepciones.NegocioException;
 
+/**
+ * <h1>PantallaCrearCuentaEmpleado</h1>
+ *
+ * <p>
+ * Pantalla de <b>registro de empleados</b> del sistema.
+ * </p>
+ *
+ * <p>
+ * La UI se muestra en una tarjeta central e incluye:
+ * </p>
+ * <ul>
+ * <li>Botón de regreso hacia {@link PantallaInicioSesionEmpleado}.</li>
+ * <li>Sección de <b>datos de acceso</b> (usuario y contraseña).</li>
+ * <li>Campo de contraseña con ícono de visibilidad (👁).</li>
+ * <li>Botón para crear la cuenta del empleado.</li>
+ * <li>Footer informativo.</li>
+ * </ul>
+ *
+ * <h2>Placeholders</h2>
+ * <p>
+ * Se usan placeholders visuales (texto gris). En contraseña, el placeholder se
+ * muestra sin enmascarar y al enfocar se restaura el caracter de eco original.
+ * </p>
+ *
+ * <h2>Registro</h2>
+ * <p>
+ * Al presionar "Crear", se valida que usuario y contraseña no estén vacíos, se
+ * construye un {@link Empleado}, se registra con
+ * {@code ctx.getEmpleadoBO().registrarEmpleado(emp)} y se regresa al login de
+ * empleado.
+ * </p>
+ *
+ * @author 262722, 2627242
+ */
 public class PantallaCrearCuentaEmpleado extends JFrame {
 
+    /**
+     * Contexto global de la aplicación; permite acceder a BOs y estado de
+     * sesión.
+     */
     private final AppContext ctx;
 
+    /**
+     * Campo para capturar el usuario del empleado.
+     */
     private JTextField txtUsuario;
+
+    /**
+     * Campo para capturar la contraseña del empleado.
+     */
     private JPasswordField txtContrasena;
+
+    /**
+     * Caracter de eco por defecto del campo contraseña. Se conserva para
+     * restaurarlo cuando se oculta/mostrar contraseña o se quita el
+     * placeholder.
+     */
     private char echoDefault;
 
+    /**
+     * <p>
+     * Constructor de la pantalla de creación de cuenta para empleado.
+     * </p>
+     *
+     * <p>
+     * Construye toda la interfaz:
+     * </p>
+     * <ul>
+     * <li>Fondo beige y tarjeta blanca central</li>
+     * <li>Top con flecha de regreso</li>
+     * <li>Títulos y sección de datos de acceso</li>
+     * <li>Campos de usuario y contraseña con "ojo" para visibilidad</li>
+     * <li>Botón para registrar empleado</li>
+     * <li>Footer informativo</li>
+     * </ul>
+     *
+     * <p>
+     * También inicializa placeholders y define las acciones de navegación y
+     * registro.
+     * </p>
+     *
+     * @param ctx contexto global de la aplicación
+     */
     public PantallaCrearCuentaEmpleado(AppContext ctx) {
         this.ctx = ctx;
 
@@ -53,6 +124,9 @@ public class PantallaCrearCuentaEmpleado extends JFrame {
         JPanel panelSuperior = new JPanel(new BorderLayout());
         panelSuperior.setOpaque(false);
 
+        /**
+         * Botón de regreso hacia {@link PantallaInicioSesionEmpleado}.
+         */
         JButton btnBack = new JButton("←");
         btnBack.setFocusPainted(false);
         btnBack.setBorderPainted(false);
@@ -109,11 +183,18 @@ public class PantallaCrearCuentaEmpleado extends JFrame {
         echoDefault = txtContrasena.getEchoChar();
         aplicarPlaceholderPassword(txtContrasena, "Contraseña");
 
+        /**
+         * Ícono "ojo" para alternar la visibilidad de la contraseña.
+         */
         JLabel ojo = new JLabel("👁");
         ojo.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
         ojo.setBorder(new EmptyBorder(0, 8, 0, 8));
         ojo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
+        /**
+         * Alterna el carácter de eco del {@link #txtContrasena} para mostrar u
+         * ocultar el texto. Si el placeholder está activo, no realiza cambios.
+         */
         ojo.addMouseListener(new java.awt.event.MouseAdapter() {
             private boolean visible = false;
 
@@ -134,6 +215,9 @@ public class PantallaCrearCuentaEmpleado extends JFrame {
         filaCampos.add(Box.createHorizontalStrut(18));
         filaCampos.add(passRow);
 
+        /**
+         * Botón principal para registrar un nuevo empleado.
+         */
         JButton btnCrear = crearBotonMediano("Crear");
         btnCrear.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -158,11 +242,18 @@ public class PantallaCrearCuentaEmpleado extends JFrame {
         panelPrincipal.add(panelInferior, BorderLayout.SOUTH);
 
         // ---- Acciones ----
+        /**
+         * Acción de regresar al inicio de sesión de empleado.
+         */
         btnBack.addActionListener(e -> {
             new PantallaInicioSesionEmpleado(ctx).setVisible(true);
             this.dispose();
         });
 
+        /**
+         * Acción principal: valida campos, registra el empleado y regresa al
+         * login.
+         */
         btnCrear.addActionListener(e -> {
             try {
                 String usuario = txtUsuario.getText() == null ? "" : txtUsuario.getText().trim();
@@ -206,6 +297,24 @@ public class PantallaCrearCuentaEmpleado extends JFrame {
         });
     }
 
+    /**
+     * <p>
+     * Configura el estilo visual estándar de un {@link JTextField} del
+     * formulario.
+     * </p>
+     *
+     * <p>
+     * Aplica:
+     * </p>
+     * <ul>
+     * <li>Dimensión preferida y máxima</li>
+     * <li>Fuente</li>
+     * <li>Borde compuesto (línea + padding)</li>
+     * <li>Fondo blanco</li>
+     * </ul>
+     *
+     * @param t campo a configurar
+     */
     private void configurarCampo(JTextField t) {
         t.setPreferredSize(new Dimension(280, 40));
         t.setMaximumSize(new Dimension(280, 40));
@@ -217,6 +326,15 @@ public class PantallaCrearCuentaEmpleado extends JFrame {
         t.setBackground(Color.WHITE);
     }
 
+    /**
+     * <p>
+     * Crea un botón con tamaño mediano para acciones principales en la
+     * pantalla.
+     * </p>
+     *
+     * @param text texto del botón
+     * @return botón configurado con estilo
+     */
     private JButton crearBotonMediano(String text) {
         JButton b = new JButton(text);
         b.setPreferredSize(new Dimension(120, 30));
@@ -232,6 +350,20 @@ public class PantallaCrearCuentaEmpleado extends JFrame {
         return b;
     }
 
+    /**
+     * <p>
+     * Aplica un placeholder visual a un {@link JTextField}.
+     * </p>
+     *
+     * <p>
+     * Cuando el campo gana foco y el texto coincide con el placeholder, se
+     * limpia y cambia a color oscuro. Cuando pierde foco y queda vacío, se
+     * restaura el placeholder con color gris.
+     * </p>
+     *
+     * @param campo componente a configurar
+     * @param texto texto placeholder a mostrar
+     */
     private void aplicarPlaceholder(JTextField campo, String texto) {
         Color gris = new Color(150, 150, 150);
         Color negro = new Color(30, 30, 30);
@@ -257,6 +389,27 @@ public class PantallaCrearCuentaEmpleado extends JFrame {
         });
     }
 
+    /**
+     * <p>
+     * Aplica un placeholder visual a un {@link JPasswordField}.
+     * </p>
+     *
+     * <p>
+     * Mientras el placeholder está activo:
+     * </p>
+     * <ul>
+     * <li>El texto se muestra en color gris</li>
+     * <li>El campo no enmascara (echoChar = 0)</li>
+     * </ul>
+     *
+     * <p>
+     * Al enfocar el campo, si el texto coincide con el placeholder, se limpia,
+     * se cambia a color oscuro y se restaura el {@link #echoDefault}.
+     * </p>
+     *
+     * @param campo componente a configurar
+     * @param texto texto placeholder a mostrar
+     */
     private void aplicarPlaceholderPassword(JPasswordField campo, String texto) {
         Color gris = new Color(150, 150, 150);
         Color negro = new Color(30, 30, 30);
@@ -286,6 +439,23 @@ public class PantallaCrearCuentaEmpleado extends JFrame {
         });
     }
 
+    /**
+     * <p>
+     * Indica si el placeholder de contraseña está activo en el campo
+     * {@link #txtContrasena}.
+     * </p>
+     *
+     * <p>
+     * Se considera activo cuando:
+     * </p>
+     * <ul>
+     * <li>El texto del campo es "Contraseña"</li>
+     * <li>El {@code echoChar} es 0 (no enmascarado)</li>
+     * </ul>
+     *
+     * @return {@code true} si el placeholder de contraseña está activo;
+     * {@code false} en caso contrario
+     */
     private boolean isPasswordPlaceholderActivo() {
         return new String(txtContrasena.getPassword()).equals("Contraseña")
                 && txtContrasena.getEchoChar() == 0;

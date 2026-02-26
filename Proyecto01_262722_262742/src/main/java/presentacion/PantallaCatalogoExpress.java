@@ -14,17 +14,93 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-
 import negocio.Excepciones.NegocioException;
 
+/**
+ * <h1>PantallaCatalogoExpress</h1>
+ *
+ * <p>
+ * Pantalla que muestra el <b>catálogo de productos</b> en el flujo
+ * <b>Express</b>.
+ * </p>
+ *
+ * <p>
+ * La UI presenta:
+ * </p>
+ * <ul>
+ * <li>Un botón de regreso hacia {@link Menu}.</li>
+ * <li>Un ícono de carrito con un <b>badge</b> que indica el total de piezas
+ * agregadas.</li>
+ * <li>Un grid (3 columnas) con tarjetas de productos cargadas desde la BD.</li>
+ * <li>Un encabezado con indicador visual <b>EXPRESS</b>.</li>
+ * <li>Un footer informativo.</li>
+ * </ul>
+ *
+ * <h2>Comportamiento del carrito</h2>
+ * <ul>
+ * <li>El carrito se mantiene en memoria como una lista de
+ * {@link ItemCarrito}.</li>
+ * <li>Cada tarjeta tiene un stepper (+ / −) para ajustar la cantidad.</li>
+ * <li>Al cambiar cantidades, se actualiza el badge del carrito.</li>
+ * <li>Al dar click en el ícono 🛒 se abre {@link PantallaCarritoExpress} con el
+ * carrito actual.</li>
+ * </ul>
+ *
+ * <h2>Carga de datos</h2>
+ * <p>
+ * Los productos se consultan desde la capa de negocio usando
+ * {@code ctx.getProductoBO().listarProductos()}. Si no hay productos
+ * disponibles, se muestra un mensaje "No hay productos para mostrar.".
+ * </p>
+ *
+ * @author 262722, 2627242
+ */
 public class PantallaCatalogoExpress extends JFrame {
 
+    /**
+     * Contexto global de la aplicación; permite acceder a BOs y estado de
+     * sesión.
+     */
     private final AppContext ctx;
+
+    /**
+     * Lista en memoria que representa el carrito del cliente en el catálogo
+     * express.
+     */
     private final List<ItemCarrito> carrito = new ArrayList<>();
 
+    /**
+     * Panel contenedor del grid donde se insertan las tarjetas de productos.
+     */
     private JPanel grid;
+
+    /**
+     * Badge que muestra el total de piezas agregadas al carrito.
+     */
     private JLabel badgeCarrito;
 
+    /**
+     * <p>
+     * Constructor del catálogo de productos en modo <b>Express</b>.
+     * </p>
+     *
+     * <p>
+     * Construye toda la interfaz:
+     * </p>
+     * <ul>
+     * <li>Marco beige y tarjeta blanca</li>
+     * <li>Barra superior con botón de regreso y carrito</li>
+     * <li>Encabezado con títulos y etiqueta "EXPRESS"</li>
+     * <li>Scroll con grid de productos (3 columnas)</li>
+     * </ul>
+     *
+     * <p>
+     * Finalmente invoca {@link #cargarProductosDesdeBD()} para mostrar el
+     * contenido real.
+     * </p>
+     *
+     * @param ctx contexto global de la aplicación
+     */
     public PantallaCatalogoExpress(AppContext ctx) {
         this.ctx = ctx;
 
@@ -53,6 +129,9 @@ public class PantallaCatalogoExpress extends JFrame {
         topBar.setOpaque(false);
 
         // parte izquierda
+        /**
+         * Botón de regreso a {@link Menu}.
+         */
         JButton btnFlecha = new JButton("←️");
         btnFlecha.setFocusPainted(false);
         btnFlecha.setBorderPainted(false);
@@ -71,6 +150,10 @@ public class PantallaCatalogoExpress extends JFrame {
         panelIzquierdo.add(btnFlecha);
 
         // ----- parte derecha (carrito) -----
+        /**
+         * Panel contenedor del icono de carrito y su badge. Usa layout null
+         * para posicionar manualmente el badge.
+         */
         JPanel panelCarrito = new JPanel(null);
         panelCarrito.setOpaque(false);
         panelCarrito.setPreferredSize(new Dimension(90, 50));
@@ -90,6 +173,9 @@ public class PantallaCatalogoExpress extends JFrame {
         panelCarrito.add(badgeCarrito);
         panelCarrito.add(lblCarrito);
 
+        /**
+         * Abre la pantalla del carrito express al hacer click en el icono.
+         */
         lblCarrito.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -115,6 +201,9 @@ public class PantallaCatalogoExpress extends JFrame {
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 22));
 
         // ====== EXPRESS (agregado) ======
+        /**
+         * Etiqueta visual para indicar que el flujo actual es <b>Express</b>.
+         */
         JLabel lblExpress = new JLabel("EXPRESS");
         lblExpress.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblExpress.setForeground(new Color(200, 60, 60));
@@ -163,6 +252,21 @@ public class PantallaCatalogoExpress extends JFrame {
         cargarProductosDesdeBD();
     }
 
+    /**
+     * <p>
+     * Consulta los productos desde la capa de negocio y los renderiza en el
+     * grid.
+     * </p>
+     *
+     * <p>
+     * Si no hay productos, cambia el layout del grid y muestra un mensaje
+     * centrado.
+     * </p>
+     *
+     * <p>
+     * En caso de error, muestra un {@link JOptionPane} con el detalle.
+     * </p>
+     */
     private void cargarProductosDesdeBD() {
         try {
             List<Producto> productos = ctx.getProductoBO().listarProductos();
@@ -194,6 +298,26 @@ public class PantallaCatalogoExpress extends JFrame {
         }
     }
 
+    /**
+     * <p>
+     * Crea una tarjeta de producto para mostrar en el grid del catálogo
+     * express.
+     * </p>
+     *
+     * <p>
+     * La tarjeta incluye:
+     * </p>
+     * <ul>
+     * <li>Nombre del producto</li>
+     * <li>Imagen (si existe en {@code imagenes/productos/{id}.png})</li>
+     * <li>Tipo y precio</li>
+     * <li>Botón de información</li>
+     * <li>Stepper (+ / −) para ajustar cantidad en carrito</li>
+     * </ul>
+     *
+     * @param p producto a renderizar
+     * @return panel con la tarjeta construida
+     */
     private JPanel crearTarjetaProducto(Producto p) {
         JPanel item = new JPanel();
         item.setOpaque(false);
@@ -219,6 +343,7 @@ public class PantallaCatalogoExpress extends JFrame {
             img.setText("");
             img.setIcon(icon);
         }
+
         // Tipo y precio
         String tipo = (p.getTipo() != null) ? p.getTipo().toString() : "N/A";
         JLabel lblTipoPrecio = new JLabel("Tipo: " + tipo + "   Precio: $" + Math.round(p.getPrecio()));
@@ -236,6 +361,9 @@ public class PantallaCatalogoExpress extends JFrame {
         btnInfo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnInfo.setBorder(new LineBorder(new Color(60, 60, 60), 1, true));
 
+        /**
+         * Muestra un diálogo con información detallada del producto.
+         */
         btnInfo.addActionListener(e -> {
             String estado = (p.getEstado() != null) ? p.getEstado().toString() : "N/A";
             String desc = (p.getDescripcion() != null) ? p.getDescripcion() : "(Sin descripción)";
@@ -268,6 +396,30 @@ public class PantallaCatalogoExpress extends JFrame {
         return item;
     }
 
+    /**
+     * <p>
+     * Crea el componente stepper (+ / −) que permite ajustar la cantidad de un
+     * producto dentro del carrito.
+     * </p>
+     *
+     * <p>
+     * El valor inicial se calcula buscando si ya existe un {@link ItemCarrito}
+     * asociado a ese producto.
+     * </p>
+     *
+     * <p>
+     * Cada cambio:
+     * </p>
+     * <ul>
+     * <li>Actualiza el campo de cantidad</li>
+     * <li>Actualiza la lista del carrito mediante
+     * {@link #setCantidad(dominio.Producto, int)}</li>
+     * <li>Refresca el badge del carrito con {@link #totalPiezas()}</li>
+     * </ul>
+     *
+     * @param producto producto al que pertenece el stepper
+     * @return panel con el stepper construido
+     */
     private JPanel crearStepperCantidad(dominio.Producto producto) {
         JPanel stepper = new JPanel(new BorderLayout());
         stepper.setOpaque(false);
@@ -318,6 +470,13 @@ public class PantallaCatalogoExpress extends JFrame {
         return stepper;
     }
 
+    /**
+     * Busca un {@link ItemCarrito} por id de producto dentro de la lista
+     * {@link #carrito}.
+     *
+     * @param idProducto id del producto
+     * @return item encontrado o null si no existe
+     */
     private ItemCarrito buscarItem(int idProducto) {
         for (ItemCarrito it : carrito) {
             if (it.getProducto().getId() == idProducto) {
@@ -327,6 +486,20 @@ public class PantallaCatalogoExpress extends JFrame {
         return null;
     }
 
+    /**
+     * <p>
+     * Ajusta la cantidad de un producto en el carrito.
+     * </p>
+     *
+     * <ul>
+     * <li>Si {@code cantidad <= 0}, elimina el item si existe.</li>
+     * <li>Si no existía y {@code cantidad > 0}, crea un nuevo item.</li>
+     * <li>Si existía, actualiza la cantidad.</li>
+     * </ul>
+     *
+     * @param producto producto a modificar
+     * @param cantidad nueva cantidad
+     */
     private void setCantidad(dominio.Producto producto, int cantidad) {
         ItemCarrito it = buscarItem(producto.getId());
 
@@ -344,6 +517,12 @@ public class PantallaCatalogoExpress extends JFrame {
         }
     }
 
+    /**
+     * Calcula el total de piezas sumando las cantidades de todos los items del
+     * carrito.
+     *
+     * @return suma total de piezas
+     */
     private int totalPiezas() {
         int s = 0;
         for (ItemCarrito it : carrito) {

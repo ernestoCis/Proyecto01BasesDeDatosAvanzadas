@@ -5,8 +5,32 @@
 package presentacion;
 
 /**
+ * <h1>DialogConfirmacion</h1>
  *
- * @author Isaac
+ * <p>
+ * Clase que representa un cuadro de diálogo modal personalizado para solicitar
+ * confirmación al usuario.
+ * </p>
+ *
+ * <p>
+ * Este componente muestra un mensaje centrado y dos opciones:
+ * <b>"Sí"</b> y <b>"No"</b>. El resultado se almacena internamente en una
+ * variable booleana que puede ser consultada posteriormente.
+ * </p>
+ *
+ * <h2>Características</h2>
+ * <ul>
+ * <li>Ventana modal (bloquea la ventana padre).</li>
+ * <li>Diseño visual consistente con la aplicación.</li>
+ * <li>Retorna un valor booleano indicando la decisión del usuario.</li>
+ * </ul>
+ *
+ * <p>
+ * Se utiliza comúnmente para confirmar acciones críticas como: eliminar
+ * registros, cerrar sesión o cancelar pedidos.
+ * </p>
+ *
+ * @author 262722, 2627242
  */
 import java.awt.*;
 import javax.swing.*;
@@ -14,8 +38,28 @@ import javax.swing.border.*;
 
 public class DialogConfirmacion extends JDialog {
 
+    /**
+     * Indica si el usuario confirmó la acción.
+     * <p>
+     * true → El usuario presionó "Sí".<br>
+     * false → El usuario presionó "No" o cerró el diálogo.
+     * </p>
+     */
     private boolean confirmado = false;
 
+    /**
+     * <p>
+     * Constructor que crea el diálogo de confirmación.
+     * </p>
+     *
+     * <p>
+     * Configura la ventana como modal, aplica estilos visuales personalizados y
+     * agrega los botones de acción.
+     * </p>
+     *
+     * @param owner ventana padre que invoca el diálogo
+     * @param mensaje mensaje que se mostrará al usuario
+     */
     public DialogConfirmacion(Window owner, String mensaje) {
         super(owner, "Confirmar", ModalityType.APPLICATION_MODAL);
 
@@ -38,6 +82,10 @@ public class DialogConfirmacion extends JDialog {
 
         card.setLayout(new BorderLayout(0, 10));
 
+        /**
+         * Etiqueta que muestra el mensaje centrado utilizando HTML para
+         * permitir alineación y mejor presentación.
+         */
         JLabel lbl = new JLabel("<html><div style='text-align:center;'>" + mensaje + "</div></html>");
         lbl.setHorizontalAlignment(SwingConstants.CENTER);
         lbl.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -46,11 +94,19 @@ public class DialogConfirmacion extends JDialog {
         JButton btnSi = crearBoton("Sí");
         JButton btnNo = crearBoton("No");
 
+        /**
+         * Evento del botón "Sí". Establece confirmado en true y cierra el
+         * diálogo.
+         */
         btnSi.addActionListener(e -> {
             confirmado = true;
             dispose();
         });
 
+        /**
+         * Evento del botón "No". Establece confirmado en false y cierra el
+         * diálogo.
+         */
         btnNo.addActionListener(e -> {
             confirmado = false;
             dispose();
@@ -64,6 +120,15 @@ public class DialogConfirmacion extends JDialog {
         card.add(panelBtns, BorderLayout.SOUTH);
     }
 
+    /**
+     * <p>
+     * Método auxiliar para crear botones con estilo uniforme dentro del
+     * diálogo.
+     * </p>
+     *
+     * @param text texto que mostrará el botón
+     * @return botón configurado con estilos personalizados
+     */
     private JButton crearBoton(String text) {
         JButton b = new JButton(text);
         b.setPreferredSize(new Dimension(90, 32));
@@ -78,10 +143,33 @@ public class DialogConfirmacion extends JDialog {
         return b;
     }
 
+    /**
+     * Obtiene el resultado de la confirmación.
+     *
+     * @return true si el usuario confirmó, false en caso contrario
+     */
     public boolean isConfirmado() {
         return confirmado;
     }
 
+    /**
+     * <p>
+     * Método estático de conveniencia para mostrar el diálogo y obtener el
+     * resultado en una sola línea de código.
+     * </p>
+     *
+     * <p>
+     * Ejemplo de uso:
+     * </p>
+     *
+     * <pre>
+     * boolean resultado = DialogConfirmacion.confirmar(this, "¿Desea eliminar el pedido?");
+     * </pre>
+     *
+     * @param parent componente desde el cual se invoca el diálogo
+     * @param mensaje mensaje que se mostrará
+     * @return true si el usuario presiona "Sí", false si presiona "No"
+     */
     public static boolean confirmar(Component parent, String mensaje) {
         Window w = SwingUtilities.getWindowAncestor(parent);
         DialogConfirmacion d = new DialogConfirmacion(w, mensaje);

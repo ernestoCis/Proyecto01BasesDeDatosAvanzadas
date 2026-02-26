@@ -19,22 +19,129 @@ import java.util.ArrayList;
 import java.util.List;
 import negocio.Excepciones.NegocioException;
 
+/**
+ * <h1>PantallaConfirmarPedidoExpress</h1>
+ *
+ * <p>
+ * Pantalla de confirmación del flujo <b>Express</b> donde el cliente revisa el
+ * contenido del carrito, selecciona el {@link MetodoPago} y confirma el
+ * registro de un {@link PedidoExpress}.
+ * </p>
+ *
+ * <p>
+ * La UI presenta:
+ * </p>
+ * <ul>
+ * <li>Botón de regreso a la {@link JFrame} anterior.</li>
+ * <li>Tabla de resumen (solo lectura) con producto, precio, cantidad y
+ * subtotal.</li>
+ * <li>Selector de {@link MetodoPago}.</li>
+ * <li>Etiqueta de total a pagar.</li>
+ * <li>Botón <b>Realizar pedido</b> que persiste el pedido express mediante la
+ * capa de negocio.</li>
+ * </ul>
+ *
+ * <h2>Persistencia del pedido</h2>
+ * <p>
+ * Al confirmar, se construye un {@link PedidoExpress} con estado
+ * {@link EstadoPedido#Listo}, se generan {@link DetallePedido} desde el carrito
+ * y se invoca
+ * {@code ctx.getPedidoBO().agregarPedidoExpress(pedidoExpress, detalles)}. Si
+ * se registra correctamente, navega a {@link PantallaPedidoExpressRealizado}.
+ * </p>
+ *
+ * <h2>Notas</h2>
+ * <p>
+ * A diferencia del flujo programado, en Express <b>no se capturan notas</b> por
+ * producto; por ello, cada {@link DetallePedido} se construye con
+ * {@code nota = null}.
+ * </p>
+ *
+ * @author
+ */
 public class PantallaConfirmarPedidoExpress extends JFrame {
 
+    /**
+     * Tabla que muestra el carrito en modo solo lectura.
+     */
     private JTable tabla;
+
+    /**
+     * Modelo de la tabla; contiene las filas renderizadas desde
+     * {@link #carrito}.
+     */
     private DefaultTableModel modelo;
+
+    /**
+     * Etiqueta que muestra el total a pagar (calculado desde el carrito).
+     */
     private JLabel lblTotal;
 
+    /**
+     * ComboBox para seleccionar el método de pago del pedido express.
+     */
     private JComboBox<MetodoPago> cbMetodoPago;
-    private MetodoPago metodoPagoSeleccionado; 
 
+    /**
+     * Variable auxiliar para mantener el método de pago seleccionado (no
+     * obligatorio para la UI).
+     */
+    private MetodoPago metodoPagoSeleccionado;
+
+    /**
+     * Lista de items que representan el carrito actual a confirmar.
+     */
     private final List<ItemCarrito> carrito;
+
+    /**
+     * Contexto global de la aplicación; permite acceder a BOs y estado de
+     * sesión.
+     */
     private final AppContext ctx;
+
+    /**
+     * Cliente asociado al pedido express (se toma del contexto como cliente
+     * actual).
+     */
     private final Cliente cliente;
 
+    /**
+     * Referencia a la pantalla anterior para poder regresar al flujo previo.
+     */
     private final JFrame pantallaAnterior;
+
+    /**
+     * Total calculado del carrito (precio*cantidad).
+     */
     private float total;
 
+    /**
+     * <p>
+     * Constructor de la pantalla de confirmación para pedidos Express.
+     * </p>
+     *
+     * <p>
+     * Construye la interfaz con:
+     * </p>
+     * <ul>
+     * <li>Fondo beige y tarjeta blanca con borde.</li>
+     * <li>Barra superior con botón de regreso.</li>
+     * <li>Encabezado con indicador visual <b>EXPRESS</b>.</li>
+     * <li>Tabla de resumen del carrito (no editable).</li>
+     * <li>Sección inferior con método de pago y total.</li>
+     * <li>Botón para realizar el pedido.</li>
+     * </ul>
+     *
+     * <p>
+     * Al final, invoca {@link #cargarTabla()} y {@link #actualizarTotal()} para
+     * reflejar los datos del carrito.
+     * </p>
+     *
+     * @param pantallaAnterior frame anterior al que se regresa al presionar la
+     * flecha
+     * @param carrito lista de items del carrito a confirmar
+     * @param ctx contexto global de la aplicación
+     */
     public PantallaConfirmarPedidoExpress(JFrame pantallaAnterior, List<ItemCarrito> carrito, AppContext ctx) {
         this.pantallaAnterior = pantallaAnterior;
         this.carrito = carrito;
@@ -65,6 +172,10 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setOpaque(false);
 
+        /**
+         * Botón de regreso; muestra la pantalla anterior (si existe) y cierra
+         * la actual.
+         */
         JButton btnFlecha = new JButton("←");
         btnFlecha.setFocusPainted(false);
         btnFlecha.setBorderPainted(false);
@@ -117,6 +228,9 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
         // ----- parte central -----
         String[] cols = {"Producto", "Precio pz.", "Cantidad", "Subtotal"};
 
+        /**
+         * Modelo de tabla no editable para mostrar el resumen del carrito.
+         */
         modelo = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -203,6 +317,11 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
         panelResumen.add(cajaMetodoPago);
         panelResumen.add(cajaTotal);
 
+        /**
+         * Botón que construye el {@link PedidoExpress}, genera
+         * {@link DetallePedido} desde el carrito y registra el pedido en la
+         * capa de negocio.
+         */
         JButton btnRealizar = new JButton("Realizar pedido");
         btnRealizar.setPreferredSize(new Dimension(180, 34));
         btnRealizar.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -216,8 +335,8 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
                 JOptionPane.showMessageDialog(this, "Tu carrito está vacío.", "Aviso", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            
-            try{
+
+            try {
                 PedidoExpress pedidoExpress = new PedidoExpress();
                 pedidoExpress.setEstado(EstadoPedido.Listo);
                 pedidoExpress.setFechaCreacion(LocalDateTime.now());
@@ -226,16 +345,14 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
                 pedidoExpress.setNumeroPedido(ctx.getPedidoBO().generarNumeroDePedido());
                 pedidoExpress.setFolio(ctx.getPedidoBO().generarFolio());
                 pedidoExpress.setPin(ctx.getPedidoBO().generarPIN());
-                
+
                 String pin = pedidoExpress.getPin();
-                
+
                 pedidoExpress.setCliente(ctx.getClienteActual());
-                
+
                 List<DetallePedido> detalles = crearDetallesDesdeCarrito();
-                
+
                 //agregarle el pedido al cliente
-                
-                
                 if (ctx.getPedidoBO().agregarPedidoExpress(pedidoExpress, detalles) != null) {
 
                     new PantallaPedidoExpressRealizado(pedidoExpress, ctx, pin).setVisible(true);
@@ -244,12 +361,11 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
                 } else {
                     JOptionPane.showMessageDialog(this, "Error al agregar el pedido.");
                 }
-                
-                
-            }catch(NegocioException ex){
+
+            } catch (NegocioException ex) {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
             }
-            
+
         });
 
         JPanel panelBtn = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 10));
@@ -269,7 +385,7 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
         JPanel stackSouth = new JPanel();
         stackSouth.setOpaque(false);
         stackSouth.setLayout(new BoxLayout(stackSouth, BoxLayout.Y_AXIS));
-        stackSouth.add(panelResumen);  
+        stackSouth.add(panelResumen);
         stackSouth.add(panelBtn);
         stackSouth.add(footerPanel);
 
@@ -280,6 +396,25 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
         actualizarTotal();
     }
 
+    /**
+     * <p>
+     * Carga las filas del {@link #modelo} a partir de {@link #carrito}.
+     * </p>
+     *
+     * <p>
+     * Si el carrito es {@code null}, no realiza ninguna operación.
+     * </p>
+     *
+     * <p>
+     * Por cada {@link ItemCarrito} agrega:
+     * </p>
+     * <ul>
+     * <li>Nombre del producto</li>
+     * <li>Precio por pieza (redondeado)</li>
+     * <li>Cantidad</li>
+     * <li>Subtotal por renglón (redondeado)</li>
+     * </ul>
+     */
     private void cargarTabla() {
         modelo.setRowCount(0);
 
@@ -302,6 +437,16 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
         }
     }
 
+    /**
+     * <p>
+     * Calcula el total del carrito sumando {@code precio*cantidad} por cada
+     * {@link ItemCarrito} y actualiza:
+     * </p>
+     * <ul>
+     * <li>{@link #total}</li>
+     * <li>{@link #lblTotal}</li>
+     * </ul>
+     */
     private void actualizarTotal() {
         float total = 0;
         if (carrito != null) {
@@ -312,7 +457,25 @@ public class PantallaConfirmarPedidoExpress extends JFrame {
         this.total = total;
         lblTotal.setText("Total a pagar: $" + Math.round(total));
     }
-    
+
+    /**
+     * <p>
+     * Construye la lista de {@link DetallePedido} a partir de {@link #carrito}.
+     * </p>
+     *
+     * <p>
+     * Para cada item:
+     * </p>
+     * <ul>
+     * <li>Calcula subtotal (precio*cantidad).</li>
+     * <li>Genera un {@link DetallePedido} con producto, cantidad, precio y
+     * subtotal.</li>
+     * <li>Asigna {@code nota = null} (en Express no se capturan notas).</li>
+     * </ul>
+     *
+     * @return lista de detalles construida desde el carrito
+     * @throws NegocioException si el carrito es {@code null} o está vacío
+     */
     private List<DetallePedido> crearDetallesDesdeCarrito() throws NegocioException {
 
         if (carrito == null || carrito.isEmpty()) {

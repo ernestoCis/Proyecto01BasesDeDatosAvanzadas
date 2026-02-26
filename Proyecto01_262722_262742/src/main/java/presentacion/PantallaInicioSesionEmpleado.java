@@ -4,7 +4,6 @@
  */
 package presentacion;
 
-
 import dominio.Empleado;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -12,14 +11,84 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import negocio.Excepciones.NegocioException;
 
+/**
+ * <h1>PantallaInicioSesionEmpleado</h1>
+ *
+ * <p>
+ * Pantalla de <b>inicio de sesión</b> para empleados del sistema.
+ * </p>
+ *
+ * <p>
+ * La UI presenta:
+ * </p>
+ * <ul>
+ * <li>Encabezado con referencia a "Cliente" y flecha de regreso hacia
+ * {@link Menu}.</li>
+ * <li>Títulos centrados "Panadería" e "Iniciar Sesión – Empleado".</li>
+ * <li>Formulario con campos de usuario y contraseña.</li>
+ * <li>Icono de ojo (👁) para alternar visibilidad de contraseña.</li>
+ * <li>Botones: <b>Iniciar Sesión</b> y <b>Crear cuenta</b>.</li>
+ * <li>Footer informativo.</li>
+ * </ul>
+ *
+ * <h2>Inicio de sesión</h2>
+ * <p>
+ * Al presionar "Iniciar Sesión" se valida que usuario y contraseña no estén
+ * vacíos y se invoca
+ * {@code ctx.getUsuarioBO().iniciarSesionEmpleado(usuario, contrasenia)}. Si es
+ * correcto, se guarda el empleado en sesión con
+ * {@code ctx.setEmpleadoActual(emp)} y se abre {@link MenuEmpleado}.
+ * </p>
+ *
+ * <h2>Crear cuenta</h2>
+ * <p>
+ * El botón "Crear cuenta" abre {@link PantallaCrearCuentaEmpleado}.
+ * </p>
+ *
+ * @author
+ */
 public class PantallaInicioSesionEmpleado extends JFrame {
 
+    /**
+     * Campo de texto para capturar el usuario del empleado.
+     */
     private JTextField txtUsuario;
+
+    /**
+     * Campo de contraseña para capturar la contraseña del empleado.
+     */
     private JPasswordField txtContrasena;
+
+    /**
+     * Carácter de eco original del campo password, usado para restaurar el
+     * ocultamiento.
+     */
     private char echoDefault;
 
+    /**
+     * Contexto global de la aplicación; permite acceder a BOs y estado de
+     * sesión.
+     */
     private final AppContext ctx;
 
+    /**
+     * <p>
+     * Constructor de la pantalla de inicio de sesión para empleados.
+     * </p>
+     *
+     * <p>
+     * Construye la interfaz con:
+     * </p>
+     * <ul>
+     * <li>Fondo beige y tarjeta blanca central</li>
+     * <li>Sección superior con etiqueta "Cliente" y flecha de regreso</li>
+     * <li>Títulos principales</li>
+     * <li>Formulario con usuario/contraseña (con ojo) y botones</li>
+     * <li>Footer informativo</li>
+     * </ul>
+     *
+     * @param ctx contexto global de la aplicación
+     */
     public PantallaInicioSesionEmpleado(AppContext ctx) {
         this.ctx = ctx;
 
@@ -57,6 +126,9 @@ public class PantallaInicioSesionEmpleado extends JFrame {
         lblCliente.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         lblCliente.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        /**
+         * Botón de regreso hacia {@link Menu}.
+         */
         JButton btnBack = new JButton("←");
         btnBack.setFocusPainted(false);
         btnBack.setBorderPainted(false);
@@ -101,7 +173,7 @@ public class PantallaInicioSesionEmpleado extends JFrame {
 
         JPanel passRow = new JPanel(new BorderLayout());
         passRow.setOpaque(false);
-        
+
         passRow.setMinimumSize(new Dimension(280, 42));
         passRow.setPreferredSize(new Dimension(280, 42));
         passRow.setMaximumSize(new Dimension(280, 42));
@@ -111,6 +183,9 @@ public class PantallaInicioSesionEmpleado extends JFrame {
         configurarCampo(txtContrasena, "Contraseña");
         echoDefault = txtContrasena.getEchoChar();
 
+        /**
+         * Icono de ojo para alternar visibilidad de contraseña.
+         */
         JLabel ojo = new JLabel("👁");
         ojo.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
         ojo.setBorder(new EmptyBorder(0, 8, 0, 8));
@@ -158,11 +233,17 @@ public class PantallaInicioSesionEmpleado extends JFrame {
         panelPrincipal.add(panelInferior, BorderLayout.SOUTH);
 
         // ---- Acciones ----
+        /**
+         * Acción: regresa al {@link Menu} y cierra esta pantalla.
+         */
         btnBack.addActionListener(e -> {
             new Menu(ctx).setVisible(true);
             dispose();
         });
 
+        /**
+         * Acción: valida campos y realiza inicio de sesión del empleado.
+         */
         btnIniciar.addActionListener(e -> {
             String usuario = txtUsuario.getText().trim();
             String contrasenia = new String(txtContrasena.getPassword());
@@ -186,12 +267,26 @@ public class PantallaInicioSesionEmpleado extends JFrame {
             }
         });
 
+        /**
+         * Acción: abre {@link PantallaCrearCuentaEmpleado} y cierra esta
+         * pantalla.
+         */
         btnCrearCuenta.addActionListener(e -> {
             new PantallaCrearCuentaEmpleado(ctx).setVisible(true);
             dispose();
         });
     }
 
+    /**
+     * <p>
+     * Configura el estilo visual estándar de un campo de texto en esta pantalla
+     * (aplica tanto a {@link JTextField} como a {@link JPasswordField} por
+     * herencia).
+     * </p>
+     *
+     * @param t campo a configurar
+     * @param tooltip texto del tooltip para el campo
+     */
     private void configurarCampo(JTextField t, String tooltip) {
         t.setPreferredSize(new Dimension(280, 42));
         t.setMaximumSize(new Dimension(280, 42));
@@ -204,6 +299,14 @@ public class PantallaInicioSesionEmpleado extends JFrame {
         t.setToolTipText(tooltip);
     }
 
+    /**
+     * <p>
+     * Crea un botón mediano con el estilo visual utilizado en esta pantalla.
+     * </p>
+     *
+     * @param text texto del botón
+     * @return botón configurado con estilo
+     */
     private JButton crearBotonMediano(String text) {
         JButton b = new JButton(text);
         b.setPreferredSize(new Dimension(150, 28));

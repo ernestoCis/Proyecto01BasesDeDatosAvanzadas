@@ -11,17 +11,100 @@ import java.util.ArrayList;
 import java.util.List;
 import negocio.Excepciones.NegocioException;
 
+/**
+ * <h1>PantallaAdministrarTelefonosCliente</h1>
+ *
+ * <p>
+ * Pantalla que permite al cliente <b>administrar (visualizar, agregar, editar y
+ * eliminar)</b>
+ * sus teléfonos asociados dentro del sistema.
+ * </p>
+ *
+ * <p>
+ * La administración se realiza mediante una tabla ({@link JTable}) que muestra:
+ * </p>
+ *
+ * <ul>
+ * <li><b>Número</b> del teléfono.</li>
+ * <li><b>Etiqueta</b> (opcional) para identificar el teléfono (ej. "Casa",
+ * "Trabajo").</li>
+ * <li><b>Acción</b> con botones "Editar" y "Eliminar" integrados en la
+ * tabla.</li>
+ * </ul>
+ *
+ * <h2>Acciones disponibles</h2>
+ * <ul>
+ * <li><b>Añadir teléfono</b>: muestra un diálogo para capturar número y
+ * etiqueta.</li>
+ * <li><b>Editar</b>: permite modificar número/etiqueta del registro
+ * seleccionado.</li>
+ * <li><b>Eliminar</b>: elimina el registro seleccionado previa
+ * confirmación.</li>
+ * <li><b>Guardar cambios</b>: envía la lista final a la capa de negocio para
+ * persistir.</li>
+ * <li><b>Regresar</b>: vuelve a la pantalla anterior si existe.</li>
+ * </ul>
+ *
+ * <p>
+ * Esta pantalla utiliza {@link AppContext} para obtener el cliente en sesión y
+ * comunicarse con la capa de negocio ({@link iClienteBO}).
+ * </p>
+ *
+ * @author 262722, 2627242
+ */
 public class PantallaAdministrarTelefonosCliente extends JFrame {
 
+    /**
+     * Pantalla anterior utilizada para regresar al flujo previo. Puede ser null
+     * si fue abierta sin una ventana padre.
+     */
     private final JFrame pantallaAnterior;
+
+    /**
+     * Contexto global de la aplicación: contiene BOs y estado de sesión.
+     */
     private final AppContext ctx;
+
+    /**
+     * Cliente actualmente autenticado al construir la pantalla.
+     */
     private final Cliente clienteActual;
 
+    /**
+     * Tabla principal que muestra la lista de teléfonos del cliente.
+     */
     private JTable tabla;
+
+    /**
+     * Modelo de la tabla; permite insertar y refrescar filas.
+     */
     private DefaultTableModel modelo;
 
-    private List<Telefono> telefonos; 
+    /**
+     * Lista de teléfonos en memoria que se muestra y edita en la UI.
+     */
+    private List<Telefono> telefonos;
 
+    /**
+     * <p>
+     * Constructor de la pantalla de administración de teléfonos.
+     * </p>
+     *
+     * <p>
+     * Inicializa:
+     * </p>
+     * <ul>
+     * <li>El cliente en sesión desde el {@link AppContext}.</li>
+     * <li>Una lista local de teléfonos (copiando los existentes del
+     * cliente).</li>
+     * <li>La tabla con renderer/editor para botones de acciones.</li>
+     * <li>Los botones inferiores para guardar y añadir.</li>
+     * </ul>
+     *
+     * @param pantallaAnterior ventana anterior para regresar al presionar la
+     * flecha
+     * @param ctx contexto global de la aplicación
+     */
     public PantallaAdministrarTelefonosCliente(JFrame pantallaAnterior, AppContext ctx) {
         this.pantallaAnterior = pantallaAnterior;
         this.ctx = ctx;
@@ -37,12 +120,13 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
         setSize(920, 650);
         setLocationRelativeTo(null);
 
-        // Fondo beige
+        // ===================
+        // Fondo y tarjeta
+        // ===================
         JPanel root = new JPanel(new GridBagLayout());
         root.setBackground(new Color(214, 186, 150));
         setContentPane(root);
 
-        // Tarjeta blanca
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(Color.WHITE);
         card.setBorder(new CompoundBorder(
@@ -52,10 +136,16 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
         card.setPreferredSize(new Dimension(860, 560));
         root.add(card);
 
-        // =================== TOP ===================
+        // ===================
+        // TOP (títulos + regreso)
+        // ===================
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
 
+        /**
+         * Botón flecha para regresar a la pantalla anterior. Si existe, se
+         * vuelve visible; esta ventana se cierra.
+         */
         JButton btnFlecha = new JButton("←");
         btnFlecha.setFocusPainted(false);
         btnFlecha.setBorderPainted(false);
@@ -63,7 +153,9 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
         btnFlecha.setFont(new Font("Segoe UI", Font.PLAIN, 40));
         btnFlecha.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnFlecha.addActionListener(e -> {
-            if (pantallaAnterior != null) pantallaAnterior.setVisible(true);
+            if (pantallaAnterior != null) {
+                pantallaAnterior.setVisible(true);
+            }
             dispose();
         });
 
@@ -93,12 +185,21 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
 
         card.add(top, BorderLayout.NORTH);
 
-        // =================== TABLA ===================
+        // ===================
+        // TABLA
+        // ===================
+        /**
+         * Columnas de la tabla: número, etiqueta y acciones.
+         */
         String[] cols = {"Número", "Etiqueta", "Acción"};
 
+        /**
+         * Modelo de tabla donde únicamente la columna "Acción" es editable,
+         * para permitir el editor con botones.
+         */
         modelo = new DefaultTableModel(cols, 0) {
-            @Override public boolean isCellEditable(int row, int col) {
-                // solo "Acción" editable para el editor de botones
+            @Override
+            public boolean isCellEditable(int row, int col) {
                 return col == 2;
             }
         };
@@ -109,17 +210,21 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
         tabla.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
         tabla.getTableHeader().setReorderingAllowed(false);
 
-        // Centrar columnas
+        /**
+         * Renderer para centrar el contenido de las columnas de texto.
+         */
         DefaultTableCellRenderer center = new DefaultTableCellRenderer();
         center.setHorizontalAlignment(SwingConstants.CENTER);
         tabla.getColumnModel().getColumn(0).setCellRenderer(center);
         tabla.getColumnModel().getColumn(1).setCellRenderer(center);
 
-        // Renderer/Editor para botones Editar/Eliminar
+        /**
+         * Renderer/Editor para botones "Editar" y "Eliminar" dentro de la
+         * columna de acciones.
+         */
         tabla.getColumnModel().getColumn(2).setCellRenderer(new AccionesRenderer());
         tabla.getColumnModel().getColumn(2).setCellEditor(new AccionesEditor(new JCheckBox()));
 
-        // Anchos
         tabla.getColumnModel().getColumn(0).setPreferredWidth(260);
         tabla.getColumnModel().getColumn(1).setPreferredWidth(220);
         tabla.getColumnModel().getColumn(2).setPreferredWidth(180);
@@ -135,9 +240,14 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
 
         card.add(centerPanel, BorderLayout.CENTER);
 
+        /**
+         * Carga inicial de la tabla con los teléfonos en memoria.
+         */
         cargarTabla();
 
-        // =================== BOTONES ABAJO ===================
+        // ===================
+        // BOTONES (abajo)
+        // ===================
         JButton btnGuardar = crearBotonGrande("Guardar cambios");
         JButton btnAnadir = crearBotonGrande("Añadir teléfono");
 
@@ -159,7 +269,9 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
         accionesBottom.add(leftBtns, BorderLayout.WEST);
         accionesBottom.add(rightBtns, BorderLayout.EAST);
 
-        // =================== FOOTER ===================
+        // ===================
+        // FOOTER
+        // ===================
         JLabel footer = new JLabel("© 2026 Panadería. Todos los derechos reservados.");
         footer.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         footer.setForeground(new Color(80, 80, 80));
@@ -178,32 +290,61 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
         card.add(south, BorderLayout.SOUTH);
     }
 
-    // =================== LÓGICA UI ===================
-
+    // ===================
+    // LÓGICA UI
+    // ===================
+    /**
+     * <p>
+     * Carga/recarga la tabla con la lista de teléfonos en memoria.
+     * </p>
+     *
+     * <p>
+     * Limpia el modelo y agrega una fila por cada {@link Telefono}.
+     * </p>
+     */
     private void cargarTabla() {
         modelo.setRowCount(0);
 
-        if (telefonos == null) return;
+        if (telefonos == null) {
+            return;
+        }
 
         for (Telefono t : telefonos) {
             String tel = (t.getTelefono() == null) ? "" : t.getTelefono();
             String etq = (t.getEtiqueta() == null) ? "" : t.getEtiqueta();
 
             modelo.addRow(new Object[]{
-                    tel,
-                    etq,
-                    "Editar | Eliminar"
+                tel,
+                etq,
+                "Editar | Eliminar"
             });
         }
     }
 
+    /**
+     * <p>
+     * Muestra un diálogo para capturar un nuevo teléfono y lo agrega a la lista
+     * en memoria.
+     * </p>
+     *
+     * <p>
+     * Validación principal:
+     * </p>
+     * <ul>
+     * <li>El número no puede ser vacío.</li>
+     * </ul>
+     *
+     * <p>
+     * Al finalizar, se recarga la tabla.
+     * </p>
+     */
     private void anadirTelefono() {
         JTextField txtTel = new JTextField();
         JTextField txtEtq = new JTextField();
 
         Object[] msg = {
-                "Número:", txtTel,
-                "Etiqueta (opcional):", txtEtq
+            "Número:", txtTel,
+            "Etiqueta (opcional):", txtEtq
         };
 
         int r = JOptionPane.showConfirmDialog(
@@ -213,7 +354,9 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
                 JOptionPane.OK_CANCEL_OPTION
         );
 
-        if (r != JOptionPane.OK_OPTION) return;
+        if (r != JOptionPane.OK_OPTION) {
+            return;
+        }
 
         String numero = txtTel.getText().trim();
         String etiqueta = txtEtq.getText().trim();
@@ -224,7 +367,6 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
         }
 
         Telefono nuevo = new Telefono();
-        // id lo asignará la BD si luego lo persistimos
         nuevo.setTelefono(numero);
         nuevo.setEtiqueta(etiqueta.isEmpty() ? null : etiqueta);
         nuevo.setCliente(clienteActual);
@@ -233,30 +375,54 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
         cargarTabla();
     }
 
+    /**
+     * <p>
+     * Guarda los cambios realizados en la administración de teléfonos.
+     * </p>
+     *
+     * <p>
+     * Pasos clave:
+     * </p>
+     * <ol>
+     * <li>Si hay una celda en edición, se detiene la edición para capturar el
+     * último valor.</li>
+     * <li>Se sincroniza la lista local de teléfonos con el {@link Cliente} en
+     * memoria.</li>
+     * <li>Se construye una lista desde la tabla para enviarla a la capa de
+     * negocio.</li>
+     * <li>Se invoca a {@link iClienteBO} para persistir la relación.</li>
+     * </ol>
+     *
+     * <p>
+     * Muestra mensajes de éxito o error según corresponda.
+     * </p>
+     */
     private void guardarCambios() {
-        // IMPORTANTE: asegurarnos que se guarde cualquier edición activa
         if (tabla.isEditing()) {
             tabla.getCellEditor().stopCellEditing();
         }
 
-        // Actualizar el cliente actual en memoria
         clienteActual.setTelefonos(telefonos);
-        ctx.setClienteActual(clienteActual); // si tu ctx no tiene set, quítalo
-        
-        try{
+        ctx.setClienteActual(clienteActual);
+
+        try {
             List<Telefono> listaTelefonos = obtenerTelefonosDesdeTabla();
             ctx.getClienteBO().agregarTelefonos(clienteActual, listaTelefonos);
             JOptionPane.showMessageDialog(this, "Cambios guardados.");
-        }catch(NegocioException ex){
+        } catch (NegocioException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage());
         }
-        
-
-        
     }
 
-    // =================== COMPONENTES ===================
-
+    // ===================
+    // COMPONENTES
+    // ===================
+    /**
+     * Crea un botón grande con estilo uniforme para acciones principales.
+     *
+     * @param text texto visible del botón
+     * @return botón configurado
+     */
     private JButton crearBotonGrande(String text) {
         JButton b = new JButton(text);
         b.setPreferredSize(new Dimension(260, 44));
@@ -268,12 +434,35 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
         return b;
     }
 
-    // =================== Renderer/Editor Acciones ===================
-
+    // ===================
+    // Renderer/Editor Acciones
+    // ===================
+    /**
+     * <p>
+     * Renderer de la columna "Acción".
+     * </p>
+     *
+     * <p>
+     * Muestra botones "Editar" y "Eliminar" dentro de la celda, pero sin
+     * manejar clicks, ya que esa responsabilidad corresponde al editor.
+     * </p>
+     */
     private class AccionesRenderer extends JPanel implements TableCellRenderer {
+
+        /**
+         * Botón visual de edición (solo para mostrar en renderer).
+         */
         private final JButton btnEditar = new JButton("Editar");
+
+        /**
+         * Botón visual de eliminación (solo para mostrar en renderer).
+         */
         private final JButton btnEliminar = new JButton("Eliminar");
 
+        /**
+         * Construye el renderer de acciones y aplica estilo visual a los
+         * botones.
+         */
         public AccionesRenderer() {
             setLayout(new FlowLayout(FlowLayout.CENTER, 8, 0));
             setOpaque(true);
@@ -285,26 +474,62 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
             add(btnEditar);
             add(btnEliminar);
 
-            // Renderer no maneja clicks
             btnEditar.setEnabled(false);
             btnEliminar.setEnabled(false);
         }
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
-                                                      boolean isSelected, boolean hasFocus,
-                                                      int row, int column) {
+                boolean isSelected, boolean hasFocus,
+                int row, int column) {
             setBackground(isSelected ? table.getSelectionBackground() : Color.WHITE);
             return this;
         }
     }
 
+    /**
+     * <p>
+     * Editor de la columna "Acción".
+     * </p>
+     *
+     * <p>
+     * A diferencia del renderer, este editor sí maneja eventos de click para:
+     * </p>
+     *
+     * <ul>
+     * <li><b>Editar</b> una fila → muestra un diálogo con los valores
+     * actuales.</li>
+     * <li><b>Eliminar</b> una fila → solicita confirmación y elimina de la
+     * lista.</li>
+     * </ul>
+     */
     private class AccionesEditor extends DefaultCellEditor {
+
+        /**
+         * Panel contenedor que se muestra como componente editor.
+         */
         private final JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 0));
+
+        /**
+         * Botón para editar el teléfono de la fila actual.
+         */
         private final JButton btnEditar = new JButton("Editar");
+
+        /**
+         * Botón para eliminar el teléfono de la fila actual.
+         */
         private final JButton btnEliminar = new JButton("Eliminar");
+
+        /**
+         * Índice de fila actualmente editada.
+         */
         private int row;
 
+        /**
+         * Constructor del editor de acciones.
+         *
+         * @param checkBox checkbox requerido por {@link DefaultCellEditor}
+         */
         public AccionesEditor(JCheckBox checkBox) {
             super(checkBox);
 
@@ -323,7 +548,7 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value,
-                                                     boolean isSelected, int row, int column) {
+                boolean isSelected, int row, int column) {
             this.row = row;
             panel.setBackground(table.getSelectionBackground());
             return panel;
@@ -334,6 +559,20 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
             return "Editar | Eliminar";
         }
 
+        /**
+         * <p>
+         * Edita la fila indicada mostrando un diálogo con los valores actuales.
+         * </p>
+         *
+         * <p>
+         * Validación:
+         * </p>
+         * <ul>
+         * <li>El número no puede ser vacío.</li>
+         * </ul>
+         *
+         * @param row índice de fila a editar
+         */
         private void editarFila(int row) {
             if (row < 0 || row >= telefonos.size()) {
                 fireEditingStopped();
@@ -346,8 +585,8 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
             JTextField txtEtq = new JTextField(t.getEtiqueta() == null ? "" : t.getEtiqueta());
 
             Object[] msg = {
-                    "Número:", txtTel,
-                    "Etiqueta (opcional):", txtEtq
+                "Número:", txtTel,
+                "Etiqueta (opcional):", txtEtq
             };
 
             int r = JOptionPane.showConfirmDialog(
@@ -373,6 +612,13 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
             fireEditingStopped();
         }
 
+        /**
+         * <p>
+         * Elimina la fila indicada solicitando confirmación al usuario.
+         * </p>
+         *
+         * @param row índice de fila a eliminar
+         */
         private void eliminarFila(int row) {
             if (row >= 0 && row < telefonos.size()) {
                 int r = JOptionPane.showConfirmDialog(
@@ -391,6 +637,11 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
         }
     }
 
+    /**
+     * Aplica estilo uniforme a los botones de acción dentro de la tabla.
+     *
+     * @param b botón a estilizar
+     */
     private void estiloBtnAccion(JButton b) {
         b.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         b.setFocusPainted(false);
@@ -399,12 +650,29 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
         b.setBackground(new Color(245, 245, 245));
         b.setPreferredSize(new Dimension(78, 26));
     }
-    
+
+    /**
+     * <p>
+     * Construye una lista de {@link Telefono} leyendo directamente los valores
+     * actuales de la tabla.
+     * </p>
+     *
+     * <p>
+     * Consideraciones:
+     * </p>
+     * <ul>
+     * <li>Si existe una edición activa, se detiene para capturar el valor
+     * final.</li>
+     * <li>Filas con número vacío se ignoran.</li>
+     * <li>Etiqueta vacía se normaliza como null.</li>
+     * </ul>
+     *
+     * @return lista de teléfonos obtenida desde la tabla
+     */
     private List<Telefono> obtenerTelefonosDesdeTabla() {
 
         List<Telefono> lista = new ArrayList<>();
 
-        // IMPORTANTE: detener edición activa si la hay
         if (tabla.isEditing()) {
             tabla.getCellEditor().stopCellEditing();
         }
@@ -418,7 +686,7 @@ public class PantallaAdministrarTelefonosCliente extends JFrame {
             String etiqueta = etqObj == null ? null : etqObj.toString().trim();
 
             if (numero.isEmpty()) {
-                continue; // ignorar filas vacías
+                continue;
             }
 
             Telefono t = new Telefono();

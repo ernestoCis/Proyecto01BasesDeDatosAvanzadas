@@ -5,20 +5,79 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.time.format.DateTimeFormatter;
-import negocio.BOs.iClienteBO;
-import negocio.BOs.iCuponBO;
-import negocio.BOs.iPedidoBO;
-import negocio.BOs.iProductoBO;
-import negocio.BOs.iUsuarioBO;
 
+/**
+ * <h1>PantallaPedidoProgramadoRealizado</h1>
+ *
+ * <p>
+ * Pantalla de confirmación que muestra el <b>resumen</b> de un
+ * {@link PedidoProgramado} después de ser registrado correctamente.
+ * </p>
+ *
+ * <p>
+ * La UI presenta:
+ * </p>
+ * <ul>
+ * <li>Título principal "Panadería" y subtítulo de confirmación.</li>
+ * <li>Cajas informativas con:
+ * <ul>
+ * <li>Número de pedido</li>
+ * <li>Estado</li>
+ * <li>Total</li>
+ * <li>Método de pago</li>
+ * <li>Fecha de creación</li>
+ * </ul>
+ * </li>
+ * <li>Botón "Listo" para regresar al {@link Menu}.</li>
+ * <li>Footer informativo.</li>
+ * </ul>
+ *
+ * <h2>Origen de la información</h2>
+ * <p>
+ * Los datos mostrados se obtienen directamente del objeto
+ * {@link PedidoProgramado} recibido como parámetro (por ejemplo {@code getNumeroPedido()}, {@code getEstado()}, {@code getTotal()},
+ * {@code getMetodoPago()} y {@code getFechaCreacion()}).
+ * </p>
+ *
+ * <h2>Navegación</h2>
+ * <p>
+ * Al presionar "Listo" se abre {@link Menu} utilizando el {@link AppContext} y
+ * se cierra esta ventana con {@link #dispose()}.
+ * </p>
+ *
+ * @author
+ */
 public class PantallaPedidoProgramadoRealizado extends JFrame {
 
+    /**
+     * Label que muestra el número del pedido (Num. de pedido).
+     */
     private JLabel lblNumPedido;
+
+    /**
+     * Label que muestra el estado actual del pedido.
+     */
     private JLabel lblEstado;
+
+    /**
+     * Label que muestra el total del pedido.
+     */
     private JLabel lblTotal;
+
+    /**
+     * Label que muestra la fecha del pedido (formateada).
+     */
     private JLabel lblFecha;
+
+    /**
+     * Label que muestra el método de pago del pedido.
+     */
     private JLabel lblMetodoPago;
 
+    /**
+     * Contexto global de la aplicación; permite navegación y acceso a estado
+     * compartido.
+     */
     private final AppContext ctx;
 
     /**
@@ -129,6 +188,15 @@ public class PantallaPedidoProgramadoRealizado extends JFrame {
         card.add(footerPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * <p>
+     * Crea un {@link JLabel} centrado con estilo estándar para el texto dentro
+     * de las cajas.
+     * </p>
+     *
+     * @param text texto a mostrar
+     * @return label configurado
+     */
     private JLabel crearCajaTexto(String text) {
         JLabel l = new JLabel(text, SwingConstants.CENTER);
         l.setFont(new Font("Segoe UI", Font.PLAIN, 16));
@@ -136,6 +204,15 @@ public class PantallaPedidoProgramadoRealizado extends JFrame {
         return l;
     }
 
+    /**
+     * <p>
+     * Envuelve un {@link JLabel} dentro de un panel con fondo gris, borde y
+     * tamaño fijo, simulando una "caja" de información.
+     * </p>
+     *
+     * @param label label a insertar en la caja
+     * @return panel con estilo de caja
+     */
     private JPanel wrapCaja(JLabel label) {
         JPanel box = new JPanel(new BorderLayout());
         box.setBackground(new Color(245, 245, 245));

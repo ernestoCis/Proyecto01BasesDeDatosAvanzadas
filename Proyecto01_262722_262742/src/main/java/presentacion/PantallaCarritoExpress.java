@@ -12,18 +12,104 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.util.List;
 
+/**
+ * <h1>PantallaCarritoExpress</h1>
+ *
+ * <p>
+ * Pantalla que muestra el <b>carrito de compras</b> para el flujo de <b>pedido
+ * EXPRESS</b>.
+ * </p>
+ *
+ * <p>
+ * Visualiza una tabla con los productos agregados al carrito, mostrando:
+ * </p>
+ *
+ * <ul>
+ * <li><b>Producto</b></li>
+ * <li><b>Precio por pieza</b></li>
+ * <li><b>Cantidad</b></li>
+ * <li><b>Subtotal</b> (precio * cantidad)</li>
+ * <li><b>Acción</b> para eliminar el elemento</li>
+ * </ul>
+ *
+ * <p>
+ * También calcula y muestra el <b>total</b> del carrito y permite continuar al
+ * proceso de confirmación del pedido express abriendo
+ * {@code PantallaConfirmarPedidoExpress}.
+ * </p>
+ *
+ * <h2>Notas del flujo express</h2>
+ * <ul>
+ * <li>Se regresa al catálogo express con la flecha.</li>
+ * <li>Si el carrito está vacío, no permite continuar.</li>
+ * <li>La acción de eliminar se ejecuta desde un botón incrustado en la
+ * tabla.</li>
+ * </ul>
+ *
+ * @author 262722, 2627242
+ */
 public class PantallaCarritoExpress extends JFrame {
 
+    /**
+     * Tabla que muestra los items del carrito.
+     */
     private JTable tabla;
+
+    /**
+     * Modelo de la tabla para administrar filas.
+     */
     private DefaultTableModel modelo;
+
+    /**
+     * Etiqueta donde se muestra el total calculado del carrito.
+     */
     private JLabel lblTotal;
 
+    /**
+     * Referencia a la pantalla de catálogo express para regresar.
+     */
     private PantallaCatalogoExpress pantallaCatalogo;
+
+    /**
+     * Lista de elementos del carrito (producto + cantidad).
+     */
     private final List<ItemCarrito> carrito;
 
+    /**
+     * Contexto global de la aplicación; provee acceso a BOs y sesión.
+     */
     private final AppContext ctx;
+
+    /**
+     * Cliente actual tomado desde el contexto (puede ser null en flujo
+     * express).
+     */
     private final Cliente cliente;
 
+    /**
+     * <p>
+     * Constructor del carrito express.
+     * </p>
+     *
+     * <p>
+     * Inicializa la interfaz completa:
+     * </p>
+     * <ul>
+     * <li>Marco beige y tarjeta blanca</li>
+     * <li>Encabezado con título y etiqueta "EXPRESS"</li>
+     * <li>Tabla con botón "Eliminar"</li>
+     * <li>Total y botón "Continuar"</li>
+     * </ul>
+     *
+     * <p>
+     * Al presionar "Continuar" se valida que el carrito no esté vacío y se abre
+     * {@code PantallaConfirmarPedidoExpress}.
+     * </p>
+     *
+     * @param pantallaCatalogo pantalla de catálogo express para regresar
+     * @param carrito lista de items actualmente agregados
+     * @param ctx contexto global de la aplicación
+     */
     public PantallaCarritoExpress(PantallaCatalogoExpress pantallaCatalogo, List<ItemCarrito> carrito, AppContext ctx) {
         this.pantallaCatalogo = pantallaCatalogo;
         this.carrito = carrito;
@@ -36,12 +122,16 @@ public class PantallaCarritoExpress extends JFrame {
         setSize(920, 600);
         setLocationRelativeTo(null);
 
+        // ======================
         // Fondo beige (marco)
+        // ======================
         JPanel root = new JPanel(new GridBagLayout());
         root.setBackground(new Color(214, 186, 150));
         setContentPane(root);
 
+        // ======================
         // Tarjeta blanca con borde
+        // ======================
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(Color.WHITE);
         card.setBorder(new CompoundBorder(
@@ -51,10 +141,15 @@ public class PantallaCarritoExpress extends JFrame {
         card.setPreferredSize(new Dimension(860, 520));
         root.add(card);
 
-        // ----- parte de arriba -----
+        // ======================
+        // Parte superior (back + título)
+        // ======================
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setOpaque(false);
 
+        /**
+         * Botón flecha para regresar a {@link PantallaCatalogoExpress}.
+         */
         JButton btnFlecha = new JButton("←");
         btnFlecha.setFocusPainted(false);
         btnFlecha.setBorderPainted(false);
@@ -72,7 +167,6 @@ public class PantallaCarritoExpress extends JFrame {
 
         topBar.add(panelIzq, BorderLayout.WEST);
 
-        // ----- titulo -----
         JPanel header = new JPanel();
         header.setOpaque(false);
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
@@ -106,9 +200,14 @@ public class PantallaCarritoExpress extends JFrame {
 
         card.add(north, BorderLayout.NORTH);
 
-        //----- tabla -----
+        // ======================
+        // Tabla
+        // ======================
         String[] cols = {"Producto", "Precio pz.", "Cantidad", "Subtotal", ""};
 
+        /**
+         * Modelo donde solo la columna de acción (última) es editable.
+         */
         modelo = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -122,18 +221,21 @@ public class PantallaCarritoExpress extends JFrame {
         tabla.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
         tabla.getTableHeader().setReorderingAllowed(false);
 
-        // Centrados para precio/subtotal/cantidad
+        /**
+         * Centrado para columnas numéricas.
+         */
         DefaultTableCellRenderer center = new DefaultTableCellRenderer();
         center.setHorizontalAlignment(SwingConstants.CENTER);
         tabla.getColumnModel().getColumn(1).setCellRenderer(center);
         tabla.getColumnModel().getColumn(2).setCellRenderer(center);
         tabla.getColumnModel().getColumn(3).setCellRenderer(center);
 
-        // Columna botón Eliminar
+        /**
+         * Renderer/Editor para botón eliminar dentro de la tabla.
+         */
         tabla.getColumnModel().getColumn(4).setCellRenderer(new ButtonRenderer());
         tabla.getColumnModel().getColumn(4).setCellEditor(new ButtonEditor(new JCheckBox()));
 
-        // Anchos parecidos
         tabla.getColumnModel().getColumn(0).setPreferredWidth(260);
         tabla.getColumnModel().getColumn(1).setPreferredWidth(90);
         tabla.getColumnModel().getColumn(2).setPreferredWidth(110);
@@ -163,13 +265,15 @@ public class PantallaCarritoExpress extends JFrame {
 
         card.add(centro, BorderLayout.CENTER);
 
-        //----- total y continuar -----
+        // ======================
+        // Total + Continuar
+        // ======================
         JPanel south = new JPanel(new BorderLayout());
         south.setOpaque(false);
 
-        // Total en “cajita” alineada a la derecha
         JPanel panelTotal = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         panelTotal.setOpaque(false);
+
         lblTotal = new JLabel();
         lblTotal.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         actualizarTotal();
@@ -183,7 +287,6 @@ public class PantallaCarritoExpress extends JFrame {
 
         panelTotal.add(cajaTotal);
 
-        // Botón continuar centrado
         JButton btnContinuar = new JButton("Continuar");
         btnContinuar.setPreferredSize(new Dimension(180, 34));
         btnContinuar.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -192,6 +295,10 @@ public class PantallaCarritoExpress extends JFrame {
         btnContinuar.setBorder(new LineBorder(new Color(60, 60, 60), 2));
         btnContinuar.setBackground(new Color(245, 245, 245));
 
+        /**
+         * Continúa al flujo de confirmación del pedido express. Si el carrito
+         * está vacío, muestra aviso y no avanza.
+         */
         btnContinuar.addActionListener(e -> {
             if (carrito == null || carrito.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Tu carrito está vacío.", "Aviso", JOptionPane.WARNING_MESSAGE);
@@ -206,7 +313,9 @@ public class PantallaCarritoExpress extends JFrame {
         panelBtn.setOpaque(false);
         panelBtn.add(btnContinuar);
 
+        // ======================
         // Footer
+        // ======================
         JLabel footer = new JLabel("© 2026 Panadería. Todos los derechos reservados.");
         footer.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         footer.setForeground(new Color(80, 80, 80));
@@ -225,10 +334,17 @@ public class PantallaCarritoExpress extends JFrame {
         south.add(stackSouth, BorderLayout.CENTER);
         card.add(south, BorderLayout.SOUTH);
 
+        // ======================
+        // Carga inicial
+        // ======================
         cargarTabla();
         actualizarTotal();
     }
 
+    /**
+     * Calcula el total del carrito sumando precio * cantidad de cada item y lo
+     * muestra en {@link #lblTotal}.
+     */
     private void actualizarTotal() {
         float total = 0;
         for (ItemCarrito it : carrito) {
@@ -237,9 +353,18 @@ public class PantallaCarritoExpress extends JFrame {
         lblTotal.setText("Total: $" + Math.round(total));
     }
 
-    // ----- estilos para el boton eliminar -----
+    // ======================
+    // Estilos para el botón eliminar
+    // ======================
+    /**
+     * Renderer de la celda que muestra el botón "Eliminar". Solo representa
+     * visualmente el componente (no maneja eventos).
+     */
     private class ButtonRenderer extends JButton implements TableCellRenderer {
 
+        /**
+         * Configura el botón visual con estilo uniforme.
+         */
         public ButtonRenderer() {
             setOpaque(true);
             setText("Eliminar");
@@ -257,11 +382,27 @@ public class PantallaCarritoExpress extends JFrame {
         }
     }
 
+    /**
+     * Editor de la columna de acción que ejecuta el eliminado del item.
+     * Actualiza la tabla y el total inmediatamente después del borrado.
+     */
     private class ButtonEditor extends DefaultCellEditor {
 
+        /**
+         * Botón mostrado durante la edición de la celda.
+         */
         private final JButton button;
+
+        /**
+         * Fila actualmente seleccionada/editada.
+         */
         private int row;
 
+        /**
+         * Constructor del editor.
+         *
+         * @param checkBox checkbox requerido por {@link DefaultCellEditor}
+         */
         public ButtonEditor(JCheckBox checkBox) {
             super(checkBox);
             button = new JButton("Eliminar");
@@ -273,15 +414,11 @@ public class PantallaCarritoExpress extends JFrame {
             button.addActionListener(e -> {
                 if (row >= 0 && row < modelo.getRowCount()) {
 
-                    // 1) Eliminar también de la lista
                     if (row >= 0 && row < carrito.size()) {
                         carrito.remove(row);
                     }
 
-                    // 2) Recargar tabla (ya con lista actual)
                     cargarTabla();
-
-                    // 3) Actualizar total
                     actualizarTotal();
                 }
                 fireEditingStopped();
@@ -301,6 +438,10 @@ public class PantallaCarritoExpress extends JFrame {
         }
     }
 
+    /**
+     * Carga la tabla con el contenido actual del carrito. Por cada item calcula
+     * el subtotal y agrega una fila.
+     */
     private void cargarTabla() {
         modelo.setRowCount(0);
 

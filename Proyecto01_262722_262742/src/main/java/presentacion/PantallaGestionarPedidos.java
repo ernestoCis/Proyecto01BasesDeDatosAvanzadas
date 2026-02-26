@@ -15,25 +15,113 @@ import java.util.List;
 import negocio.Excepciones.NegocioException;
 
 /**
- * Pantalla para que el empleado gestione pedidos. - Muestra todos los pedidos
- * (programados y express). - Permite cambiar estado (Listo / Entregado /
- * Cancelado) según el estado actual. - Cuando se intenta marcar "Entregado" en
- * un pedido express, se pide el PIN y se valida.
+ * <h1>PantallaGestionarPedidos</h1>
+ *
+ * <p>
+ * Pantalla para que el <b>empleado</b> gestione pedidos (programados y
+ * express).
+ * </p>
+ *
+ * <p>
+ * Funcionalidades principales:
+ * </p>
+ * <ul>
+ * <li>Muestra una lista de pedidos en formato <b>cards</b> dentro de un
+ * {@link JScrollPane}.</li>
+ * <li>Permite filtrar por <b>Folio</b>, <b>Teléfono</b> o <b>Rango de
+ * fechas</b>, además de la vista <b>Todos</b>.</li>
+ * <li>Permite cambiar el {@link EstadoPedido} (Listo / Entregado / Cancelado)
+ * según el estado actual.</li>
+ * <li>Cuando se intenta marcar <b>Entregado</b> un {@link PedidoExpress},
+ * solicita el <b>PIN</b> y lo valida con la capa de negocio.</li>
+ * </ul>
+ *
+ * <h2>Carga de datos</h2>
+ * <p>
+ * La pantalla obtiene los pedidos mediante
+ * {@code ctx.getPedidoBO().listarPedidos()} y, al filtrar, utiliza
+ * {@code ctx.getPedidoBO().listarPedidosFiltro(...)}.
+ * </p>
+ *
+ * <h2>Validación de entrega Express</h2>
+ * <p>
+ * Si el pedido es {@link PedidoExpress} y el nuevo estado es
+ * {@link EstadoPedido#Entregado}, se solicita un PIN con
+ * {@link JOptionPane#showInputDialog(java.awt.Component, java.lang.Object, java.lang.String, int)}
+ * y se valida mediante
+ * {@code ctx.getPedidoBO().entregarPedidoExpressConPin(pedido.getId(), pinCapturado)}.
+ * </p>
  *
  * @author Isaac
  */
 public class PantallaGestionarPedidos extends JFrame {
 
+    /**
+     * Contexto global de la aplicación; permite acceder a BOs y estado de
+     * sesión.
+     */
     private final AppContext ctx;
 
+    /**
+     * Panel contenedor donde se renderizan las cards de pedidos.
+     */
     private JPanel listaCards;
+
+    /**
+     * Scroll que envuelve {@link #listaCards} para permitir desplazamiento
+     * vertical.
+     */
     private JScrollPane scroll;
+
+    /**
+     * ComboBox para seleccionar el modo de filtrado (Todos, Folio, Teléfono,
+     * Rango de fechas).
+     */
     private JComboBox<String> cbFiltro;
+
+    /**
+     * Campo de texto para capturar el folio al filtrar.
+     */
     private JTextField txtFolio;
+
+    /**
+     * Campo de texto para capturar el teléfono del cliente al filtrar.
+     */
     private JTextField txtTelefono;
+
+    /**
+     * Campo de texto para capturar la fecha "Desde" al filtrar por rango.
+     */
     private JTextField txtDesde;
+
+    /**
+     * Campo de texto para capturar la fecha "Hasta" al filtrar por rango.
+     */
     private JTextField txtHasta;
 
+    /**
+     * <p>
+     * Constructor de la pantalla de gestión de pedidos.
+     * </p>
+     *
+     * <p>
+     * Construye la interfaz con:
+     * </p>
+     * <ul>
+     * <li>Fondo beige y tarjeta blanca con borde.</li>
+     * <li>Barra superior con botón de regreso a {@link MenuEmpleado}.</li>
+     * <li>Encabezado con títulos.</li>
+     * <li>Panel de filtros construido por {@link #crearPanelFiltros()}.</li>
+     * <li>Listado de pedidos en cards dentro de {@link #scroll}.</li>
+     * <li>Footer informativo.</li>
+     * </ul>
+     *
+     * <p>
+     * Finalmente invoca {@link #refrescar()} para pintar los pedidos.
+     * </p>
+     *
+     * @param ctx contexto global de la aplicación
+     */
     public PantallaGestionarPedidos(AppContext ctx) {
         this.ctx = ctx;
 
@@ -69,6 +157,10 @@ public class PantallaGestionarPedidos extends JFrame {
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setOpaque(false);
 
+        /**
+         * Botón de regreso; abre {@link MenuEmpleado} y cierra la pantalla
+         * actual.
+         */
         JButton btnBack = new JButton("←");
         btnBack.setFocusPainted(false);
         btnBack.setBorderPainted(false);
@@ -131,6 +223,21 @@ public class PantallaGestionarPedidos extends JFrame {
         refrescar();
     }
 
+    /**
+     * <p>
+     * Recarga la lista completa de pedidos (sin filtros) y repinta las cards.
+     * </p>
+     *
+     * <p>
+     * Obtiene la información mediante
+     * {@code ctx.getPedidoBO().listarPedidos()}. Si no hay pedidos, muestra un
+     * mensaje informativo.
+     * </p>
+     *
+     * <p>
+     * En caso de error de negocio, muestra un {@link JOptionPane}.
+     * </p>
+     */
     private void refrescar() {
         listaCards.removeAll();
 
@@ -164,141 +271,182 @@ public class PantallaGestionarPedidos extends JFrame {
         listaCards.repaint();
     }
 
-private JPanel construirCardPedido(Pedido pedido, int numeroVisual) {
+    /**
+     * <p>
+     * Construye una card visual para un pedido específico.
+     * </p>
+     *
+     * <p>
+     * La card incluye:
+     * </p>
+     * <ul>
+     * <li>Título "Pedido #n" y etiqueta <b>EXPRESS</b> si aplica.</li>
+     * <li>Información de tipo, cliente, folio (solo express), número, estado y
+     * cupón (solo programado).</li>
+     * <li>Fechas de creación/entrega y método de pago.</li>
+     * <li>Total del pedido.</li>
+     * <li>Botones de acción según el {@link EstadoPedido} actual.</li>
+     * </ul>
+     *
+     * @param pedido pedido a renderizar
+     * @param numeroVisual número consecutivo mostrado en la card (no
+     * necesariamente el número de pedido real)
+     * @return panel completo de la card
+     */
+    private JPanel construirCardPedido(Pedido pedido, int numeroVisual) {
 
-    JPanel cont = new JPanel(new BorderLayout(10, 0));
-    cont.setOpaque(true);
-    cont.setBackground(new Color(245, 245, 245));
-    cont.setBorder(new LineBorder(new Color(60, 60, 60), 2));
-    cont.setMaximumSize(new Dimension(Integer.MAX_VALUE, 170));
-    cont.setPreferredSize(new Dimension(1020, 170));
+        JPanel cont = new JPanel(new BorderLayout(10, 0));
+        cont.setOpaque(true);
+        cont.setBackground(new Color(245, 245, 245));
+        cont.setBorder(new LineBorder(new Color(60, 60, 60), 2));
+        cont.setMaximumSize(new Dimension(Integer.MAX_VALUE, 170));
+        cont.setPreferredSize(new Dimension(1020, 170));
 
-    JPanel izq = new JPanel();
-    izq.setOpaque(false);
-    izq.setBorder(new EmptyBorder(10, 10, 10, 10));
-    izq.setLayout(new BoxLayout(izq, BoxLayout.Y_AXIS));
+        JPanel izq = new JPanel();
+        izq.setOpaque(false);
+        izq.setBorder(new EmptyBorder(10, 10, 10, 10));
+        izq.setLayout(new BoxLayout(izq, BoxLayout.Y_AXIS));
 
-    JLabel lblPedido = new JLabel("Pedido #" + numeroVisual);
-    lblPedido.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        JLabel lblPedido = new JLabel("Pedido #" + numeroVisual);
+        lblPedido.setFont(new Font("Segoe UI", Font.BOLD, 15));
 
-    if (pedido instanceof PedidoExpress) {
-        JLabel lblExpress = new JLabel("EXPRESS");
-        lblExpress.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblExpress.setForeground(new Color(200, 0, 0));
+        if (pedido instanceof PedidoExpress) {
+            JLabel lblExpress = new JLabel("EXPRESS");
+            lblExpress.setFont(new Font("Segoe UI", Font.BOLD, 13));
+            lblExpress.setForeground(new Color(200, 0, 0));
 
-        JPanel filaTitulo = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        filaTitulo.setOpaque(false);
-        filaTitulo.add(lblPedido);
-        filaTitulo.add(lblExpress);
-        izq.add(filaTitulo);
-    } else {
-        izq.add(lblPedido);
+            JPanel filaTitulo = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+            filaTitulo.setOpaque(false);
+            filaTitulo.add(lblPedido);
+            filaTitulo.add(lblExpress);
+            izq.add(filaTitulo);
+        } else {
+            izq.add(lblPedido);
+        }
+
+        izq.add(Box.createVerticalStrut(6));
+
+        String tipo = (pedido instanceof PedidoExpress) ? "Express" : "Programado";
+        izq.add(lblInfo("Tipo: " + tipo));
+
+        Cliente c = pedido.getCliente();
+        if (c != null) {
+            izq.add(lblInfo("Cliente: " + nombreCliente(c)));
+        } else {
+            izq.add(lblInfo("Cliente: N/A"));
+        }
+
+        if (pedido instanceof PedidoExpress pe) {
+            izq.add(lblInfo("Folio: " + safe(pe.getFolio())));
+        }
+
+        izq.add(lblInfo("No. pedido: " + pedido.getNumeroPedido()));
+        izq.add(lblInfo("Estado: " + mostrarEnumBonito(pedido.getEstado())));
+
+        if (pedido instanceof PedidoProgramado pp) {
+            izq.add(lblInfo("Cupón: " + (pp.getCupon() == null ? "N/A" : ("#" + pp.getCupon().getId()))));
+        }
+
+        JPanel centro = new JPanel(new GridBagLayout());
+        centro.setOpaque(false);
+        centro.setBorder(new EmptyBorder(18, 0, 10, 0));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(6, 0, 6, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yy  HH:mm");
+
+        String fechaCreacion = (pedido.getFechaCreacion() != null) ? pedido.getFechaCreacion().format(fmt) : "N/A";
+        String fechaEntrega = (pedido.getFechaEntrega() != null) ? pedido.getFechaEntrega().format(fmt) : "N/A";
+
+        MetodoPago mp = pedido.getMetodoPago();
+        String metodoPago = (mp != null) ? mp.toString() : "N/A";
+
+        JPanel fila1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        fila1.setOpaque(false);
+        fila1.add(lblInfo("Creación: " + fechaCreacion));
+        centro.add(fila1, gbc);
+        gbc.gridy++;
+
+        JPanel fila2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        fila2.setOpaque(false);
+        fila2.add(lblInfo("Entrega: " + fechaEntrega));
+        centro.add(fila2, gbc);
+        gbc.gridy++;
+
+        JPanel fila3 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        fila3.setOpaque(false);
+        fila3.add(lblInfo("Método de pago: " + metodoPago));
+        centro.add(fila3, gbc);
+        gbc.gridy++;
+
+        JPanel fila4 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        fila4.setOpaque(false);
+        JLabel lblTotal = new JLabel("Total: $" + Math.round(pedido.getTotal()));
+        lblTotal.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        fila4.add(lblTotal);
+        centro.add(fila4, gbc);
+
+        JPanel der = new JPanel();
+        der.setOpaque(false);
+        der.setBorder(new EmptyBorder(10, 10, 10, 10));
+        der.setPreferredSize(new Dimension(160, 170));
+        der.setLayout(new BoxLayout(der, BoxLayout.Y_AXIS));
+
+        EstadoPedido estado = pedido.getEstado();
+
+        if (estado == EstadoPedido.Pendiente) {
+
+            der.add(crearBotonAccion("Listo", () -> cambiarEstado(pedido, EstadoPedido.Listo)));
+            der.add(Box.createVerticalStrut(10));
+            der.add(crearBotonAccion("Entregado", () -> cambiarEstado(pedido, EstadoPedido.Entregado)));
+            der.add(Box.createVerticalStrut(10));
+            der.add(crearBotonAccion("Cancelar", () -> cambiarEstado(pedido, EstadoPedido.Cancelado)));
+
+        } else if (estado == EstadoPedido.Listo) {
+
+            der.add(crearBotonAccion("Entregado", () -> cambiarEstado(pedido, EstadoPedido.Entregado)));
+            der.add(Box.createVerticalStrut(10));
+            der.add(crearBotonAccion("Cancelar", () -> cambiarEstado(pedido, EstadoPedido.Cancelado)));
+
+        } else {
+            JLabel sin = new JLabel(" ");
+            der.add(sin);
+        }
+
+        JPanel wrapIzq = new JPanel(new FlowLayout(FlowLayout.LEFT, 35, 0));
+        wrapIzq.setOpaque(false);
+        wrapIzq.add(izq);
+
+        cont.add(wrapIzq, BorderLayout.WEST);
+        cont.add(centro, BorderLayout.CENTER);
+        cont.add(der, BorderLayout.EAST);
+
+        return cont;
     }
 
-    izq.add(Box.createVerticalStrut(6));
-
-    String tipo = (pedido instanceof PedidoExpress) ? "Express" : "Programado";
-    izq.add(lblInfo("Tipo: " + tipo));
-
-    Cliente c = pedido.getCliente();
-    if (c != null) {
-        izq.add(lblInfo("Cliente: " + nombreCliente(c)));
-    } else {
-        izq.add(lblInfo("Cliente: N/A"));
-    }
-
-    if (pedido instanceof PedidoExpress pe) {
-        izq.add(lblInfo("Folio: " + safe(pe.getFolio())));
-    }
-
-    izq.add(lblInfo("No. pedido: " + pedido.getNumeroPedido()));
-    izq.add(lblInfo("Estado: " + mostrarEnumBonito(pedido.getEstado())));
-
-    if (pedido instanceof PedidoProgramado pp) {
-        izq.add(lblInfo("Cupón: " + (pp.getCupon() == null ? "N/A" : ("#" + pp.getCupon().getId()))));
-    }
-
-    JPanel centro = new JPanel(new GridBagLayout());
-    centro.setOpaque(false);
-    centro.setBorder(new EmptyBorder(18, 0, 10, 0));
-
-    GridBagConstraints gbc = new GridBagConstraints();
-    gbc.anchor = GridBagConstraints.WEST;
-    gbc.insets = new Insets(6, 0, 6, 0);
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-
-    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yy  HH:mm");
-
-    String fechaCreacion = (pedido.getFechaCreacion() != null) ? pedido.getFechaCreacion().format(fmt) : "N/A";
-    String fechaEntrega = (pedido.getFechaEntrega() != null) ? pedido.getFechaEntrega().format(fmt) : "N/A";
-
-    MetodoPago mp = pedido.getMetodoPago();
-    String metodoPago = (mp != null) ? mp.toString() : "N/A";
-
-    JPanel fila1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-    fila1.setOpaque(false);
-    fila1.add(lblInfo("Creación: " + fechaCreacion));
-    centro.add(fila1, gbc);
-    gbc.gridy++;
-
-    JPanel fila2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-    fila2.setOpaque(false);
-    fila2.add(lblInfo("Entrega: " + fechaEntrega));
-    centro.add(fila2, gbc);
-    gbc.gridy++;
-
-    JPanel fila3 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-    fila3.setOpaque(false);
-    fila3.add(lblInfo("Método de pago: " + metodoPago));
-    centro.add(fila3, gbc);
-    gbc.gridy++;
-
-    JPanel fila4 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-    fila4.setOpaque(false);
-    JLabel lblTotal = new JLabel("Total: $" + Math.round(pedido.getTotal()));
-    lblTotal.setFont(new Font("Segoe UI", Font.BOLD, 16));
-    fila4.add(lblTotal);
-    centro.add(fila4, gbc);
-
-    JPanel der = new JPanel();
-    der.setOpaque(false);
-    der.setBorder(new EmptyBorder(10, 10, 10, 10));
-    der.setPreferredSize(new Dimension(160, 170));
-    der.setLayout(new BoxLayout(der, BoxLayout.Y_AXIS));
-
-    EstadoPedido estado = pedido.getEstado();
-
-    if (estado == EstadoPedido.Pendiente) {
-
-        der.add(crearBotonAccion("Listo", () -> cambiarEstado(pedido, EstadoPedido.Listo)));
-        der.add(Box.createVerticalStrut(10));
-        der.add(crearBotonAccion("Entregado", () -> cambiarEstado(pedido, EstadoPedido.Entregado)));
-        der.add(Box.createVerticalStrut(10));
-        der.add(crearBotonAccion("Cancelar", () -> cambiarEstado(pedido, EstadoPedido.Cancelado)));
-
-    } else if (estado == EstadoPedido.Listo) {
-
-        der.add(crearBotonAccion("Entregado", () -> cambiarEstado(pedido, EstadoPedido.Entregado)));
-        der.add(Box.createVerticalStrut(10));
-        der.add(crearBotonAccion("Cancelar", () -> cambiarEstado(pedido, EstadoPedido.Cancelado)));
-
-    } else {
-        JLabel sin = new JLabel(" ");
-        der.add(sin);
-    }
-
-    JPanel wrapIzq = new JPanel(new FlowLayout(FlowLayout.LEFT, 35, 0));
-    wrapIzq.setOpaque(false);
-    wrapIzq.add(izq);
-
-    cont.add(wrapIzq, BorderLayout.WEST);
-    cont.add(centro, BorderLayout.CENTER);
-    cont.add(der, BorderLayout.EAST);
-
-    return cont;
-}
-
+    /**
+     * <p>
+     * Crea el panel superior de filtros (modo + campos + acciones).
+     * </p>
+     *
+     * <p>
+     * Incluye:
+     * </p>
+     * <ul>
+     * <li>{@link #cbFiltro} con modos: Todos, Folio, Teléfono, Rango de
+     * fechas.</li>
+     * <li>Campos de entrada para folio, teléfono y fechas.</li>
+     * <li>Botón Buscar que invoca {@link #refrescarConFiltros()}.</li>
+     * <li>Botón Limpiar que reinicia entradas y llama
+     * {@link #refrescar()}.</li>
+     * </ul>
+     *
+     * @return panel de filtros listo para insertarse en la UI
+     */
     private JPanel crearPanelFiltros() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 0));
         p.setOpaque(false);
@@ -359,6 +507,21 @@ private JPanel construirCardPedido(Pedido pedido, int numeroVisual) {
         return p;
     }
 
+    /**
+     * <p>
+     * Activa y limpia los campos de filtro de acuerdo con el modo seleccionado
+     * en {@link #cbFiltro}.
+     * </p>
+     *
+     * <ul>
+     * <li><b>Todos</b>: habilita todos los campos.</li>
+     * <li><b>Folio</b>: habilita folio y deshabilita/limpia los demás.</li>
+     * <li><b>Teléfono</b>: habilita teléfono y deshabilita/limpia los
+     * demás.</li>
+     * <li><b>Rango de fechas</b>: habilita desde/hasta y deshabilita/limpia los
+     * demás.</li>
+     * </ul>
+     */
     private void aplicarModoFiltro() {
         String modo = (String) cbFiltro.getSelectedItem();
         if (modo == null) {
@@ -387,6 +550,28 @@ private JPanel construirCardPedido(Pedido pedido, int numeroVisual) {
         }
     }
 
+    /**
+     * <p>
+     * Ejecuta la búsqueda de pedidos aplicando los filtros capturados en la UI.
+     * </p>
+     *
+     * <p>
+     * Reglas:
+     * </p>
+     * <ul>
+     * <li>Si folio está vacío, se considera {@code null}.</li>
+     * <li>Si teléfono está vacío, se considera {@code null}.</li>
+     * <li>Para fechas, si se usa un valor, se requiere que ambos (Desde/Hasta)
+     * estén presentes.</li>
+     * <li>Si no se proporciona ningún filtro, invoca {@link #refrescar()}.</li>
+     * </ul>
+     *
+     * <p>
+     * Si hay filtros, consulta con
+     * {@code ctx.getPedidoBO().listarPedidosFiltro(folio, telefono, desde, hasta)}
+     * y repinta con {@link #pintarCards(java.util.List)}.
+     * </p>
+     */
     private void refrescarConFiltros() {
         try {
             String folio = txtFolio.getText().trim();
@@ -435,6 +620,18 @@ private JPanel construirCardPedido(Pedido pedido, int numeroVisual) {
         }
     }
 
+    /**
+     * <p>
+     * Pinta la lista de cards a partir de una lista de pedidos ya consultada
+     * (filtrada o completa).
+     * </p>
+     *
+     * <p>
+     * Si la lista está vacía, muestra un mensaje informativo.
+     * </p>
+     *
+     * @param pedidos lista de pedidos a renderizar
+     */
     private void pintarCards(List<Pedido> pedidos) {
         listaCards.removeAll();
 
@@ -456,12 +653,32 @@ private JPanel construirCardPedido(Pedido pedido, int numeroVisual) {
         listaCards.repaint();
     }
 
+    /**
+     * Crea un {@link JLabel} estándar para mostrar información dentro de una
+     * card.
+     *
+     * @param txt texto a mostrar
+     * @return label con estilo base (Segoe UI 13)
+     */
     private JLabel lblInfo(String txt) {
         JLabel l = new JLabel(txt);
         l.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         return l;
     }
 
+    /**
+     * <p>
+     * Crea un botón de acción para una card de pedido.
+     * </p>
+     *
+     * <p>
+     * El botón ejecuta {@link Runnable#run()} al hacer click.
+     * </p>
+     *
+     * @param texto texto mostrado en el botón
+     * @param onClick acción a ejecutar al presionar el botón
+     * @return botón configurado para la UI de la pantalla
+     */
     private JButton crearBotonAccion(String texto, Runnable onClick) {
         JButton b = new JButton(texto);
         b.setPreferredSize(new Dimension(120, 32));
@@ -479,6 +696,37 @@ private JPanel construirCardPedido(Pedido pedido, int numeroVisual) {
         return b;
     }
 
+    /**
+     * <p>
+     * Cambia el estado de un pedido mostrando confirmación al usuario.
+     * </p>
+     *
+     * <p>
+     * Flujo general:
+     * </p>
+     * <ul>
+     * <li>Solicita confirmación con
+     * {@link JOptionPane#showConfirmDialog(java.awt.Component, java.lang.Object, java.lang.String, int)}.</li>
+     * <li>Si se cancela, no realiza cambios.</li>
+     * <li>Si el pedido es {@link PedidoExpress} y se intenta marcar
+     * {@link EstadoPedido#Entregado}:</li>
+     * <li style="list-style-type: none;">
+     * <ul>
+     * <li>Solicita PIN con
+     * {@link JOptionPane#showInputDialog(java.awt.Component, java.lang.Object, java.lang.String, int)}.</li>
+     * <li>Valida el PIN mediante
+     * {@code ctx.getPedidoBO().entregarPedidoExpressConPin(pedido.getId(), pinCapturado)}.</li>
+     * <li>En éxito, invoca {@link #refrescar()}.</li>
+     * </ul>
+     * </li>
+     * <li>Para otros casos, actualiza con
+     * {@code ctx.getPedidoBO().actualizarEstadoPedido(pedido.getId(), nuevoEstado)}
+     * y refresca.</li>
+     * </ul>
+     *
+     * @param pedido pedido a modificar
+     * @param nuevoEstado nuevo estado a asignar
+     */
     private void cambiarEstado(Pedido pedido, EstadoPedido nuevoEstado) {
 
         int r = JOptionPane.showConfirmDialog(
@@ -533,6 +781,13 @@ private JPanel construirCardPedido(Pedido pedido, int numeroVisual) {
         }
     }
 
+    /**
+     * Construye el nombre completo de un cliente usando nombres y apellidos,
+     * con manejo de nulos.
+     *
+     * @param c cliente del cual se obtiene el nombre
+     * @return nombre completo o "N/A" si no hay texto resultante
+     */
     private String nombreCliente(Cliente c) {
         String nom = safe(c.getNombres());
         String ap = safe(c.getApellidoPaterno());
@@ -541,10 +796,28 @@ private JPanel construirCardPedido(Pedido pedido, int numeroVisual) {
         return full.isEmpty() ? "N/A" : full;
     }
 
+    /**
+     * Devuelve una cadena segura (no nula). Si {@code s} es {@code null},
+     * regresa cadena vacía.
+     *
+     * @param s texto de entrada
+     * @return texto no nulo
+     */
     private String safe(String s) {
         return (s == null) ? "" : s;
     }
 
+    /**
+     * Formatea un {@link Enum} para mostrarlo de forma legible en UI.
+     *
+     * <p>
+     * Convierte {@code NAME_WITH_UNDERSCORES} a {@code NAME WITH UNDERSCORES}.
+     * Si el valor es {@code null}, regresa "N/A".
+     * </p>
+     *
+     * @param e enum a mostrar
+     * @return texto formateado para UI
+     */
     private String mostrarEnumBonito(Enum<?> e) {
         if (e == null) {
             return "N/A";

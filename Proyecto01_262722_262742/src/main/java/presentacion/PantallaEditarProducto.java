@@ -4,10 +4,6 @@
  */
 package presentacion;
 
-/**
- *
- * @author Isaac
- */
 import dominio.EstadoProducto;
 import dominio.Producto;
 import dominio.TipoProducto;
@@ -16,20 +12,119 @@ import javax.swing.*;
 import javax.swing.border.*;
 import negocio.Excepciones.NegocioException;
 
+/**
+ * <h1>PantallaEditarProducto</h1>
+ *
+ * <p>
+ * Pantalla administrativa para <b>editar</b> la información de un
+ * {@link Producto} existente.
+ * </p>
+ *
+ * <p>
+ * La UI presenta:
+ * </p>
+ * <ul>
+ * <li>Botón de regreso hacia la pantalla padre
+ * {@link PantallaGestionarProductos}.</li>
+ * <li>Formulario con campos del producto: nombre, precio, descripción, tipo y
+ * estado.</li>
+ * <li>Botones de acción: <b>Cancelar</b> y <b>Guardar</b>.</li>
+ * <li>Footer informativo.</li>
+ * </ul>
+ *
+ * <h2>Carga del producto</h2>
+ * <p>
+ * Al inicializar la pantalla se invoca {@link #cargarProducto()} usando el
+ * {@code idProducto} recibido por parámetro. Si ocurre un error al consultar,
+ * se notifica con un {@link JOptionPane} y se regresa a la pantalla padre.
+ * </p>
+ *
+ * <h2>Guardado</h2>
+ * <p>
+ * Al presionar "Guardar", se actualiza {@link #productoActual} con los valores
+ * del formulario mediante {@link #actualizarProductoDesdeFormulario()}, se
+ * valida la información y finalmente se actualiza el producto en la capa de
+ * negocio con {@code ctx.getProductoBO().actualizarProducto(...)}.
+ * </p>
+ *
+ * @author 262722, 2627242
+ */
 public class PantallaEditarProducto extends JFrame {
 
+    /**
+     * Contexto global de la aplicación; permite acceder a BOs y estado de
+     * sesión.
+     */
     private final AppContext ctx;
+
+    /**
+     * Referencia a la pantalla que abrió esta ventana; se utiliza para regresar
+     * al cancelar o volver.
+     */
     private final PantallaGestionarProductos pantallaPadre;
+
+    /**
+     * Identificador del producto a editar.
+     */
     private final int idProducto;
 
+    /**
+     * Campo para editar el nombre del producto.
+     */
     private JTextField txtNombre;
+
+    /**
+     * Campo para editar el precio del producto.
+     */
     private JTextField txtPrecio;
+
+    /**
+     * Campo para editar la descripción del producto.
+     */
     private JTextField txtDescripcion;
+
+    /**
+     * ComboBox para seleccionar el tipo del producto.
+     */
     private JComboBox<TipoProducto> cbTipo;
+
+    /**
+     * ComboBox para seleccionar el estado del producto.
+     */
     private JComboBox<EstadoProducto> cbEstado;
 
+    /**
+     * Producto actualmente cargado desde la capa de negocio y que será
+     * modificado/actualizado.
+     */
     private Producto productoActual;
 
+    /**
+     * <p>
+     * Constructor de la pantalla para editar un producto.
+     * </p>
+     *
+     * <p>
+     * Construye la interfaz con:
+     * </p>
+     * <ul>
+     * <li>Fondo beige y tarjeta blanca central</li>
+     * <li>Top con flecha para volver</li>
+     * <li>Títulos y formulario en dos columnas</li>
+     * <li>Botones "Cancelar" y "Guardar"</li>
+     * <li>Footer informativo</li>
+     * </ul>
+     *
+     * <p>
+     * Finalmente invoca {@link #cargarProducto()} para consultar y mostrar el
+     * producto real.
+     * </p>
+     *
+     * @param ctx contexto global de la aplicación
+     * @param pantallaPadre pantalla anterior desde la que se invocó esta
+     * ventana
+     * @param idProducto id del producto a editar
+     */
     public PantallaEditarProducto(AppContext ctx, PantallaGestionarProductos pantallaPadre, int idProducto) {
         this.ctx = ctx;
         this.pantallaPadre = pantallaPadre;
@@ -60,6 +155,9 @@ public class PantallaEditarProducto extends JFrame {
         JPanel panelSuperior = new JPanel(new BorderLayout());
         panelSuperior.setOpaque(false);
 
+        /**
+         * Botón para volver a la pantalla padre.
+         */
         JButton btnBack = new JButton("←");
         btnBack.setFocusPainted(false);
         btnBack.setBorderPainted(false);
@@ -113,19 +211,26 @@ public class PantallaEditarProducto extends JFrame {
         configurarCombo(cbEstado);
 
         // Fila 1
-        g.gridx = 0; g.gridy = 0; g.weightx = 1;
+        g.gridx = 0;
+        g.gridy = 0;
+        g.weightx = 1;
         form.add(txtNombre, g);
-        g.gridx = 1; g.gridy = 0;
+        g.gridx = 1;
+        g.gridy = 0;
         form.add(cbTipo, g);
 
         // Fila 2
-        g.gridx = 0; g.gridy = 1;
+        g.gridx = 0;
+        g.gridy = 1;
         form.add(txtPrecio, g);
-        g.gridx = 1; g.gridy = 1;
+        g.gridx = 1;
+        g.gridy = 1;
         form.add(cbEstado, g);
 
         // Fila 3
-        g.gridx = 0; g.gridy = 2; g.gridwidth = 2;
+        g.gridx = 0;
+        g.gridy = 2;
+        g.gridwidth = 2;
         form.add(txtDescripcion, g);
 
         panelCentro.add(form);
@@ -134,7 +239,14 @@ public class PantallaEditarProducto extends JFrame {
         JPanel panelBtns = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 0));
         panelBtns.setOpaque(false);
 
+        /**
+         * Botón para cancelar la edición y volver.
+         */
         JButton btnCancelar = crearBotonMediano("Cancelar");
+
+        /**
+         * Botón para guardar cambios del producto.
+         */
         JButton btnGuardar = crearBotonMediano("Guardar");
 
         panelBtns.add(btnCancelar);
@@ -152,9 +264,20 @@ public class PantallaEditarProducto extends JFrame {
         panelInferior.add(footer, BorderLayout.WEST);
         panelPrincipal.add(panelInferior, BorderLayout.SOUTH);
 
+        /**
+         * Vuelve a la pantalla padre al presionar la flecha.
+         */
         btnBack.addActionListener(e -> volver());
+
+        /**
+         * Cancela la operación y vuelve a la pantalla padre.
+         */
         btnCancelar.addActionListener(e -> volver());
 
+        /**
+         * Guarda cambios del producto. Primero valida y actualiza el objeto en
+         * memoria y después persiste los cambios mediante la capa de negocio.
+         */
         btnGuardar.addActionListener(e -> {
             try {
                 actualizarProductoDesdeFormulario();
@@ -176,6 +299,17 @@ public class PantallaEditarProducto extends JFrame {
         cargarProducto();
     }
 
+    /**
+     * <p>
+     * Consulta el producto real desde la capa de negocio y carga sus valores en
+     * el formulario.
+     * </p>
+     *
+     * <p>
+     * Si la consulta falla, se muestra un mensaje de error y se regresa a la
+     * pantalla padre mediante {@link #volver()}.
+     * </p>
+     */
     private void cargarProducto() {
         try {
             Producto temp = new Producto();
@@ -198,14 +332,35 @@ public class PantallaEditarProducto extends JFrame {
         }
     }
 
+    /**
+     * <p>
+     * Valida y aplica los valores del formulario a {@link #productoActual}.
+     * </p>
+     *
+     * <p>
+     * Reglas de validación:
+     * </p>
+     * <ul>
+     * <li>Nombre, precio y descripción no pueden estar vacíos</li>
+     * <li>Precio debe ser numérico y mayor a 0</li>
+     * </ul>
+     *
+     * @throws NegocioException si alguna validación falla
+     */
     private void actualizarProductoDesdeFormulario() throws NegocioException {
         String nombre = txtNombre.getText() == null ? "" : txtNombre.getText().trim();
         String precioTxt = txtPrecio.getText() == null ? "" : txtPrecio.getText().trim();
         String desc = txtDescripcion.getText() == null ? "" : txtDescripcion.getText().trim();
 
-        if (nombre.isEmpty()) throw new NegocioException("El nombre es obligatorio.");
-        if (precioTxt.isEmpty()) throw new NegocioException("El precio es obligatorio.");
-        if (desc.isEmpty()) throw new NegocioException("La descripción es obligatoria.");
+        if (nombre.isEmpty()) {
+            throw new NegocioException("El nombre es obligatorio.");
+        }
+        if (precioTxt.isEmpty()) {
+            throw new NegocioException("El precio es obligatorio.");
+        }
+        if (desc.isEmpty()) {
+            throw new NegocioException("La descripción es obligatoria.");
+        }
 
         float precio;
         try {
@@ -213,7 +368,9 @@ public class PantallaEditarProducto extends JFrame {
         } catch (NumberFormatException e) {
             throw new NegocioException("El precio debe ser numérico.");
         }
-        if (precio <= 0) throw new NegocioException("El precio debe ser mayor a 0.");
+        if (precio <= 0) {
+            throw new NegocioException("El precio debe ser mayor a 0.");
+        }
 
         productoActual.setNombre(nombre);
         productoActual.setPrecio(precio);
@@ -222,11 +379,24 @@ public class PantallaEditarProducto extends JFrame {
         productoActual.setEstado((EstadoProducto) cbEstado.getSelectedItem());
     }
 
+    /**
+     * <p>
+     * Regresa a la pantalla padre y cierra la ventana actual.
+     * </p>
+     */
     private void volver() {
         pantallaPadre.setVisible(true);
         dispose();
     }
 
+    /**
+     * <p>
+     * Configura el estilo visual estándar de un {@link JTextField} del
+     * formulario.
+     * </p>
+     *
+     * @param t campo a configurar
+     */
     private void configurarCampo(JTextField t) {
         t.setPreferredSize(new Dimension(280, 40));
         t.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -237,6 +407,14 @@ public class PantallaEditarProducto extends JFrame {
         t.setBackground(Color.WHITE);
     }
 
+    /**
+     * <p>
+     * Configura el estilo visual estándar de un {@link JComboBox} del
+     * formulario.
+     * </p>
+     *
+     * @param cb combo a configurar
+     */
     private void configurarCombo(JComboBox<?> cb) {
         cb.setPreferredSize(new Dimension(280, 40));
         cb.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -247,6 +425,15 @@ public class PantallaEditarProducto extends JFrame {
         ));
     }
 
+    /**
+     * <p>
+     * Crea un botón mediano con el estilo visual utilizado en pantallas
+     * administrativas.
+     * </p>
+     *
+     * @param text texto del botón
+     * @return botón configurado con estilo
+     */
     private JButton crearBotonMediano(String text) {
         JButton b = new JButton(text);
         b.setPreferredSize(new Dimension(140, 34));
@@ -261,4 +448,3 @@ public class PantallaEditarProducto extends JFrame {
         return b;
     }
 }
-  

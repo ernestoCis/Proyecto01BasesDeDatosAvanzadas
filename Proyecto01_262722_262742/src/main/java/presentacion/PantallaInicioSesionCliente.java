@@ -4,10 +4,6 @@
  */
 package presentacion;
 
-/**
- *
- * @author
- */
 import dominio.Cliente;
 import dominio.EstadoCliente;
 import javax.swing.*;
@@ -17,14 +13,98 @@ import java.awt.event.MouseEvent;
 import javax.swing.text.JTextComponent;
 import negocio.Excepciones.NegocioException;
 
+/**
+ * <h1>PantallaInicioSesionCliente</h1>
+ *
+ * <p>
+ * Pantalla de <b>inicio de sesión</b> para clientes. Permite capturar usuario y
+ * contraseña, alternar la visibilidad de la contraseña y autenticar al cliente
+ * mediante la capa de negocio.
+ * </p>
+ *
+ * <p>
+ * La UI presenta:
+ * </p>
+ * <ul>
+ * <li>Botón de regreso a {@link Menu}.</li>
+ * <li>Título y subtítulo.</li>
+ * <li>Campo de usuario.</li>
+ * <li>Campo de contraseña con ícono 👁 para mostrar/ocultar.</li>
+ * <li>Botón <b>Iniciar Sesión</b>.</li>
+ * <li>Botón <b>Crear cuenta</b> para abrir {@link PantallaCrearCuenta}.</li>
+ * <li>Footer informativo.</li>
+ * </ul>
+ *
+ * <h2>Autenticación</h2>
+ * <p>
+ * Al presionar <b>Iniciar Sesión</b> se consulta al cliente con
+ * {@code ctx.getClienteBO().consultarCliente(usuario, password)}. Si el cliente
+ * está {@link EstadoCliente#Inactivo}, se muestra un aviso. En caso contrario,
+ * se guarda la sesión con {@code ctx.setClienteActual(cliente)} y se navega a
+ * {@link PantallaSesionIniciadaCliente}.
+ * </p>
+ *
+ * <h2>Mostrar/Ocultar contraseña</h2>
+ * <p>
+ * El ícono 👁 alterna el eco del {@link JPasswordField} usando
+ * {@link #echoDefault} para restaurar el comportamiento original.
+ * </p>
+ *
+ * @author
+ */
 public class PantallaInicioSesionCliente extends JFrame {
 
+    /**
+     * Campo de texto donde se captura el usuario.
+     */
     private JTextField txtUsuario;
+
+    /**
+     * Campo de contraseña donde se captura la contraseña del cliente.
+     */
     private JPasswordField txtContrasena;
+
+    /**
+     * Carácter de eco original del {@link #txtContrasena}, usado para restaurar
+     * el modo oculto.
+     */
     private char echoDefault;
 
+    /**
+     * Contexto global de la aplicación; permite acceder a BOs y estado de
+     * sesión.
+     */
     private final AppContext ctx;
 
+    /**
+     * <p>
+     * Constructor de la pantalla de inicio de sesión para cliente.
+     * </p>
+     *
+     * <p>
+     * Construye la interfaz con:
+     * </p>
+     * <ul>
+     * <li>Fondo beige y tarjeta blanca central.</li>
+     * <li>Botón de regreso.</li>
+     * <li>Campos de usuario y contraseña.</li>
+     * <li>Toggle 👁 para mostrar/ocultar contraseña.</li>
+     * <li>Botones de iniciar sesión y crear cuenta.</li>
+     * <li>Footer informativo.</li>
+     * </ul>
+     *
+     * <p>
+     * Registra los listeners para:
+     * </p>
+     * <ul>
+     * <li>Navegación a {@link Menu} (back).</li>
+     * <li>Autenticación y apertura de {@link PantallaSesionIniciadaCliente}
+     * (iniciar).</li>
+     * <li>Apertura de {@link PantallaCrearCuenta} (crear cuenta).</li>
+     * </ul>
+     *
+     * @param ctx contexto global de la aplicación
+     */
     public PantallaInicioSesionCliente(AppContext ctx) {
         this.ctx = ctx;
 
@@ -60,6 +140,9 @@ public class PantallaInicioSesionCliente extends JFrame {
         panelIzquierdo.setOpaque(false);
         panelIzquierdo.setLayout(new BoxLayout(panelIzquierdo, BoxLayout.Y_AXIS));
 
+        /**
+         * Botón de regreso; abre {@link Menu} y cierra la pantalla actual.
+         */
         JButton btnBack = new JButton("←");
         btnBack.setFocusPainted(false);
         btnBack.setBorderPainted(false);
@@ -103,7 +186,7 @@ public class PantallaInicioSesionCliente extends JFrame {
 
         JPanel passRow = new JPanel(new BorderLayout());
         passRow.setOpaque(false);
-        
+
         passRow.setMinimumSize(new Dimension(280, 42));
         passRow.setPreferredSize(new Dimension(280, 42));
         passRow.setMaximumSize(new Dimension(280, 42));
@@ -113,6 +196,9 @@ public class PantallaInicioSesionCliente extends JFrame {
         configurarCampo(txtContrasena, "Contraseña");
         echoDefault = txtContrasena.getEchoChar();
 
+        /**
+         * Ícono de ojo que alterna la visibilidad de la contraseña.
+         */
         JLabel ojo = new JLabel("👁");
         ojo.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
         ojo.setBorder(new EmptyBorder(0, 8, 0, 8));
@@ -120,6 +206,9 @@ public class PantallaInicioSesionCliente extends JFrame {
 
         // Toggle mostrar/ocultar contraseña
         ojo.addMouseListener(new java.awt.event.MouseAdapter() {
+            /**
+             * Bandera local para controlar el estado de visibilidad.
+             */
             private boolean visible = false;
 
             @Override
@@ -132,7 +221,15 @@ public class PantallaInicioSesionCliente extends JFrame {
         passRow.add(txtContrasena, BorderLayout.CENTER);
         passRow.add(ojo, BorderLayout.EAST);
 
+        /**
+         * Botón que intenta autenticar al cliente y abrir
+         * {@link PantallaSesionIniciadaCliente}.
+         */
         JButton btnIniciar = crearBotonMediano("Iniciar Sesión");
+
+        /**
+         * Botón que navega a {@link PantallaCrearCuenta}.
+         */
         JButton btnCrear = crearBotonMediano("Crear cuenta");
 
         btnIniciar.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -172,10 +269,10 @@ public class PantallaInicioSesionCliente extends JFrame {
                 String password = new String(txtContrasena.getPassword());
 
                 Cliente cliente = ctx.getClienteBO().consultarCliente(usuario, password);
-                
-                if(cliente.getEstado() == EstadoCliente.Inactivo){
+
+                if (cliente.getEstado() == EstadoCliente.Inactivo) {
                     JOptionPane.showMessageDialog(this, "Cliente inactivo");
-                }else{
+                } else {
                     // guardar sesión
                     ctx.setClienteActual(cliente);
 
@@ -193,7 +290,22 @@ public class PantallaInicioSesionCliente extends JFrame {
         });
     }
 
-    private void configurarCampo(JTextComponent  t, String placeholderVisual) {
+    /**
+     * <p>
+     * Configura un campo de entrada con dimensiones, fuente, borde, fondo y
+     * tooltip.
+     * </p>
+     *
+     * <p>
+     * Se utiliza para unificar el estilo entre {@link JTextField} y
+     * {@link JPasswordField}, recibiendo un {@link JTextComponent} como
+     * parámetro.
+     * </p>
+     *
+     * @param t componente de texto a configurar
+     * @param placeholderVisual texto utilizado como tooltip (guía visual)
+     */
+    private void configurarCampo(JTextComponent t, String placeholderVisual) {
         t.setMinimumSize(new Dimension(280, 42));
         t.setPreferredSize(new Dimension(280, 42));
         t.setMaximumSize(new Dimension(280, 42));
@@ -206,6 +318,15 @@ public class PantallaInicioSesionCliente extends JFrame {
         t.setToolTipText(placeholderVisual);
     }
 
+    /**
+     * <p>
+     * Crea un botón con estilo mediano utilizado en la pantalla (misma fuente,
+     * bordes y colores).
+     * </p>
+     *
+     * @param text texto a mostrar en el botón
+     * @return {@link JButton} configurado con el estilo estándar de la UI
+     */
     private JButton crearBotonMediano(String text) {
         JButton b = new JButton(text);
         b.setPreferredSize(new Dimension(150, 28));

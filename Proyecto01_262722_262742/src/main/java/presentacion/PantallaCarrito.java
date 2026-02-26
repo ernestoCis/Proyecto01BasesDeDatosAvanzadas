@@ -8,18 +8,100 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.util.List;
 
-
+/**
+ * <h1>PantallaCarrito</h1>
+ *
+ * <p>
+ * Pantalla que muestra el <b>carrito de compras</b> del cliente.
+ * </p>
+ *
+ * <p>
+ * Presenta una tabla con los productos agregados al carrito, incluyendo:
+ * </p>
+ *
+ * <ul>
+ * <li><b>Producto</b></li>
+ * <li><b>Precio por pieza</b></li>
+ * <li><b>Cantidad</b></li>
+ * <li><b>Subtotal</b> (precio * cantidad)</li>
+ * <li><b>Acción</b> para eliminar el producto</li>
+ * </ul>
+ *
+ * <p>
+ * Además, muestra el <b>total</b> del carrito y permite continuar al proceso de
+ * confirmación del pedido, abriendo la pantalla
+ * {@code PantallaConfirmarPedido}.
+ * </p>
+ *
+ * <h2>Flujo general</h2>
+ * <ol>
+ * <li>Se carga la lista {@code carrito} en la tabla.</li>
+ * <li>Se calcula y muestra el total.</li>
+ * <li>El usuario puede eliminar elementos desde la tabla.</li>
+ * <li>Al presionar "Continuar", se valida que el carrito no esté vacío y se
+ * pasa a confirmar.</li>
+ * </ol>
+ *
+ * <p>
+ * Esta clase trabaja con {@link AppContext} (acceso a negocio) y el
+ * {@link Cliente} (usuario actual que realizará el pedido).
+ * </p>
+ *
+ * @author 262722, 2627242
+ */
 public class PantallaCarrito extends JFrame {
 
+    /**
+     * Tabla que muestra el contenido del carrito.
+     */
     private JTable tabla;
+
+    /**
+     * Modelo asociado a la tabla; permite agregar y limpiar filas.
+     */
     private DefaultTableModel modelo;
+
+    /**
+     * Etiqueta donde se muestra el total calculado del carrito.
+     */
     private JLabel lblTotal;
+
+    /**
+     * Referencia a la pantalla del catálogo para regresar con la flecha.
+     */
     private PantallaCatalogo pantallaCatalogo;
+
+    /**
+     * Lista de elementos del carrito (producto + cantidad). Se utiliza como
+     * fuente de verdad para cargar tabla y calcular el total.
+     */
     private final List<ItemCarrito> carrito;
 
+    /**
+     * Contexto global de la aplicación.
+     */
     private final AppContext ctx;
+
+    /**
+     * Cliente asociado al flujo de compra/pedido.
+     */
     private final Cliente cliente;
 
+    /**
+     * <p>
+     * Constructor de la pantalla del carrito.
+     * </p>
+     *
+     * <p>
+     * Inicializa la UI completa (títulos, tabla, total, botones y footer),
+     * asigna eventos de navegación y carga el contenido inicial.
+     * </p>
+     *
+     * @param pantallaCatalogo pantalla desde la cual se abrió el carrito
+     * @param carrito lista de items actualmente agregados
+     * @param ctx contexto global de la aplicación
+     * @param cliente cliente que realizará el pedido
+     */
     public PantallaCarrito(PantallaCatalogo pantallaCatalogo, List<ItemCarrito> carrito, AppContext ctx, Cliente cliente) {
         this.pantallaCatalogo = pantallaCatalogo;
         this.carrito = carrito;
@@ -32,12 +114,16 @@ public class PantallaCarrito extends JFrame {
         setSize(920, 600);
         setLocationRelativeTo(null);
 
+        // ======================
         // Fondo beige (marco)
+        // ======================
         JPanel root = new JPanel(new GridBagLayout());
         root.setBackground(new Color(214, 186, 150));
         setContentPane(root);
 
-        // Tarjeta blanca con borde
+        // ======================
+        // Tarjeta principal (blanca con borde)
+        // ======================
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(Color.WHITE);
         card.setBorder(new CompoundBorder(
@@ -47,10 +133,15 @@ public class PantallaCarrito extends JFrame {
         card.setPreferredSize(new Dimension(860, 520));
         root.add(card);
 
-        // ----- parte de arriba -----
+        // ======================
+        // Parte superior (back + título)
+        // ======================
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setOpaque(false);
 
+        /**
+         * Botón de regreso hacia el catálogo.
+         */
         JButton btnFlecha = new JButton("←");
         btnFlecha.setFocusPainted(false);
         btnFlecha.setBorderPainted(false);
@@ -68,7 +159,6 @@ public class PantallaCarrito extends JFrame {
 
         topBar.add(panelIzq, BorderLayout.WEST);
 
-        // ----- titulo -----
         JPanel header = new JPanel();
         header.setOpaque(false);
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
@@ -94,9 +184,19 @@ public class PantallaCarrito extends JFrame {
 
         card.add(north, BorderLayout.NORTH);
 
-        //----- tabla -----
+        // ======================
+        // Tabla
+        // ======================
+        /**
+         * Columnas: producto, precio, cantidad, subtotal y acción de
+         * eliminación.
+         */
         String[] cols = {"Producto", "Precio pz.", "Cantidad", "Subtotal", ""};
 
+        /**
+         * Modelo donde solamente la última columna (acción) es editable para
+         * habilitar el editor con botón.
+         */
         modelo = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -110,18 +210,21 @@ public class PantallaCarrito extends JFrame {
         tabla.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
         tabla.getTableHeader().setReorderingAllowed(false);
 
-        // Centrados para precio/subtotal
+        /**
+         * Alineación centrada en columnas numéricas.
+         */
         DefaultTableCellRenderer center = new DefaultTableCellRenderer();
         center.setHorizontalAlignment(SwingConstants.CENTER);
         tabla.getColumnModel().getColumn(1).setCellRenderer(center);
         tabla.getColumnModel().getColumn(2).setCellRenderer(center);
         tabla.getColumnModel().getColumn(3).setCellRenderer(center);
 
-        // Columna botón Eliminar
+        /**
+         * Renderer/Editor para el botón "Eliminar" dentro de la tabla.
+         */
         tabla.getColumnModel().getColumn(4).setCellRenderer(new ButtonRenderer());
         tabla.getColumnModel().getColumn(4).setCellEditor(new ButtonEditor(new JCheckBox()));
 
-        // Anchos parecidos
         tabla.getColumnModel().getColumn(0).setPreferredWidth(260);
         tabla.getColumnModel().getColumn(1).setPreferredWidth(90);
         tabla.getColumnModel().getColumn(2).setPreferredWidth(110);
@@ -151,17 +254,24 @@ public class PantallaCarrito extends JFrame {
 
         card.add(centro, BorderLayout.CENTER);
 
-        //----- total y continuar -----
+        // ======================
+        // Total + Continuar
+        // ======================
         JPanel south = new JPanel(new BorderLayout());
         south.setOpaque(false);
 
-        // Total en “cajita” alineada a la derecha
+        /**
+         * Panel del total (alineado a la derecha).
+         */
         JPanel panelTotal = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         panelTotal.setOpaque(false);
+
         lblTotal = new JLabel();
         lblTotal.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        actualizarTotal();
 
+        /**
+         * Caja visual donde se muestra el total.
+         */
         JPanel cajaTotal = new JPanel(new BorderLayout());
         cajaTotal.setBackground(new Color(245, 245, 245));
         cajaTotal.setBorder(new LineBorder(new Color(60, 60, 60), 1));
@@ -171,7 +281,9 @@ public class PantallaCarrito extends JFrame {
 
         panelTotal.add(cajaTotal);
 
-        // Botón continuar centrado
+        /**
+         * Botón para continuar a la confirmación del pedido.
+         */
         JButton btnContinuar = new JButton("Continuar");
         btnContinuar.setPreferredSize(new Dimension(180, 34));
         btnContinuar.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -180,6 +292,9 @@ public class PantallaCarrito extends JFrame {
         btnContinuar.setBorder(new LineBorder(new Color(60, 60, 60), 2));
         btnContinuar.setBackground(new Color(245, 245, 245));
 
+        /**
+         * Valida carrito no vacío y abre {@code PantallaConfirmarPedido}.
+         */
         btnContinuar.addActionListener(e -> {
             if (carrito == null || carrito.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Tu carrito está vacío.", "Aviso", JOptionPane.WARNING_MESSAGE);
@@ -195,7 +310,9 @@ public class PantallaCarrito extends JFrame {
         panelBtn.setOpaque(false);
         panelBtn.add(btnContinuar);
 
+        // ======================
         // Footer
+        // ======================
         JLabel footer = new JLabel("© 2026 Panadería. Todos los derechos reservados.");
         footer.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         footer.setForeground(new Color(80, 80, 80));
@@ -214,10 +331,19 @@ public class PantallaCarrito extends JFrame {
         south.add(stackSouth, BorderLayout.CENTER);
         card.add(south, BorderLayout.SOUTH);
 
+        // ======================
+        // Carga inicial
+        // ======================
         cargarTabla();
         actualizarTotal();
     }
 
+    /**
+     * <p>
+     * Calcula el total del carrito sumando (precio * cantidad) por cada item, y
+     * lo muestra en {@link #lblTotal}.
+     * </p>
+     */
     private void actualizarTotal() {
         float total = 0;
         for (ItemCarrito it : carrito) {
@@ -226,9 +352,23 @@ public class PantallaCarrito extends JFrame {
         lblTotal.setText("Total: $" + Math.round(total));
     }
 
-    // ----- estilos para el boton eliminar -----
+    // ======================
+    // Estilos para botón eliminar
+    // ======================
+    /**
+     * <p>
+     * Renderer de la columna de acción "Eliminar".
+     * </p>
+     *
+     * <p>
+     * Solo dibuja el botón en la celda, no maneja eventos.
+     * </p>
+     */
     private class ButtonRenderer extends JButton implements TableCellRenderer {
 
+        /**
+         * Construye el botón visual con estilo uniforme.
+         */
         public ButtonRenderer() {
             setOpaque(true);
             setText("Eliminar");
@@ -246,11 +386,39 @@ public class PantallaCarrito extends JFrame {
         }
     }
 
+    /**
+     * <p>
+     * Editor de celda que permite ejecutar la acción de eliminar el item
+     * seleccionado.
+     * </p>
+     *
+     * <p>
+     * Al eliminar:
+     * </p>
+     * <ol>
+     * <li>Se elimina el elemento correspondiente de la lista
+     * {@link #carrito}.</li>
+     * <li>Se recarga la tabla.</li>
+     * <li>Se recalcula el total.</li>
+     * </ol>
+     */
     private class ButtonEditor extends DefaultCellEditor {
 
+        /**
+         * Botón que se muestra mientras la celda está en modo edición.
+         */
         private final JButton button;
+
+        /**
+         * Fila actualmente asociada a la celda editada.
+         */
         private int row;
 
+        /**
+         * Constructor del editor.
+         *
+         * @param checkBox checkbox requerido por {@link DefaultCellEditor}
+         */
         public ButtonEditor(JCheckBox checkBox) {
             super(checkBox);
             button = new JButton("Eliminar");
@@ -262,15 +430,11 @@ public class PantallaCarrito extends JFrame {
             button.addActionListener(e -> {
                 if (row >= 0 && row < modelo.getRowCount()) {
 
-                    // 1) Eliminar también de la lista
                     if (row >= 0 && row < carrito.size()) {
                         carrito.remove(row);
                     }
 
-                    // 2) Recargar tabla (ya con lista actual)
                     cargarTabla();
-
-                    // 3) Actualizar total
                     actualizarTotal();
                 }
                 fireEditingStopped();
@@ -290,6 +454,16 @@ public class PantallaCarrito extends JFrame {
         }
     }
 
+    /**
+     * <p>
+     * Carga la tabla con los elementos actuales del carrito.
+     * </p>
+     *
+     * <p>
+     * Por cada {@link ItemCarrito} se calcula el subtotal y se agrega como
+     * fila.
+     * </p>
+     */
     private void cargarTabla() {
         modelo.setRowCount(0);
 

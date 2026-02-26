@@ -9,37 +9,166 @@ import java.awt.*;
 import java.time.LocalDate;
 import negocio.Excepciones.NegocioException;
 
+/**
+ * <h1>PantallaActualizarCliente</h1>
+ *
+ * <p>
+ * Pantalla gráfica que permite al cliente visualizar y actualizar la
+ * información de su cuenta.
+ * </p>
+ *
+ * <p>
+ * La interfaz está organizada en secciones y utiliza <b>checkboxes</b> para
+ * habilitar o deshabilitar campos específicos, evitando que el usuario
+ * modifique datos accidentalmente.
+ * </p>
+ *
+ * <h2>Secciones principales</h2>
+ * <ul>
+ * <li><b>Datos de acceso</b>: usuario y contraseña.</li>
+ * <li><b>Datos personales</b>: nombres, apellidos y fecha de nacimiento.</li>
+ * <li><b>Dirección</b>: calle, número, colonia y código postal.</li>
+ * </ul>
+ *
+ * <h2>Acciones disponibles</h2>
+ * <ul>
+ * <li><b>Guardar cambios</b>: actualiza únicamente los campos
+ * seleccionados.</li>
+ * <li><b>Consultar historial</b>: abre la pantalla del historial de pedidos del
+ * cliente.</li>
+ * <li><b>Consultar teléfonos</b>: abre la pantalla para administrar teléfonos
+ * del cliente.</li>
+ * <li><b>Desactivar cuenta</b>: cambia el estado del cliente a inactivo y
+ * actualiza en BD.</li>
+ * <li><b>Regresar</b>: vuelve a la pantalla anterior si existe.</li>
+ * </ul>
+ *
+ * <p>
+ * La clase utiliza {@link AppContext} para acceder a la capa de negocio (BO) y
+ * al cliente en sesión.
+ * </p>
+ *
+ * @author 262722, 2627242
+ */
 public class PantallaActualizarCliente extends JFrame {
 
+    /**
+     * Referencia a la pantalla anterior, utilizada para regresar sin perder el
+     * flujo de navegación. Puede ser null si la pantalla fue abierta sin un
+     * padre visible.
+     */
     private final JFrame pantallaAnterior;
+
+    /**
+     * Contexto global de la aplicación, contiene BOs y estado de sesión.
+     */
     private final AppContext ctx;
+
+    /**
+     * Cliente actualmente autenticado al momento de construir la pantalla. Se
+     * toma desde {@link AppContext#getClienteActual()}.
+     */
     private final Cliente clienteActual;
 
-    // Campos
+    // ======================
+    // Campos de acceso
+    // ======================
+    /**
+     * Campo de texto para el usuario (login).
+     */
     private JTextField txtUsuario;
+
+    /**
+     * Campo de contraseña para actualizar la contraseña.
+     */
     private JPasswordField txtContrasenia;
 
+    // ======================
+    // Campos personales
+    // ======================
+    /**
+     * Campo de texto para nombres.
+     */
     private JTextField txtNombres;
+
+    /**
+     * Campo de texto para apellido paterno.
+     */
     private JTextField txtApellidoP;
+
+    /**
+     * Campo de texto para apellido materno.
+     */
     private JTextField txtApellidoM;
 
+    /**
+     * Campos de fecha: día, mes y año.
+     */
     private JTextField txtDia;
     private JTextField txtMes;
     private JTextField txtAnio;
 
+    // ======================
+    // Campos de dirección
+    // ======================
+    /**
+     * Campo de texto para calle.
+     */
     private JTextField txtCalle;
+
+    /**
+     * Campo de texto para número.
+     */
     private JTextField txtNumero;
+
+    /**
+     * Campo de texto para colonia.
+     */
     private JTextField txtColonia;
+
+    /**
+     * Campo de texto para código postal.
+     */
     private JTextField txtCP;
 
-    // Checks
+    // ======================
+    // Checkboxes (habilitan edición)
+    // ======================
+    /**
+     * Checkboxes que controlan qué campos se habilitan para ser modificados. Si
+     * un checkbox está seleccionado, el campo asociado se habilita.
+     */
     private JCheckBox chkUsuario, chkContrasenia, chkNombres, chkApellidoP, chkApellidoM,
             chkFecha, chkCalle, chkNumero, chkColonia, chkCP;
 
+    // ======================
     // Mostrar contraseña
+    // ======================
+    /**
+     * Indica si la contraseña se está mostrando en texto claro.
+     */
     private boolean passVisible = false;
+
+    /**
+     * Carácter de ocultación original del {@link JPasswordField}.
+     */
     private char passEcho;
 
+    /**
+     * <p>
+     * Constructor de la pantalla de actualización de cliente.
+     * </p>
+     *
+     * <p>
+     * Construye la UI completa, precarga datos del cliente actual y define
+     * eventos para habilitar campos, guardar cambios, navegar a otras pantallas
+     * y desactivar la cuenta.
+     * </p>
+     *
+     * @param pantallaAnterior ventana anterior para regresar al presionar la
+     * flecha
+     * @param ctx contexto global de la aplicación
+     */
     public PantallaActualizarCliente(JFrame pantallaAnterior, AppContext ctx) {
         this.pantallaAnterior = pantallaAnterior;
         this.ctx = ctx;
@@ -63,10 +192,16 @@ public class PantallaActualizarCliente extends JFrame {
         card.setPreferredSize(new Dimension(900, 800));
         root.add(card);
 
-        // ----- parte de arriba -----
+        // ======================
+        // Parte superior (títulos + regreso)
+        // ======================
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
 
+        /**
+         * Botón de regreso (flecha). Si existe una pantalla anterior, se vuelve
+         * a mostrar y se cierra esta ventana.
+         */
         JButton btnFlecha = new JButton("←");
         btnFlecha.setFocusPainted(false);
         btnFlecha.setBorderPainted(false);
@@ -106,7 +241,9 @@ public class PantallaActualizarCliente extends JFrame {
 
         card.add(top, BorderLayout.NORTH);
 
-        // ----- parte central -----
+        // ======================
+        // Parte central (formulario)
+        // ======================
         JPanel center = new JPanel(new GridBagLayout());
         center.setOpaque(false);
         center.setBorder(new EmptyBorder(18, 70, 10, 70));
@@ -121,7 +258,9 @@ public class PantallaActualizarCliente extends JFrame {
         JLabel lblPersonales = new JLabel("Datos personales");
         lblPersonales.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        // ----- Sección acceso -----
+        // ======================
+        // Sección: Acceso
+        // ======================
         addSection(center, g, lblAcceso);
 
         txtUsuario = crearTextField("Usuario");
@@ -136,6 +275,9 @@ public class PantallaActualizarCliente extends JFrame {
 
         chkContrasenia = crearCheckPara(txtContrasenia);
 
+        /**
+         * Botón para alternar la visibilidad de la contraseña.
+         */
         JButton btnOjo = new JButton("👁");
         btnOjo.setFocusPainted(false);
         btnOjo.setBorderPainted(false);
@@ -151,7 +293,9 @@ public class PantallaActualizarCliente extends JFrame {
                 passWrap, chkContrasenia
         );
 
-        // ----- seccion personales -----
+        // ======================
+        // Sección: Personales
+        // ======================
         addSection(center, g, lblPersonales);
 
         txtNombres = crearTextField("Nombres");
@@ -180,6 +324,9 @@ public class PantallaActualizarCliente extends JFrame {
         panelFecha.add(txtMes);
         panelFecha.add(txtAnio);
 
+        /**
+         * Checkbox especial para habilitar los 3 campos de la fecha.
+         */
         chkFecha = new JCheckBox();
         chkFecha.setOpaque(false);
         chkFecha.setPreferredSize(new Dimension(18, 18));
@@ -203,7 +350,9 @@ public class PantallaActualizarCliente extends JFrame {
                 campoConLabel("Apellido materno", txtApellidoM), chkApellidoM
         );
 
-        // Dirección
+        // ======================
+        // Sección: Dirección
+        // ======================
         Direccion dir = clienteActual.getDireccion();
         String calle = dir != null ? nz(dir.getCalle()) : "";
         String colonia = dir != null ? nz(dir.getColonia()) : "";
@@ -238,11 +387,16 @@ public class PantallaActualizarCliente extends JFrame {
 
         card.add(center, BorderLayout.CENTER);
 
-        // ----- abajo -----
+        // ======================
+        // Parte inferior (botones)
+        // ======================
         JButton btnGuardar = crearBoton("Guardar cambios");
         JButton btnHistorial = crearBoton("Consultar historial");
         JButton btnTelefonos = crearBoton("Consultar teléfonos");
 
+        /**
+         * Botón para desactivar la cuenta del cliente.
+         */
         JButton btnDesactivar = new JButton("Desactivar cuenta");
         btnDesactivar.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         btnDesactivar.setFocusPainted(false);
@@ -251,15 +405,31 @@ public class PantallaActualizarCliente extends JFrame {
         btnDesactivar.setBackground(new Color(245, 245, 245));
         btnDesactivar.setPreferredSize(new Dimension(200, 38));
 
+        /**
+         * Guarda cambios seleccionados.
+         */
         btnGuardar.addActionListener(e -> guardarCambios());
+
+        /**
+         * Abre pantalla de historial de pedidos del cliente.
+         */
         btnHistorial.addActionListener(e -> {
             new PantallaHistorialPedidosCliente(this, ctx).setVisible(true);
             dispose();
         });
+
+        /**
+         * Abre pantalla de administración de teléfonos del cliente.
+         */
         btnTelefonos.addActionListener(e -> {
             new PantallaAdministrarTelefonosCliente(this, ctx).setVisible(true);
             dispose();
         });
+
+        /**
+         * Desactiva la cuenta: cambia estado y guarda actualización. Si ocurre
+         * error, restaura estado activo.
+         */
         btnDesactivar.addActionListener(e -> {
             ctx.getClienteActual().setEstado(EstadoCliente.Inactivo);
             try {
@@ -306,6 +476,31 @@ public class PantallaActualizarCliente extends JFrame {
         card.add(south, BorderLayout.SOUTH);
     }
 
+    /**
+     * <p>
+     * Guarda los cambios del cliente basándose únicamente en los campos
+     * seleccionados mediante los checkboxes.
+     * </p>
+     *
+     * <p>
+     * Flujo general:
+     * </p>
+     *
+     * <ol>
+     * <li>Se crea una copia del cliente actual.</li>
+     * <li>Se aplican cambios solo si el checkbox correspondiente está
+     * seleccionado.</li>
+     * <li>Se construye o actualiza la dirección si se modificó algún campo de
+     * dirección.</li>
+     * <li>Se manda a actualizar con {@link iClienteBO}.</li>
+     * <li>Se reinician checks y campos.</li>
+     * </ol>
+     *
+     * <p>
+     * En caso de error de validación o negocio, se muestra un mensaje al
+     * usuario.
+     * </p>
+     */
     private void guardarCambios() {
         try {
             Cliente actualizado = copiarCliente(clienteActual);
@@ -320,8 +515,8 @@ public class PantallaActualizarCliente extends JFrame {
                     throw new NegocioException("La contraseña no puede estar vacía.");
                 }
                 actualizado.setContrasenia(nueva);
-            }else{
-                actualizado.setContrasenia(clienteActual.getContrasenia()); // conservar la contraseña
+            } else {
+                actualizado.setContrasenia(clienteActual.getContrasenia());
             }
 
             if (chkNombres.isSelected()) {
@@ -374,7 +569,17 @@ public class PantallaActualizarCliente extends JFrame {
         }
     }
 
-    // ----- apoyo para los layouts -----
+    // ======================
+    // Apoyo para layouts
+    // ======================
+    /**
+     * Agrega un título de sección dentro del formulario usando
+     * {@link GridBagLayout}.
+     *
+     * @param parent panel contenedor
+     * @param g restricciones de GridBag reutilizadas
+     * @param sectionLabel componente que actúa como título de sección
+     */
     private void addSection(JPanel parent, GridBagConstraints g, JComponent sectionLabel) {
         g.gridx = 0;
         g.gridwidth = 4;
@@ -386,6 +591,17 @@ public class PantallaActualizarCliente extends JFrame {
         g.gridwidth = 1;
     }
 
+    /**
+     * Agrega una fila con 2 campos (izquierda y derecha) más su checkbox
+     * correspondiente.
+     *
+     * @param parent panel contenedor
+     * @param g restricciones de GridBag reutilizadas
+     * @param leftField campo izquierdo
+     * @param leftChk checkbox izquierdo
+     * @param rightField campo derecho
+     * @param rightChk checkbox derecho
+     */
     private void addRow4(JPanel parent, GridBagConstraints g, Component leftField, JCheckBox leftChk,
             Component rightField, JCheckBox rightChk) {
 
@@ -413,11 +629,20 @@ public class PantallaActualizarCliente extends JFrame {
         g.anchor = GridBagConstraints.WEST;
         parent.add(wrapChk((JCheckBox) rightChk), g);
 
-        
         g.gridy++;
     }
 
-    // ----- auxiliares de la interfaz -----
+    // ======================
+    // Auxiliares de interfaz
+    // ======================
+    /**
+     * Construye un panel vertical que contiene un label superior y el
+     * componente de entrada debajo.
+     *
+     * @param label texto del label
+     * @param campo componente que actuará como campo de entrada
+     * @return panel con label + campo
+     */
     private JPanel campoConLabel(String label, Component campo) {
         JPanel p = new JPanel();
         p.setOpaque(false);
@@ -438,6 +663,14 @@ public class PantallaActualizarCliente extends JFrame {
         return p;
     }
 
+    /**
+     * Crea un {@link JTextField} con estilo uniforme y deshabilitado por
+     * defecto.
+     *
+     * @param placeholder texto usado como tooltip para indicar el propósito del
+     * campo
+     * @return campo de texto configurado
+     */
     private JTextField crearTextField(String placeholder) {
         JTextField t = new JTextField();
         estiloCampo(t, placeholder);
@@ -445,6 +678,14 @@ public class PantallaActualizarCliente extends JFrame {
         return t;
     }
 
+    /**
+     * Crea un {@link JTextField} pequeño para fecha (día/mes/año), centrado y
+     * deshabilitado por defecto.
+     *
+     * @param placeholder texto usado como tooltip
+     * @param value valor inicial
+     * @return campo de texto configurado
+     */
     private JTextField crearMini(String placeholder, String value) {
         JTextField t = new JTextField(value);
         estiloCampo(t, placeholder);
@@ -453,6 +694,12 @@ public class PantallaActualizarCliente extends JFrame {
         return t;
     }
 
+    /**
+     * Aplica el estilo visual estándar a un componente de entrada.
+     *
+     * @param c componente a estilizar
+     * @param placeholder texto usado como tooltip
+     */
     private void estiloCampo(JComponent c, String placeholder) {
         c.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         c.setBorder(new CompoundBorder(
@@ -463,6 +710,12 @@ public class PantallaActualizarCliente extends JFrame {
         c.setToolTipText(placeholder);
     }
 
+    /**
+     * Crea un botón con estilo uniforme para acciones principales.
+     *
+     * @param text texto del botón
+     * @return botón configurado
+     */
     private JButton crearBoton(String text) {
         JButton b = new JButton(text);
         b.setPreferredSize(new Dimension(190, 38));
@@ -474,6 +727,15 @@ public class PantallaActualizarCliente extends JFrame {
         return b;
     }
 
+    /**
+     * Crea un checkbox asociado a un campo.
+     * <p>
+     * Al seleccionarse, habilita el campo; al deseleccionarse, lo deshabilita.
+     * </p>
+     *
+     * @param campo componente a controlar
+     * @return checkbox configurado
+     */
     private JCheckBox crearCheckPara(JComponent campo) {
         JCheckBox chk = new JCheckBox();
         chk.setOpaque(false);
@@ -488,6 +750,14 @@ public class PantallaActualizarCliente extends JFrame {
         return chk;
     }
 
+    /**
+     * Envuelve un {@link JPasswordField} junto con un botón de "ojo" para
+     * alternar visibilidad.
+     *
+     * @param pass campo de contraseña
+     * @param ojo botón para mostrar/ocultar
+     * @return panel que contiene ambos componentes
+     */
     private JPanel wrapPassword(JPasswordField pass, JButton ojo) {
         JPanel p = new JPanel(new BorderLayout());
         p.setOpaque(false);
@@ -502,11 +772,22 @@ public class PantallaActualizarCliente extends JFrame {
         return p;
     }
 
+    /**
+     * Alterna si la contraseña se muestra u oculta.
+     * <p>
+     * Si está visible, se usa echoChar 0; si no, se restaura el carácter
+     * original.
+     * </p>
+     */
     private void togglePassword() {
         passVisible = !passVisible;
         txtContrasenia.setEchoChar(passVisible ? (char) 0 : passEcho);
     }
 
+    /**
+     * Reinicia los checkboxes y deshabilita los campos para regresar la
+     * pantalla a estado inicial.
+     */
     private void resetChecksYCampos() {
         JCheckBox[] checks = {chkUsuario, chkContrasenia, chkNombres, chkApellidoP, chkApellidoM, chkFecha,
             chkCalle, chkNumero, chkColonia, chkCP};
@@ -530,6 +811,12 @@ public class PantallaActualizarCliente extends JFrame {
         txtCP.setEnabled(false);
     }
 
+    /**
+     * Crea una copia profunda del cliente base, incluyendo dirección si existe.
+     *
+     * @param base cliente a copiar
+     * @return nuevo objeto Cliente con los mismos datos
+     */
     private Cliente copiarCliente(Cliente base) {
         Cliente c = new Cliente();
         c.setId(base.getId());
@@ -555,6 +842,15 @@ public class PantallaActualizarCliente extends JFrame {
         return c;
     }
 
+    /**
+     * Parsea un entero desde texto y si falla lanza {@link NegocioException}
+     * con mensaje personalizado.
+     *
+     * @param s texto a convertir
+     * @param campo nombre del campo para el mensaje de error
+     * @return entero parseado
+     * @throws NegocioException si el valor no es un número válido
+     */
     private int parseInt(String s, String campo) throws NegocioException {
         try {
             return Integer.parseInt(s.trim());
@@ -563,15 +859,28 @@ public class PantallaActualizarCliente extends JFrame {
         }
     }
 
+    /**
+     * Convierte un texto null a cadena vacía para evitar null en campos de UI.
+     *
+     * @param s texto de entrada
+     * @return cadena vacía si s es null, o s si no es null
+     */
     private String nz(String s) {
         return s == null ? "" : s;
     }
-    
+
+    /**
+     * Envuelve un checkbox dentro de un panel para controlar su tamaño y
+     * alineación.
+     *
+     * @param chk checkbox a envolver
+     * @return panel contenedor del checkbox
+     */
     private JPanel wrapChk(JCheckBox chk) {
         JPanel p = new JPanel(new BorderLayout());
         p.setOpaque(false);
-        p.setPreferredSize(new Dimension(26, 40));  
-        p.add(chk, BorderLayout.NORTH);             
+        p.setPreferredSize(new Dimension(26, 40));
+        p.add(chk, BorderLayout.NORTH);
         return p;
     }
 }

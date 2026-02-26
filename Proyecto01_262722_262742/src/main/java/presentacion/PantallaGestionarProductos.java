@@ -16,16 +16,86 @@ import javax.swing.table.TableCellRenderer;
 import negocio.Excepciones.NegocioException;
 
 /**
+ * <h1>PantallaGestionarProductos</h1>
+ *
+ * <p>
+ * Pantalla administrativa para <b>gestionar productos</b> del sistema.
+ * </p>
+ *
+ * <p>
+ * La UI presenta:
+ * </p>
+ * <ul>
+ * <li>Botón de regreso hacia {@link MenuEmpleado}.</li>
+ * <li>Tabla con información de productos (ID, nombre, tipo, precio y
+ * estado).</li>
+ * <li>Columna de acción <b>Editar</b> para abrir
+ * {@link PantallaEditarProducto}.</li>
+ * <li>Columna de acción <b>Activar/Desactivar</b> según el estado actual del
+ * producto.</li>
+ * <li>Botón para abrir {@link PantallaAgregarProducto}.</li>
+ * <li>Footer informativo.</li>
+ * </ul>
+ *
+ * <h2>Carga de datos</h2>
+ * <p>
+ * Los productos se consultan desde la capa de negocio mediante
+ * {@code ctx.getProductoBO().listarProductos()}. La tabla se reconstruye en
+ * {@link #cargarProductos()}.
+ * </p>
+ *
+ * <h2>Acciones en la tabla</h2>
+ * <ul>
+ * <li><b>Editar:</b> abre {@link PantallaEditarProducto} con el id del producto
+ * seleccionado.</li>
+ * <li><b>Activar/Desactivar:</b> solicita confirmación con
+ * {@link DialogConfirmacion} y actualiza el estado del producto en la capa de
+ * negocio.</li>
+ * </ul>
  *
  * @author
  */
 public class PantallaGestionarProductos extends JFrame {
 
+    /**
+     * Contexto global de la aplicación; permite acceder a BOs y estado de
+     * sesión.
+     */
     private final AppContext ctx;
 
+    /**
+     * Tabla principal donde se listan los productos.
+     */
     private JTable tabla;
+
+    /**
+     * Modelo de la tabla; contiene filas con los datos renderizados y columnas
+     * de acciones.
+     */
     private DefaultTableModel modelo;
 
+    /**
+     * <p>
+     * Constructor de la pantalla de gestión de productos.
+     * </p>
+     *
+     * <p>
+     * Construye la interfaz con:
+     * </p>
+     * <ul>
+     * <li>Fondo beige y tarjeta blanca central</li>
+     * <li>Top con flecha de regreso</li>
+     * <li>Títulos</li>
+     * <li>Tabla con acciones (Editar / Activar-Desactivar)</li>
+     * <li>Botón "Agregar producto" y footer</li>
+     * </ul>
+     *
+     * <p>
+     * Finalmente invoca {@link #cargarProductos()} para mostrar el listado.
+     * </p>
+     *
+     * @param ctx contexto global de la aplicación
+     */
     public PantallaGestionarProductos(AppContext ctx) {
         this.ctx = ctx;
 
@@ -57,6 +127,9 @@ public class PantallaGestionarProductos extends JFrame {
         JPanel panelSuperior = new JPanel(new BorderLayout());
         panelSuperior.setOpaque(false);
 
+        /**
+         * Botón de regreso hacia {@link MenuEmpleado}.
+         */
         JButton btnBack = new JButton("←");
         btnBack.setFocusPainted(false);
         btnBack.setBorderPainted(false);
@@ -87,6 +160,9 @@ public class PantallaGestionarProductos extends JFrame {
         panelCentro.add(Box.createVerticalStrut(18));
 
         // ✅ Tabla con 2 acciones (Editar / Activar-Desactivar)
+        /**
+         * Columnas de la tabla: datos del producto y columnas de acciones.
+         */
         String[] columnas = {"ID", "Nombre", "Tipo", "Precio", "Estado", "Editar", "Acción"};
 
         modelo = new DefaultTableModel(columnas, 0) {
@@ -136,6 +212,9 @@ public class PantallaGestionarProductos extends JFrame {
         panelPrincipal.add(panelCentro, BorderLayout.CENTER);
 
         // ---- SOUTH (botón + footer) ----
+        /**
+         * Botón para abrir la pantalla de agregar producto.
+         */
         JButton btnAgregar = crearBotonPequeno("Agregar producto");
 
         JLabel footer = new JLabel("© 2026 Panadería. Todos los derechos reservados.");
@@ -150,11 +229,17 @@ public class PantallaGestionarProductos extends JFrame {
         panelPrincipal.add(panelInferior, BorderLayout.SOUTH);
 
         // ---- Acciones ----
+        /**
+         * Regresa al menú del empleado.
+         */
         btnBack.addActionListener(e -> {
             new MenuEmpleado(ctx).setVisible(true);
             this.dispose();
         });
 
+        /**
+         * Abre {@link PantallaAgregarProducto} y oculta esta pantalla.
+         */
         btnAgregar.addActionListener(e -> {
             new PantallaAgregarProducto(ctx, this).setVisible(true);
             this.setVisible(false);
@@ -163,6 +248,30 @@ public class PantallaGestionarProductos extends JFrame {
         cargarProductos();
     }
 
+    /**
+     * <p>
+     * Carga los productos desde la capa de negocio y los inserta como filas en
+     * {@link #modelo}.
+     * </p>
+     *
+     * <p>
+     * La tabla muestra:
+     * </p>
+     * <ul>
+     * <li>ID</li>
+     * <li>Nombre</li>
+     * <li>Tipo</li>
+     * <li>Precio formateado</li>
+     * <li>Estado (con "_" reemplazado por espacios)</li>
+     * <li>Texto "Editar" (columna renderizada con botón)</li>
+     * <li>Columna de acción (render/editor define "Activar" o
+     * "Desactivar")</li>
+     * </ul>
+     *
+     * <p>
+     * En caso de error, se notifica con un {@link JOptionPane}.
+     * </p>
+     */
     private void cargarProductos() {
         try {
             modelo.setRowCount(0);
@@ -194,8 +303,20 @@ public class PantallaGestionarProductos extends JFrame {
     }
 
     // ====== BOTÓN EDITAR ======
+    /**
+     * <p>
+     * Renderer para la columna "Editar".
+     * </p>
+     *
+     * <p>
+     * Renderiza un {@link JButton} con texto "Editar" en cada fila.
+     * </p>
+     */
     private class EditarRenderer extends JButton implements TableCellRenderer {
 
+        /**
+         * Configura el estilo del botón renderizado para la columna "Editar".
+         */
         public EditarRenderer() {
             setOpaque(true);
             setText("Editar");
@@ -212,11 +333,34 @@ public class PantallaGestionarProductos extends JFrame {
         }
     }
 
+    /**
+     * <p>
+     * Editor para la columna "Editar".
+     * </p>
+     *
+     * <p>
+     * Permite capturar el click en el botón para abrir
+     * {@link PantallaEditarProducto} con el id del producto de la fila
+     * seleccionada.
+     * </p>
+     */
     private class EditarEditor extends DefaultCellEditor {
 
+        /**
+         * Botón que se muestra dentro de la celda al editar.
+         */
         private final JButton button;
+
+        /**
+         * Índice de la fila actualmente editada.
+         */
         private int row;
 
+        /**
+         * Constructor del editor de "Editar".
+         *
+         * @param checkBox checkbox requerido por {@link DefaultCellEditor}
+         */
         public EditarEditor(JCheckBox checkBox) {
             super(checkBox);
 
@@ -229,7 +373,7 @@ public class PantallaGestionarProductos extends JFrame {
             button.addActionListener(e -> {
                 try {
                     int idProducto = Integer.parseInt(String.valueOf(modelo.getValueAt(row, 0)));
-                    
+
                     new PantallaEditarProducto(ctx, PantallaGestionarProductos.this, idProducto).setVisible(true);
                     PantallaGestionarProductos.this.setVisible(false);
                 } finally {
@@ -252,8 +396,24 @@ public class PantallaGestionarProductos extends JFrame {
     }
 
     // ====== BOTÓN ACTIVAR/DESACTIVAR ======
+    /**
+     * <p>
+     * Renderer para la columna "Acción".
+     * </p>
+     *
+     * <p>
+     * El texto del botón depende del estado visible en la tabla:
+     * </p>
+     * <ul>
+     * <li>Si el estado es "Disponible" → muestra "Desactivar"</li>
+     * <li>En caso contrario → muestra "Activar"</li>
+     * </ul>
+     */
     private class AccionRenderer extends JButton implements TableCellRenderer {
 
+        /**
+         * Configura el estilo del botón renderizado para la columna de acción.
+         */
         public AccionRenderer() {
             setOpaque(true);
             setFont(new Font("Segoe UI", Font.PLAIN, 12));
@@ -272,11 +432,41 @@ public class PantallaGestionarProductos extends JFrame {
         }
     }
 
+    /**
+     * <p>
+     * Editor para la columna "Acción" (Activar/Desactivar).
+     * </p>
+     *
+     * <p>
+     * Al hacer click:
+     * </p>
+     * <ul>
+     * <li>Obtiene el id del producto desde la fila</li>
+     * <li>Determina si está disponible (según el texto mostrado en la
+     * tabla)</li>
+     * <li>Pide confirmación con {@link DialogConfirmacion}</li>
+     * <li>Consulta el producto real en negocio</li>
+     * <li>Actualiza el estado del producto y persiste</li>
+     * <li>Refresca la tabla llamando {@link #cargarProductos()}</li>
+     * </ul>
+     */
     private class AccionEditor extends DefaultCellEditor {
 
+        /**
+         * Botón que se muestra dentro de la celda al editar.
+         */
         private final JButton button;
+
+        /**
+         * Índice de la fila actualmente editada.
+         */
         private int row;
 
+        /**
+         * Constructor del editor de acción.
+         *
+         * @param checkBox checkbox requerido por {@link DefaultCellEditor}
+         */
         public AccionEditor(JCheckBox checkBox) {
             super(checkBox);
 
@@ -346,6 +536,14 @@ public class PantallaGestionarProductos extends JFrame {
     }
 
     // ====== UI ======
+    /**
+     * <p>
+     * Crea un botón pequeño con el estilo visual utilizado en esta pantalla.
+     * </p>
+     *
+     * @param text texto del botón
+     * @return botón configurado con estilo
+     */
     private JButton crearBotonPequeno(String text) {
         JButton b = new JButton(text);
         b.setPreferredSize(new Dimension(170, 28));

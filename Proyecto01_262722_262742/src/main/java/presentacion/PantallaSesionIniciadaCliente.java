@@ -6,11 +6,81 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 
+/**
+ * <h1>PantallaSesionIniciadaCliente</h1>
+ *
+ * <p>
+ * Pantalla mostrada después de que un <b>cliente</b> inicia sesión correctamente.
+ * Permite elegir el tipo de pedido (<b>Programado</b> o <b>Express</b>), acceder a la
+ * actualización de perfil del cliente y cerrar sesión.
+ * </p>
+ *
+ * <p>
+ * La UI presenta:
+ * </p>
+ * <ul>
+ *   <li>Barra superior con mensaje de bienvenida y botón de usuario (👤).</li>
+ *   <li>Título principal "Panadería".</li>
+ *   <li>Instrucción "Selecciona el tipo de pedido:".</li>
+ *   <li>Botón <b>Programado</b> que navega a {@link PantallaCatalogo}.</li>
+ *   <li>Botón <b>Express</b> que navega a {@link PantallaCatalogoExpress}.</li>
+ *   <li>Botón <b>Cerrar Sesión</b> que regresa a {@link Menu}.</li>
+ *   <li>Footer informativo.</li>
+ * </ul>
+ *
+ * <h2>Cliente en sesión</h2>
+ * <p>
+ * El cliente actual se obtiene desde el contexto con {@code ctx.getClienteActual()} y se usa para
+ * mostrar un saludo basado en {@code cliente.getUsuario()}.
+ * </p>
+ *
+ * <h2>Acceso a perfil</h2>
+ * <p>
+ * Al presionar el ícono 👤 se abre {@link PantallaActualizarCliente} pasando la pantalla actual
+ * como referencia (para navegación) y el {@link AppContext}.
+ * </p>
+ *
+ * @author
+ */
 public class PantallaSesionIniciadaCliente extends JFrame {
 
+    /**
+     * Contexto global de la aplicación; permite acceder a BOs y estado de sesión.
+     */
     private final AppContext ctx;
+
+    /**
+     * Cliente actualmente autenticado, obtenido desde {@link AppContext}.
+     */
     private final Cliente cliente;
 
+    /**
+     * <p>
+     * Constructor de la pantalla de sesión iniciada del cliente.
+     * </p>
+     *
+     * <p>
+     * Construye la interfaz con:
+     * </p>
+     * <ul>
+     *   <li>Fondo beige y tarjeta blanca con borde negro.</li>
+     *   <li>Barra superior con bienvenida y botón de perfil (👤).</li>
+     *   <li>Sección central con opciones de pedido: Programado y Express.</li>
+     *   <li>Sección inferior con botón para cerrar sesión y footer.</li>
+     * </ul>
+     *
+     * <p>
+     * Registra listeners para:
+     * </p>
+     * <ul>
+     *   <li>Abrir {@link PantallaActualizarCliente} (botón 👤).</li>
+     *   <li>Abrir {@link PantallaCatalogo} (Programado).</li>
+     *   <li>Abrir {@link PantallaCatalogoExpress} (Express).</li>
+     *   <li>Regresar a {@link Menu} (Cerrar Sesión).</li>
+     * </ul>
+     *
+     * @param ctx contexto global de la aplicación
+     */
     public PantallaSesionIniciadaCliente(AppContext ctx) {
         this.ctx = ctx;
         this.cliente = ctx.getClienteActual();
@@ -50,6 +120,9 @@ public class PantallaSesionIniciadaCliente extends JFrame {
         JLabel lblBienvenida = new JLabel("Bienvenid@, " + nombreMostrar);
         lblBienvenida.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
+        /**
+         * Botón de ícono de usuario que abre {@link PantallaActualizarCliente}.
+         */
         JButton btnUsuario = crearBotonIconoUsuario();
         btnUsuario.addActionListener(e -> {
             new PantallaActualizarCliente(this, ctx).setVisible(true);
@@ -75,6 +148,9 @@ public class PantallaSesionIniciadaCliente extends JFrame {
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 18));
 
+        /**
+         * Botón para continuar con el flujo de pedido programado.
+         */
         JButton btnProgramado = crearBotonGrande("Programado");
         btnProgramado.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -83,6 +159,9 @@ public class PantallaSesionIniciadaCliente extends JFrame {
         notaProgramado.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         notaProgramado.setForeground(new Color(90, 90, 90));
 
+        /**
+         * Botón para continuar con el flujo de pedido express.
+         */
         JButton btnExpress = crearBotonGrande("Express");
         btnExpress.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -110,7 +189,9 @@ public class PantallaSesionIniciadaCliente extends JFrame {
         JPanel south = new JPanel(new BorderLayout());
         south.setOpaque(false);
 
-        // Botón Cerrar sesión
+        /**
+         * Botón para cerrar sesión y volver a {@link Menu}.
+         */
         JButton btnCerrarSesion = new JButton("Cerrar Sesión");
         btnCerrarSesion.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         btnCerrarSesion.setFocusPainted(false);
@@ -159,6 +240,14 @@ public class PantallaSesionIniciadaCliente extends JFrame {
         });
     }
 
+    /**
+     * <p>
+     * Crea un botón grande con el estilo estándar de esta pantalla.
+     * </p>
+     *
+     * @param text texto del botón
+     * @return {@link JButton} configurado con tamaño, bordes y fuente
+     */
     private JButton crearBotonGrande(String text) {
         JButton b = new JButton(text);
         b.setPreferredSize(new Dimension(360, 70));
@@ -174,6 +263,13 @@ public class PantallaSesionIniciadaCliente extends JFrame {
         return b;
     }
 
+    /**
+     * <p>
+     * Crea un botón de ícono (👤) usado para acceder a acciones relacionadas al perfil del cliente.
+     * </p>
+     *
+     * @return botón de ícono de usuario configurado sin fondo ni borde
+     */
     private JButton crearBotonIconoUsuario() {
         JButton b = new JButton("👤");
         b.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 26));
