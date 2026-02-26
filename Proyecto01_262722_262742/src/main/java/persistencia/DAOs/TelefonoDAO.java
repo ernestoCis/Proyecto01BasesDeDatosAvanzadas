@@ -41,7 +41,7 @@ public class TelefonoDAO implements iTelefonoDAO {
     
     /**
      * Constructor que inicializa la dependencia de conexión.
-     * * @param conexionBD Objeto que gestiona la creación de conexiones a la base de datos.
+     * @param conexionBD Objeto que gestiona la creación de conexiones a la base de datos.
      */
     public TelefonoDAO(iConexionBD conexionBD) {
         this.conexionBD = conexionBD;

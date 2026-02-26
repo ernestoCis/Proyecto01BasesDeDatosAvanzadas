@@ -37,9 +37,12 @@ public class UsuarioDAO implements iUsuarioDAO {
 
     /**
      * Constructor que inicializa la dependencia de conexión.
-     * * @param conexionBD Objeto que gestiona la creación de conexiones a la base de datos.
+     * @param conexionBD Objeto que gestiona la creación de conexiones a la base de datos.
      */
     public UsuarioDAO(iConexionBD conexionBD) {
+        /**
+         * conexion
+         */
         this.conexionBD = conexionBD;
     }
 

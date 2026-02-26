@@ -103,7 +103,13 @@ public class PantallaActualizarCliente extends JFrame {
      * Campos de fecha: día, mes y año.
      */
     private JTextField txtDia;
+    /**
+     * texto
+     */
     private JTextField txtMes;
+    /**
+     * texto
+     */
     private JTextField txtAnio;
 
     // ======================

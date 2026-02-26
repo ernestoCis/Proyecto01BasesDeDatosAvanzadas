@@ -73,7 +73,13 @@ public class PantallaAgregarProducto extends JFrame {
      * Campos del formulario.
      */
     private JTextField txtNombre;
+    /**
+     * texto
+     */
     private JTextField txtPrecio;
+    /**
+     * texto
+     */
     private JTextField txtDescripcion;
 
     /**
