@@ -57,6 +57,7 @@ public interface iPedidoDAO {
 
     /**
      * metodo para obtener todos los pedidos
+     *
      * @return lista de pedidos
      * @throws PersistenciaException excepcion por si falla el sql
      */
@@ -64,22 +65,25 @@ public interface iPedidoDAO {
 
     /**
      * metodo que cambia el estado de un pedido
+     *
      * @param idPedido id del pedido a cambiar su estado
      * @param nuevoEstado nuevo estado para el pedido
      * @throws PersistenciaException excepcion por si falla el sql
      */
     public void actualizarEstadoPedido(int idPedido, EstadoPedido nuevoEstado) throws PersistenciaException;
-    
+
     /**
      * metodo que lista los pedidos de un cliente
+     *
      * @param idCliente id del cliente ora buscar sus pedidos
      * @return regresa la lista de pedidos de un cliente
      * @throws PersistenciaException excepcion por si el sql falla
      */
     public List<Pedido> listarPedidosPorCliente(int idCliente) throws PersistenciaException;
-    
+
     /**
      * metodo que filtra los pedidos por cliente y filtros adicionales
+     *
      * @param idCliente id del cliente del que buscaremos sus pedidos
      * @param folio folio del pedido a buscar
      * @param fechaInicio fecha de inicio para el rengo de fechas a buscar
@@ -89,7 +93,7 @@ public interface iPedidoDAO {
      */
     public List<Pedido> listarPedidosPorClienteFiltro(int idCliente, String folio, LocalDate fechaInicio, LocalDate fechaFin) throws PersistenciaException;
 
-     /**
+    /**
      * metodo que valida que el atributo numero medido no este dentro de la BD
      *
      * @param numeroPedido numero a consultar
@@ -97,19 +101,43 @@ public interface iPedidoDAO {
      * @throws PersistenciaException excepcion por si el sql falla
      */
     public boolean existeFolio(String folio) throws PersistenciaException;
-    
+
     /**
      * metodo que mos dice cual sera el siguiente numero de pedido disponible
+     *
      * @return regresa el sihuiente numero disponible
      * @throws PersistenciaException execpecion por si el sql falla
      */
     public int obtenerSiguienteNumeroDePedido() throws PersistenciaException;
-    
+
     /**
      * metodo que cuenta los pedidos activos por cliente
+     *
      * @param idCliente cliente el cual se contaran sus pedidos activos
      * @return numero de pedidos activos
      * @throws PersistenciaException excepcion por si el sql falla
      */
     public int contarPedidosActivosPorCliente(int idCliente) throws PersistenciaException;
+
+    /**
+     * Metodo que lista los pedidos aplicando filtros opcionales. 
+     *
+     * @param folio folio del pedido express (puede ser null)
+     * @param telefono telefono del cliente (puede ser null)
+     * @param fechaInicio fecha inicial del rango (puede ser null)
+     * @param fechaFin fecha final del rango (puede ser null)
+     * @return lista de pedidos filtrados
+     * @throws PersistenciaException excepcion por si falla el sql
+     */
+    public List<Pedido> listarPedidosFiltro(String folio, String telefono,
+            LocalDate fechaInicio, LocalDate fechaFin) throws PersistenciaException;
+
+    /**
+     * Metodo que obtiene el hash del PIN guardado para un pedido express.    
+     * 
+     * @param idPedido id del pedido express
+     * @return hash del pin almacenado en la base de datos
+     * @throws PersistenciaException excepcion por si el sql falla
+     */
+    public String obtenerPinHashPorPedido(int idPedido) throws PersistenciaException;
 }
