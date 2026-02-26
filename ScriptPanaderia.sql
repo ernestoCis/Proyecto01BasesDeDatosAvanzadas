@@ -12,7 +12,6 @@ CREATE TABLE Productos(
     estado ENUM("Disponible", "No disponible"),
     descripcion VARCHAR(100) NOT NULL
 );
-INSERT INTO Productos(nombre, tipo, precio, estado, descripcion) values("Concha", "Dulce", 18, "Disponible", "Cocncha de vainilla");
 
 -- Tabla Cupones
 CREATE TABLE Cupones(
@@ -24,7 +23,6 @@ CREATE TABLE Cupones(
     numero_usos INT NOT NULL DEFAULT 0,
     tope_usos INT NOT NULL
 );
-INSERT INTO Cupones(descuento, fecha_vencimiento, fecha_inicio, nombre, tope_usos) VALUES(10, "2026-03-15", "2026-01-01", "PAN10", 10);
 
 -- Tabla usuarios
 CREATE TABLE Usuarios(
@@ -131,8 +129,33 @@ BEFORE UPDATE ON Pedidos
 FOR EACH ROW
 BEGIN
     IF NEW.estado = 'Entregado' AND OLD.estado <> 'Entregado' THEN
-        SET NEW.fecha_entrega = CURRENT_DATE();
+        SET NEW.fecha_entrega = NOW();
     END IF;
 END$$
 
 DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_insertar_empleado(
+    IN p_usuario VARCHAR(20),
+    IN p_contrasenia VARCHAR(100)
+)
+BEGIN
+
+    START TRANSACTION;
+
+    INSERT INTO Usuarios(usuario, contrasenia, rol)
+    VALUES (p_usuario, p_contrasenia, 'Empleado');
+
+    INSERT INTO Empleados(id_usuario)
+    VALUES (LAST_INSERT_ID());
+
+    COMMIT;
+
+END $$
+
+DELIMITER ;
+
+INSERT INTO Productos(nombre, tipo, precio, estado, descripcion) values("Concha", "Dulce", 18, "Disponible", "Cocncha de vainilla");
+INSERT INTO Cupones(descuento, fecha_vencimiento, fecha_inicio, nombre, tope_usos) VALUES(10, "2026-03-15", "2026-01-01", "PAN10", 10);
