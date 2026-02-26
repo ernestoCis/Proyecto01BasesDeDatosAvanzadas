@@ -14,24 +14,45 @@ import persistencia.Conexion.iConexionBD;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
+ * <b>Data Access Object (DAO) para la gestión de Usuarios.</b>
+ * <p>Esta clase maneja la persistencia y consulta de los usuarios del sistema. 
+ * Dado que el sistema maneja distintos tipos de usuarios (Empleados y Clientes), 
+ * este DAO realiza las consultas uniendo la tabla base (usuarios) con sus 
+ * respectivas tablas hijas (empleados o clientes).</p>
  *
- * @author Isaac
+ * @author 262722
+ * @author 262742
  */
 public class UsuarioDAO implements iUsuarioDAO {
 
     /**
-     * Conexion con la base de datos
+     * Componente encargado de crear conexiones con la base de datos.
      */
     private final iConexionBD conexionBD;
+    
     /**
-     * Logger para registrar información relevantes
+     * Logger para registrar información relevante y errores durante operaciones de persistencia.
      */
     private static final Logger LOG = Logger.getLogger(UsuarioDAO.class.getName());
 
+    /**
+     * Constructor que inicializa la dependencia de conexión.
+     * * @param conexionBD Objeto que gestiona la creación de conexiones a la base de datos.
+     */
     public UsuarioDAO(iConexionBD conexionBD) {
         this.conexionBD = conexionBD;
     }
 
+    
+
+    /**
+     * Consulta y recupera un Empleado específico utilizando su nombre de usuario.
+     * <p>Realiza un INNER JOIN entre las tablas 'usuarios' y 'empleados' para
+     * obtener tanto las credenciales como los datos específicos del empleado.</p>
+     * * @param usuario Nombre de usuario (credencial) del empleado a buscar.
+     * @return Objeto {@link Empleado} poblado con los datos de la BD, o <code>null</code> si no se encuentra.
+     * @throws PersistenciaException Si ocurre un error de SQL durante la consulta.
+     */
     @Override
     public Empleado consultarEmpleadoPorUsuario(String usuario) throws PersistenciaException {
 
@@ -55,19 +76,25 @@ public class UsuarioDAO implements iUsuarioDAO {
                 emp.setId(rs.getInt("id"));
                 emp.setUsuario(rs.getString("usuario"));
                 emp.setContrasenia(rs.getString("contrasenia"));
-
                 emp.setRol(RolUsuario.valueOf(rs.getString("rol")));
 
                 return emp;
             }
 
         } catch (SQLException e) {
-            e.printStackTrace(); // <-- TEMPORAL para ver el error real
             LOG.log(Level.WARNING, "Error consultando empleado: " + e.getMessage());
             throw new PersistenciaException("Error al consultar empleado por usuario", e);
         }
     }
 
+    /**
+     * Consulta y recupera un Cliente específico utilizando su nombre de usuario.
+     * <p>Realiza un INNER JOIN entre las tablas 'usuarios' y 'clientes' para
+     * obtener las credenciales, rol y datos personales del cliente.</p>
+     * * @param usuario Nombre de usuario (credencial) del cliente a buscar.
+     * @return Objeto {@link Cliente} poblado con los datos de la BD, o <code>null</code> si no se encuentra.
+     * @throws PersistenciaException Si ocurre un error de SQL durante la consulta.
+     */
     @Override
     public Cliente consultarClientePorUsuario(String usuario) throws PersistenciaException {
 
