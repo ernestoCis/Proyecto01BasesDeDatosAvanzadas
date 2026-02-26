@@ -23,8 +23,15 @@ import persistencia.Conexion.iConexionBD;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
+ * <b>Clase DAO (Data Access Object) concreta para la gestión de Clientes.</b>
+ * <p>Esta clase implementa la interfaz <code>iClienteDAO</code> y se encarga de toda 
+ * la interacción directa con la base de datos MySQL para la entidad Cliente. 
+ * Gestiona operaciones complejas y transaccionales, asegurando que los registros 
+ * en las tablas de <code>usuarios</code>, <code>clientes</code>, <code>direcciones</code> 
+ * y <code>telefonos</code> mantengan integridad referencial (ACID).</p>
  *
- * @author 
+ * @author 262722
+ * @author 262742
  */
 public class ClienteDAO implements iClienteDAO{
     
@@ -37,10 +44,23 @@ public class ClienteDAO implements iClienteDAO{
      */
     private static final Logger LOG = Logger.getLogger(PedidoDAO.class.getName());
     
+    /**
+     * Constructor que inyecta la dependencia de la conexión a la base de datos.
+     * * @param conexionBD Interfaz que provee las conexiones a la BD.
+     */
     public ClienteDAO(iConexionBD conexionBD){
         this.conexionBD = conexionBD;
     }
 
+    /**
+     * Consulta toda la información de un cliente utilizando su nombre de usuario.
+     * <p>Realiza un cruce de datos (JOIN) entre usuarios y clientes, y ejecuta 
+     * consultas adicionales para recuperar su dirección y su lista de teléfonos.</p>
+     * * @param usuario El nombre de usuario (credencial) a buscar.
+     * @return Un objeto <code>Cliente</code> completamente hidratado con todos sus datos, 
+     * o <code>null</code> si el usuario no existe.
+     * @throws PersistenciaException Si ocurre un error ejecutando las sentencias SQL.
+     */
     @Override
     public Cliente consultarCliente(String usuario) throws PersistenciaException {
 
@@ -148,6 +168,17 @@ public class ClienteDAO implements iClienteDAO{
         }
     }
 
+    /**
+     * Registra un nuevo cliente en el sistema manejando una transacción completa.
+     * <p>Inserta secuencialmente en las tablas <code>usuarios</code>, <code>clientes</code>, 
+     * <code>direcciones</code> y <code>telefonos</code> (usando Batch processing). 
+     * Si alguna de las inserciones falla, se realiza un <code>rollback</code> automático 
+     * para no dejar registros huérfanos.</p>
+     * * @param cliente El objeto Cliente con toda su información personal y credenciales.
+     * @param telefono Un teléfono principal a asociar con el nuevo cliente.
+     * @return El mismo objeto Cliente, pero actualizado con el ID generado por la BD.
+     * @throws PersistenciaException Si ocurre un error en la transacción o inserción.
+     */
     @Override
     public Cliente insertarCliente(Cliente cliente, Telefono telefono) throws PersistenciaException {
 
@@ -283,6 +314,15 @@ public class ClienteDAO implements iClienteDAO{
         }
     }
 
+    /**
+     * Actualiza la información personal, credenciales y dirección de un cliente.
+     * <p>Utiliza una transacción manual para asegurar que todas las tablas relacionadas 
+     * se actualicen al mismo tiempo. Si ocurre un fallo en cualquiera de las 
+     * actualizaciones, se revierte toda la operación.</p>
+     * * @param cliente El objeto Cliente con los datos modificados.
+     * @return El mismo objeto Cliente si la actualización fue exitosa.
+     * @throws PersistenciaException Si ocurre un error de SQL o la transacción falla.
+     */
     @Override
     public Cliente actualizarCliente(Cliente cliente) throws PersistenciaException {
         String comandoSQLUsuario = """
@@ -327,9 +367,9 @@ public class ClienteDAO implements iClienteDAO{
                 ps.setString(1, cliente.getNombres().trim());
                 ps.setString(2, cliente.getApellidoPaterno().trim());
 
-                if (cliente.getApellidoMaterno() == null || cliente.getApellidoMaterno().trim().isEmpty()) {
-                    ps.setNull(3, java.sql.Types.VARCHAR);
-                } else {
+                if(cliente.getApellidoMaterno() == null || cliente.getApellidoMaterno().trim().isEmpty()){
+                    ps.setNull(3, Types.VARCHAR);
+                }else{
                     ps.setString(3, cliente.getApellidoMaterno().trim());
                 }
 
@@ -383,6 +423,16 @@ public class ClienteDAO implements iClienteDAO{
         }
     }
     
+    /**
+     * Reemplaza por completo la lista de teléfonos de un cliente.
+     * <p>Esta operación es transaccional: primero elimina físicamente (DELETE) 
+     * todos los teléfonos asociados al cliente, y luego inserta (INSERT) los 
+     * teléfonos proporcionados en la nueva lista mediante procesamiento por lotes (Batch).</p>
+     * * @param idCliente El identificador único del cliente dueño de los teléfonos.
+     * @param telefonos La nueva lista de objetos <code>Telefono</code> a guardar.
+     * @return La lista de teléfonos limpios (sin nulos) que fueron insertados exitosamente.
+     * @throws PersistenciaException Si ocurre un error en la eliminación o inserción en lote.
+     */
     @Override
     public List<Telefono> insertarTelefonos(int idCliente, List<Telefono> telefonos) throws PersistenciaException {
         String sqlDelete = """

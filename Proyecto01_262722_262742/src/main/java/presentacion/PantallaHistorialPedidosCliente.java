@@ -223,7 +223,7 @@ public class PantallaHistorialPedidosCliente extends JFrame {
         } else if (pedido instanceof PedidoExpress pe) {
             izquierda.add(labelInfo("Tipo: EXPRESS"));
             izquierda.add(labelInfo("Folio: " + pe.getFolio()));
-            izquierda.add(labelInfo("PIN: " + pe.getPin()));
+//            izquierda.add(labelInfo("PIN: " + pe.getPin()));
             izquierda.add(labelInfo("Fecha: " + (pe.getFechaCreacion() != null ? pe.getFechaCreacion().format(fmt) : "")));
             izquierda.add(labelInfo("Estado: " + pe.getEstado()));
             izquierda.add(Box.createVerticalStrut(6));

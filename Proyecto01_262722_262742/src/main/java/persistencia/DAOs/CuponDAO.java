@@ -15,8 +15,14 @@ import persistencia.Conexion.iConexionBD;
 import persistencia.Excepciones.PersistenciaException;
 
 /**
+ * <b>Clase DAO concreta para la gestión de Cupones de descuento.</b>
+ * <p>Esta clase implementa la interfaz <code>iCuponDAO</code> y centraliza las 
+ * operaciones de lectura y actualización de cupones en la base de datos. Permite 
+ * validar la existencia de promociones y llevar el control del conteo de usos 
+ * para respetar los límites establecidos por el negocio.</p>
  *
- * @author
+ * @author 262722
+ * @author 262742
  */
 public class CuponDAO implements iCuponDAO{
     
@@ -33,18 +39,21 @@ public class CuponDAO implements iCuponDAO{
     private static final Logger LOG = Logger.getLogger(CuponDAO.class.getName());
     
     /**
-     * metodo para inicializar la conexion
-     * @param conexionBD objeto de conexión
+     * Constructor que inicializa la conexión inyectando la dependencia de la BD.
+     * @param conexionBD Interfaz que provee el acceso a la conexión física.
      */
     public CuponDAO(iConexionBD conexionBD) {
         this.conexionBD = conexionBD;
     }
 
     /**
-     * metodo para consultar los datos de un cupon
-     * @param nombreCupon nombre del cupon a buscar
-     * @return cupon consultado
-     * @throws PersistenciaException excepcion por si falla el sql
+     * Consulta los datos detallados de un cupón mediante su nombre identificador.
+     * <p>Recupera información crítica como el porcentaje de descuento, las fechas 
+     * de vigencia y el estado actual de los usos registrados.</p>
+     * * @param nombreCupon El nombre o código del cupón a buscar (ej. "PROMO2026").
+     * @return Un objeto <code>Cupon</code> con la información recuperada, o <code>null</code> 
+     * si no existe un registro con ese nombre.
+     * @throws PersistenciaException Si ocurre una falla en la ejecución del SQL o en la conexión.
      */
     @Override
     public Cupon consultarCupon(String nombreCupon) throws PersistenciaException {
@@ -81,6 +90,14 @@ public class CuponDAO implements iCuponDAO{
         
     }
 
+    /**
+     * Incrementa en una unidad el contador de usos de un cupón específico.
+     * <p>Este método es fundamental para el control de inventario de promociones, 
+     * asegurando que cada vez que se finaliza un pedido con cupón, este se registre 
+     * para no exceder el <code>tope_usos</code>.</p>
+     * * @param idCupon El identificador único (ID) del cupón a actualizar.
+     * @throws PersistenciaException Si el ID no existe o si hay un error de comunicación con la BD.
+     */
     @Override
     public void incrementarUsoCupon(int idCupon) throws PersistenciaException {
         String comandoSQL = "UPDATE cupones SET numero_usos = numero_usos + 1 WHERE id = ?";

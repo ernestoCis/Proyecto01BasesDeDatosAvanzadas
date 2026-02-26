@@ -5,6 +5,7 @@
 package negocio.BOs;
 
 import dominio.Cliente;
+import dominio.EstadoCliente;
 import dominio.Telefono;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -183,9 +184,16 @@ public class ClienteBO implements iClienteBO{
                 throw new NegocioException("Formato de apellido paterno invalido");
             }
             
-            if(cliente.getApellidoMaterno() != null || !cliente.getApellidoMaterno().trim().isEmpty()){
-                if (!cliente.getApellidoMaterno().matches(regexApellido)) {
-                    throw new NegocioException("Formato de apellido materno invalido");
+            String apellidoMaterno = cliente.getApellidoMaterno();
+            
+            if (apellidoMaterno != null) {
+                apellidoMaterno = apellidoMaterno.trim();
+                if (!apellidoMaterno.isEmpty()) {
+                    if (!apellidoMaterno.matches(regexApellido)) {
+                        throw new NegocioException("Formato de apellido materno invalido");
+                    }
+                } else {
+                    cliente.setApellidoMaterno(null);
                 }
             }
             
@@ -203,16 +211,37 @@ public class ClienteBO implements iClienteBO{
             if (cliente.getFechaNacimiento().isBefore(limiteAntiguedad)) {
                 throw new NegocioException("Fecha de nacimiento invalida");
             }
+            
+            if(cliente.getFechaNacimiento() == null){
+                throw new NegocioException("La fecha de nacimiento no puede estar vacia");
+            }
+            
+            String regexCalleColonia = "^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\\s.,-]{2,100}$";
+            if(!cliente.getDireccion().getCalle().matches(regexCalleColonia)){
+                throw new NegocioException("Formato de calle invalido");
+            }
+            
+            String regexNumero = "^[0-9]+$";
+            if(!String.valueOf(cliente.getDireccion().getNumero()).matches(regexNumero)){
+                throw new NegocioException("Formato del numero de casa invalido");
+            }
+            
+            String regexCP = "^[0-9]{5}$";
+            if(!String.valueOf(cliente.getDireccion().getCp()).matches(regexCP)){
+                throw new NegocioException("Formato del codigo postal invalido");
+            }
+            
+            
         
         try{
             Cliente actualBD = clienteDAO.consultarCliente(cliente.getUsuario());
-
+            
+            cliente.setId(actualBD.getId());
+            
             if (cliente == null) {
                 throw new NegocioException("Cliente inválido.");
             }
-            if (cliente.getId() <= 0) {
-                throw new NegocioException("ID de cliente inválido.");
-            }
+            
 
             if (isBlank(cliente.getUsuario())) {
                 throw new NegocioException("El usuario no puede estar vacío.");
@@ -244,11 +273,13 @@ public class ClienteBO implements iClienteBO{
                 }
             }
             
+            cliente.setEstado(EstadoCliente.Activo);
+            
             try {
                 return clienteDAO.actualizarCliente(cliente);
             } catch (PersistenciaException ex) {
                 LOG.warning("No se pudo actualizar el cliente: " + ex.getMessage());
-                throw new NegocioException("No se pudo actualizar el cliente.", ex);
+                throw new NegocioException("No se pudo actualizar el cliente. " + ex.getMessage(), ex);
             }
         }catch(PersistenciaException ex){
             throw new NegocioException(ex.getMessage(), ex);
