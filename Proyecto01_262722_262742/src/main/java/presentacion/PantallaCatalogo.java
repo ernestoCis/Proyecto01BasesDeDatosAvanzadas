@@ -15,8 +15,6 @@ import negocio.BOs.iUsuarioBO;
 import negocio.Excepciones.NegocioException;
 
 /**
- * <h1>PantallaCatalogo</h1>
- *
  * <p>
  * Pantalla que muestra el <b>catálogo de productos</b> para el cliente (flujo
  * no express).

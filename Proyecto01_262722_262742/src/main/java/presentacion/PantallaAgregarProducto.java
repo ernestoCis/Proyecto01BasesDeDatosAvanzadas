@@ -16,8 +16,6 @@ import javax.swing.border.*;
 import negocio.Excepciones.NegocioException;
 
 /**
- * <h1>PantallaAgregarProducto</h1>
- *
  * <p>
  * Pantalla gráfica utilizada por el empleado para <b>registrar un nuevo
  * producto</b> en el sistema.

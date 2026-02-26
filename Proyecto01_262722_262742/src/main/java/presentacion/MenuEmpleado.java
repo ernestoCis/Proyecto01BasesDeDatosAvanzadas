@@ -5,8 +5,6 @@
 package presentacion;
 
 /**
- * <h1>MenuEmpleado</h1>
- *
  * <p>
  * Ventana principal para el flujo de trabajo del <b>empleado</b> dentro del
  * sistema.

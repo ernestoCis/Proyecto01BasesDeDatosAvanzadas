@@ -7,8 +7,6 @@ package presentacion;
 import javax.swing.JFrame;
 
 /**
- * <h1>Menu</h1>
- *
  * <p>
  * Ventana principal del sistema de la Panadería.
  * </p>

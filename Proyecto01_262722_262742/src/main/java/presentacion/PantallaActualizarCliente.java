@@ -10,8 +10,6 @@ import java.time.LocalDate;
 import negocio.Excepciones.NegocioException;
 
 /**
- * <h1>PantallaActualizarCliente</h1>
- *
  * <p>
  * Pantalla gráfica que permite al cliente visualizar y actualizar la
  * información de su cuenta.

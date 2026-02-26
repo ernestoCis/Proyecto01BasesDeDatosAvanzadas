@@ -10,8 +10,6 @@ import persistencia.Conexion.iConexionBD;
 import persistencia.DAOs.*;
 
 /**
- * <h1>FabricaAplicacion</h1>
- *
  * <p>
  * Clase responsable de la creación y ensamblaje de todas las dependencias
  * principales del sistema.

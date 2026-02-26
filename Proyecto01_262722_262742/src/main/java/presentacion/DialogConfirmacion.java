@@ -5,8 +5,6 @@
 package presentacion;
 
 /**
- * <h1>DialogConfirmacion</h1>
- *
  * <p>
  * Clase que representa un cuadro de diálogo modal personalizado para solicitar
  * confirmación al usuario.

@@ -16,8 +16,6 @@ import java.util.List;
 import negocio.Excepciones.NegocioException;
 
 /**
- * <h1>PantallaConfirmarPedido</h1>
- *
  * <p>
  * Pantalla final del flujo de <b>pedido programado</b> donde el cliente revisa
  * su carrito, puede capturar <b>notas por producto</b>, validar un <b>cupón

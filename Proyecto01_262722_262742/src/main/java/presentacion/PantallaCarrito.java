@@ -9,8 +9,6 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * <h1>PantallaCarrito</h1>
- *
  * <p>
  * Pantalla que muestra el <b>carrito de compras</b> del cliente.
  * </p>

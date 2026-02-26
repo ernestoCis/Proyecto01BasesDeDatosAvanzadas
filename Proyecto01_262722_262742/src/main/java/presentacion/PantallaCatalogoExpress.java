@@ -17,8 +17,6 @@ import java.util.List;
 import negocio.Excepciones.NegocioException;
 
 /**
- * <h1>PantallaCatalogoExpress</h1>
- *
  * <p>
  * Pantalla que muestra el <b>catálogo de productos</b> en el flujo
  * <b>Express</b>.

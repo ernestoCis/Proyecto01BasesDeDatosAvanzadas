@@ -14,9 +14,7 @@ import negocio.BOs.iPedidoBO;
 import negocio.BOs.iProductoBO;
 import negocio.BOs.iUsuarioBO;
 
-/**
- * <h1>AppContext</h1>
- *
+/** 
  * <p>
  * Clase que representa el <b>contexto general de la aplicación</b>. Su función
  * principal es centralizar:

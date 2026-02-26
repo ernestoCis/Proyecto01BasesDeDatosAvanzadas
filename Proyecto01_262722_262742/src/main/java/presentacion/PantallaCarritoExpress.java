@@ -13,8 +13,6 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * <h1>PantallaCarritoExpress</h1>
- *
  * <p>
  * Pantalla que muestra el <b>carrito de compras</b> para el flujo de <b>pedido
  * EXPRESS</b>.

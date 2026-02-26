@@ -12,8 +12,6 @@ import java.util.List;
 import negocio.Excepciones.NegocioException;
 
 /**
- * <h1>PantallaAdministrarTelefonosCliente</h1>
- *
  * <p>
  * Pantalla que permite al cliente <b>administrar (visualizar, agregar, editar y
  * eliminar)</b>
