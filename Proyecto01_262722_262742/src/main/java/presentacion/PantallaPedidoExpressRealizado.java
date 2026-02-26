@@ -17,44 +17,41 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
- * <h1>PantallaPedidoExpressRealizado</h1>
+ * <h2>PantallaPedidoExpressRealizado</h1>
  *
  * <p>
- * Pantalla de confirmación final para el flujo <b>Express</b>, mostrada después
- * de registrar correctamente un {@link PedidoExpress}. Presenta al cliente los
- * datos clave del pedido (folio, PIN, total, fecha y método de pago) y un aviso
- * de tiempo límite para recoger.
+ * Pantalla de confirmación final para el flujo <b>Express</b>, mostrada después de registrar
+ * correctamente un {@link PedidoExpress}. Presenta al cliente los datos clave del pedido
+ * (folio, PIN, total, fecha y método de pago) y un aviso de tiempo límite para recoger.
  * </p>
  *
  * <p>
  * La UI presenta:
  * </p>
  * <ul>
- * <li>Encabezado con título <b>Panadería</b> y etiqueta <b>EXPRESS</b>.</li>
- * <li>Mensaje de éxito: "Pedido realizado correctamente".</li>
- * <li>Aviso con ícono 🔔 indicando 20 minutos para recoger el pedido.</li>
- * <li>Cajas informativas centradas con: Folio, PIN, Total, Fecha y Método de
- * pago.</li>
- * <li>Botón <b>Listo</b> que regresa a {@link Menu}.</li>
- * <li>Footer informativo.</li>
+ *   <li>Encabezado con título <b>Panadería</b> y etiqueta <b>EXPRESS</b>.</li>
+ *   <li>Mensaje de éxito: "Pedido realizado correctamente".</li>
+ *   <li>Aviso con ícono 🔔 indicando 20 minutos para recoger el pedido.</li>
+ *   <li>Cajas informativas centradas con: Folio, PIN, Total, Fecha y Método de pago.</li>
+ *   <li>Botón <b>Listo</b> que regresa a {@link Menu}.</li>
+ *   <li>Footer informativo.</li>
  * </ul>
  *
  * <h2>Obtención de datos</h2>
  * <p>
- * Para poblar los campos, se leen propiedades del pedido usando reflexión
- * mediante {@link #getProp(java.lang.Object, java.lang.String...)} y
- * {@link #getStringProp(java.lang.Object, java.lang.String...)}. Esto permite
- * tolerancia si el modelo cambia nombres de getters (por ejemplo,
- * {@code getFolio}, {@code getFolioPedido}, etc.).
+ * Para poblar los campos, se leen propiedades del pedido usando reflexión mediante
+ * {@link #getProp(java.lang.Object, java.lang.String...)} y
+ * {@link #getStringProp(java.lang.Object, java.lang.String...)}. Esto permite tolerancia
+ * si el modelo cambia nombres de getters (por ejemplo, {@code getFolio}, {@code getFolioPedido}, etc.).
  * </p>
  *
  * <h2>Formato</h2>
  * <ul>
- * <li>El total se formatea con {@link #formatearDinero(java.lang.Object)}.</li>
- * <li>La fecha se formatea con {@link #formatearFecha(java.lang.Object)}.</li>
+ *   <li>El total se formatea con {@link #formatearDinero(java.lang.Object)}.</li>
+ *   <li>La fecha se formatea con {@link #formatearFecha(java.lang.Object)}.</li>
  * </ul>
  *
- * @author
+ * @author 262722, 2627242
  */
 public class PantallaPedidoExpressRealizado extends JFrame {
 

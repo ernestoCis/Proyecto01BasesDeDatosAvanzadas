@@ -60,7 +60,7 @@ import negocio.Excepciones.NegocioException;
  * y, si se registra, se navega a {@link PantallaPedidoProgramadoRealizado}.
  * </p>
  *
- * @author
+ * @author 262722, 2627242
  */
 public class PantallaConfirmarPedido extends JFrame {
 

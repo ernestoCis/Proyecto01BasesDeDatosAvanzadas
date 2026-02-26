@@ -44,7 +44,6 @@ import negocio.Excepciones.NegocioException;
  * <li>El usuario llena el formulario.</li>
  * <li>Se valida la información.</li>
  * <li>Se construye un objeto {@link Producto}.</li>
- * <li>Se inserta usando {@link iProductoBO} desde el {@link AppContext}.</li>
  * <li>Si se seleccionó imagen, se intenta guardar y se notifica si falla.</li>
  * <li>Se regresa a la pantalla padre y se refresca la gestión de
  * productos.</li>

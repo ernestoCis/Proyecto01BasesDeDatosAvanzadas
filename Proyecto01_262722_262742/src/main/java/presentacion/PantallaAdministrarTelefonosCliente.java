@@ -43,10 +43,6 @@ import negocio.Excepciones.NegocioException;
  * <li><b>Regresar</b>: vuelve a la pantalla anterior si existe.</li>
  * </ul>
  *
- * <p>
- * Esta pantalla utiliza {@link AppContext} para obtener el cliente en sesión y
- * comunicarse con la capa de negocio ({@link iClienteBO}).
- * </p>
  *
  * @author 262722, 2627242
  */
