@@ -1,6 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
 package com.mycompany.proyecto01_262722_262742;
 
 import javax.swing.SwingUtilities;
@@ -38,19 +35,38 @@ import presentacion.AppContext;
 import presentacion.Menu;
 
 /**
+ * <b>Clase Principal del Sistema de Pedidos de la Panadería.</b>
+ * <p>Esta clase sirve como el punto de entrada para la aplicación. Se encarga de
+ * inicializar y conectar todas las capas del sistema de forma estructurada, incluyendo:</p>
+ * <ul>
+ * <li>Conexión a la base de datos.</li>
+ * <li><b>DAOs</b> (Data Access Objects) para manejar la persistencia de datos.</li>
+ * <li><b>BOs</b> (Business Objects) para manejar las reglas y lógica de negocio.</li>
+ * </ul>
+ * <p>Finalmente, encapsula estas dependencias en un contexto (<code>AppContext</code>) 
+ * y arranca la interfaz gráfica del usuario.</p>
  *
- * @author jesus
+ * @author 262722
+ * @author 262742
  */
 public class Proyecto01_262722_262742 {
 
+    /**
+     * Método principal que arranca la ejecución del programa.
+     * <p>Utiliza <code>SwingUtilities.invokeLater</code> para asegurar que la
+     * interfaz gráfica (GUI) se construya y muestre de forma segura dentro del 
+     * hilo de despacho de eventos (EDT) de Java Swing.</p>
+     *
+     * @param args Los argumentos de la línea de comandos (no se utilizan en este proyecto).
+     */
     public static void main(String[] args) {
 
         SwingUtilities.invokeLater(() -> {
 
-            // ===== Conexion =====
+            // ----- conexion -----
             iConexionBD conexion = new ConexionBD();
 
-            // ===== DAOs =====
+            // ----- DAOs -----
             iUsuarioDAO usuarioDAO = new UsuarioDAO(conexion);
             iProductoDAO productoDAO = new ProductoDAO(conexion);
             iCuponDAO cuponDAO = new CuponDAO(conexion);
@@ -59,7 +75,7 @@ public class Proyecto01_262722_262742 {
             iDetallePedidoDAO detallePedidoDAO = new DetallePedidoDAO(conexion);
             iEmpleadoDAO empleadoDAO = new EmpleadoDAO(conexion);
 
-            // ===== BOs =====
+            // ----- BOs -----
             iUsuarioBO usuarioBO = new UsuarioBO(usuarioDAO);
             iProductoBO productoBO = new ProductoBO(productoDAO);
             iCuponBO cuponBO = new CuponBO(cuponDAO);
@@ -68,7 +84,7 @@ public class Proyecto01_262722_262742 {
             iEmpleadoBO empleadoBO = new EmpleadoBO(empleadoDAO);
             iDetallePedidoBO detallePedidoBO = new DetallePedidoBO(detallePedidoDAO);
 
-            // ===== AppContext =====
+            // ----- AppContext -----
             AppContext ctx = new AppContext(
                     usuarioBO,
                     productoBO,
@@ -79,7 +95,7 @@ public class Proyecto01_262722_262742 {
                     detallePedidoBO 
             );
 
-            // ===== Ejecutar Menu =====
+            // ----- Ejecutar menu -----
             new Menu(ctx).setVisible(true);
 
         });
